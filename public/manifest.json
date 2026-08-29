@@ -1,0 +1,19 @@
+{
+  "short_name": "Harmony OS",
+  "name": "Harmony Super App - Mini App Ecosystem",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/gh/lucide-icons/lucide/icons/layers.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "iOS style Super App integrating all Harmony WebApps (Notes, Docs, Writing, Music, Docs AI) with Firebase sync.",
+  "categories": ["productivity", "utilities", "entertainment"]
+}

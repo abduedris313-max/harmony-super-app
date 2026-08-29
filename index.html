@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Harmony OS Super App</title>
+    <meta name="description" content="An iOS-style Super App ecosystem integrating all Harmony Mini Apps (Notes, Docs, Writing, Music Player, Docs AI) with Firebase authentication and cloud sync." />
+    <meta property="og:title" content="Harmony OS Super App" />
+    <meta property="og:description" content="An iOS-style Super App ecosystem integrating all Harmony Mini Apps (Notes, Docs, Writing, Music Player, Docs AI) with Firebase authentication and cloud sync." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- PWA Manifest & Theme -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- iOS Specific WebApp Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Harmony OS" />
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/lucide-icons/lucide/icons/layers.svg" />
+
+    <!-- Lucide Icon CDN Link -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="bg-black text-slate-100 antialiased overflow-hidden select-none">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

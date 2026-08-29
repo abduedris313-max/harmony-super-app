@@ -1,0 +1,6 @@
+{
+  "name": "Harmony OS Super App",
+  "description": "An iOS-style Super App ecosystem integrating all Harmony Mini Apps (Notes, Docs, Writing, Music Player, Docs AI) with Firebase authentication and cloud sync.",
+  "requestFramePermissions": ["microphone", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
