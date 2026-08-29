@@ -130,46 +130,45 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
       initial={{ scale: 0.94, opacity: 0, y: 30 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.94, opacity: 0, y: 30 }}
-      className={`w-full flex-1 flex flex-col bg-[#0d1117] overflow-hidden relative ${isFullscreen ? 'fixed inset-0 z-50' : 'max-w-6xl mx-auto rounded-t-2xl border-t border-x border-[#30363d] shadow-2xl'}`}
+      className={`w-full flex-1 flex flex-col bg-[#0d1117] overflow-hidden relative min-h-0 ${isFullscreen ? 'fixed inset-0 z-50' : 'max-w-6xl mx-auto rounded-t-xl border-t border-x border-[#30363d] shadow-2xl'}`}
     >
-      {/* iOS App Navigation Header */}
-      <div className="h-14 px-4 bg-[#161b22] border-b border-[#30363d] flex items-center justify-between text-[#c9d1d9] shrink-0 z-20">
-        <div className="flex items-center gap-3">
+      {/* iOS App Navigation Header - Compact 10px height */}
+      <div className="h-10 px-3 bg-[#161b22] border-b border-[#30363d] flex items-center justify-between text-[#c9d1d9] shrink-0 z-20">
+        <div className="flex items-center gap-2">
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] hover:text-white flex items-center gap-1 text-xs font-semibold px-2.5 transition-colors border border-[#30363d]"
+            className="p-1 rounded-md bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] hover:text-white flex items-center gap-0.5 text-[11px] font-semibold px-2 transition-colors border border-[#30363d]"
           >
-            <ChevronLeft className="w-4 h-4 text-indigo-400" />
+            <ChevronLeft className="w-3.5 h-3.5 text-indigo-400" />
             <span>Home</span>
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${app.colorGradient} flex items-center justify-center text-white font-bold text-xs shadow-md`}>
+          <div className="flex items-center gap-1.5">
+            <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${app.colorGradient} flex items-center justify-center text-white font-bold text-[10px] shadow-sm`}>
               📱
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white leading-tight">{app.name}</h3>
-              <p className="text-[10px] text-[#8b949e] leading-tight hidden sm:block">{app.tagline}</p>
+              <h3 className="text-xs font-bold text-white leading-none">{app.name}</h3>
             </div>
           </div>
         </div>
 
         {/* Mode Switcher & Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Mode Switcher Pill */}
-          <div className="flex items-center bg-[#0d1117] p-1 rounded-xl border border-[#30363d] text-xs">
+          <div className="flex items-center bg-[#0d1117] p-0.5 rounded-lg border border-[#30363d] text-[10px]">
             <button
               onClick={() => setMode('native')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all ${mode === 'native' ? 'bg-indigo-600 text-white shadow-md' : 'text-[#8b949e] hover:text-white'}`}
+              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all ${mode === 'native' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#8b949e] hover:text-white'}`}
             >
-              <Cloud className="w-3 h-3" />
+              <Cloud className="w-2.5 h-2.5" />
               <span>Native</span>
             </button>
             <button
               onClick={() => setMode('iframe')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all ${mode === 'iframe' ? 'bg-indigo-600 text-white shadow-md' : 'text-[#8b949e] hover:text-white'}`}
+              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all ${mode === 'iframe' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#8b949e] hover:text-white'}`}
             >
-              <Globe className="w-3 h-3" />
+              <Globe className="w-2.5 h-2.5" />
               <span>GitHub Pages</span>
             </button>
           </div>
@@ -179,10 +178,10 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
             href={app.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden md:flex"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden md:flex"
             title="Open GitHub Repository"
           >
-            <Github className="w-4 h-4" />
+            <Github className="w-3.5 h-3.5" />
           </a>
 
           {/* Open Deployment in New Tab */}
@@ -190,36 +189,36 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
             href={app.deployedUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
             title="Open Deployed WebApp"
           >
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-3.5 h-3.5" />
           </a>
 
           {/* IFrame Refresh */}
           {mode === 'iframe' && (
             <button
               onClick={() => setIframeKey(k => k + 1)}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
               title="Refresh IFrame"
             >
-              <RotateCw className="w-4 h-4" />
+              <RotateCw className="w-3.5 h-3.5" />
             </button>
           )}
 
           {/* Fullscreen Toggle */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden sm:flex"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden sm:flex"
             title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
 
       {/* Mini App Content View */}
-      <div className="flex-1 w-full relative overflow-hidden flex flex-col">
+      <div className="flex-1 w-full relative overflow-hidden flex flex-col min-h-0">
         {mode === 'iframe' ? (
           <iframe
             key={iframeKey}

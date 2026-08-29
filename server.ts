@@ -4,6 +4,7 @@
  * Handles API endpoints, Gemini AI integration, app metadata, and SPA asset serving.
  */
 
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import path from 'path';
 import { GoogleGenAI } from '@google/genai';
@@ -110,7 +111,7 @@ app.get('/api/harmony/apps', (_req: Request, res: Response) => {
 /**
  * Gemini AI Proxy endpoint for Harmony Super App
  */
-app.post('/api/harmony/ai', async (req: Request, res: Response) => {
+app.post(['/api/harmony/ai', '/api/gemini'], async (req: Request, res: Response) => {
   try {
     const { prompt, context, taskType } = req.body;
 

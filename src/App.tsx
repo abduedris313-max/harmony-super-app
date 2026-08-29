@@ -187,7 +187,7 @@ export default function App() {
       />
 
       {/* Primary View Router: Active Mini App OR Home Screen */}
-      <main className="flex-1 w-full flex flex-col relative z-10 overflow-hidden">
+      <main className="flex-1 w-full flex flex-col relative z-10 overflow-hidden min-h-0">
         {activeAppConfig ? (
           <AppRunner
             app={activeAppConfig}

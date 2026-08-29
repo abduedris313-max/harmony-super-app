@@ -35,14 +35,14 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   return (
     <div 
       id="status-bar" 
-      className="w-full h-11 px-6 flex items-center justify-between text-xs font-semibold text-[#c9d1d9] z-40 relative backdrop-blur-md bg-[#0d1117]/80 select-none border-b border-[#30363d]"
+      className="w-full h-8 px-3.5 flex items-center justify-between text-[11px] font-semibold text-[#c9d1d9] z-40 relative backdrop-blur-md bg-[#0d1117]/80 select-none border-b border-[#30363d]"
     >
       {/* Time Display */}
-      <div className="flex items-center gap-2 cursor-pointer" onClick={onOpenControlCenter}>
-        <span className="font-bold tracking-tight text-sm text-white">{timeStr || '9:41'}</span>
+      <div className="flex items-center gap-1.5 cursor-pointer" onClick={onOpenControlCenter}>
+        <span className="font-bold tracking-tight text-xs text-white">{timeStr || '9:41'}</span>
         {isFirebaseConnected && (
-          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] border border-amber-500/30">
-            <Flame className="w-3 h-3 text-amber-400 animate-pulse" />
+          <span className="flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 text-[9px] border border-amber-500/30">
+            <Flame className="w-2.5 h-2.5 text-amber-400 animate-pulse" />
             <span className="hidden sm:inline">Firebase</span>
           </span>
         )}
@@ -63,10 +63,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
-              className="px-3 py-1 bg-neutral-900/90 border border-neutral-700/80 rounded-full flex items-center gap-2 shadow-lg backdrop-blur-xl"
+              className="px-2.5 py-0.5 bg-neutral-900/90 border border-neutral-700/80 rounded-full flex items-center gap-1.5 shadow-lg backdrop-blur-xl"
             >
-              <Disc className="w-3.5 h-3.5 text-fuchsia-400 animate-spin" />
-              <span className="max-w-[120px] sm:max-w-[180px] truncate text-[11px] text-fuchsia-200 font-medium">
+              <Disc className="w-3 h-3 text-fuchsia-400 animate-spin" />
+              <span className="max-w-[120px] sm:max-w-[180px] truncate text-[10px] text-fuchsia-200 font-medium">
                 {activeMusicTrack}
               </span>
             </motion.div>
@@ -76,18 +76,18 @@ export const StatusBar: React.FC<StatusBarProps> = ({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
-              className="px-3 py-1 bg-purple-950/80 border border-purple-500/50 rounded-full flex items-center gap-1.5 shadow-lg backdrop-blur-xl"
+              className="px-2.5 py-0.5 bg-purple-950/80 border border-purple-500/50 rounded-full flex items-center gap-1 shadow-lg backdrop-blur-xl"
             >
-              <Sparkles className="w-3.5 h-3.5 text-purple-300 animate-bounce" />
-              <span className="text-[11px] text-purple-200 font-medium">Harmony AI Thinking...</span>
+              <Sparkles className="w-3 h-3 text-purple-300 animate-bounce" />
+              <span className="text-[10px] text-purple-200 font-medium">AI Thinking...</span>
             </motion.div>
           ) : (
             <motion.div
               key="default-island"
-              className="h-5 w-24 bg-black/80 rounded-full border border-neutral-800/80 flex items-center justify-center gap-1.5 shadow-inner"
+              className="h-4 w-20 bg-black/80 rounded-full border border-neutral-800/80 flex items-center justify-center gap-1 shadow-inner"
             >
-              <div className="w-2 h-2 rounded-full bg-slate-400/80"></div>
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-600/60"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-400/80"></div>
+              <div className="w-1 h-1 rounded-full bg-slate-600/60"></div>
             </motion.div>
           )}
         </AnimatePresence>
