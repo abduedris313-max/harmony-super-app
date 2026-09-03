@@ -9,6 +9,10 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
+    match /system_settings/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
     match /harmony_notes/{document} {
       allow read, write: if isAuthenticated();
     }
@@ -26,6 +30,30 @@ service cloud.firestore {
     }
 
     match /harmony_ai_chats/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /harmony_calendar/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /harmony_finance_transactions/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /harmony_finance_accounts/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /harmony_finance_budgets/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /harmony_finance_loans/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /harmony_finance_subscriptions/{document} {
       allow read, write: if isAuthenticated();
     }
   }

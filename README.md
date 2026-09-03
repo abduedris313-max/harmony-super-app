@@ -15,6 +15,8 @@ All Harmony WebApps are accessible via responsive iOS-style mini app frames and 
 | **harmony-writing** | [abduedris313-max.github.io/harmony-writing](https://abduedris313-max.github.io/harmony-writing/) | [github.com/abduedris313-max/harmony-writing](https://github.com/abduedris313-max/harmony-writing) | Focus-mode writing studio with daily word targets & typewriter sound FX |
 | **harmony-music-player** | [abduedris313-max.github.io/harmony-music-player](https://abduedris313-max.github.io/harmony-music-player/) | [github.com/abduedris313-max/harmony-music-player](https://github.com/abduedris313-max/harmony-music-player) | iOS Music Player with playlists, equalizer, synthesizer & background playback |
 | **harmony-docs-ai** | [abduedris313-max.github.io/harmony-docs-ai](https://abduedris313-max.github.io/harmony-docs-ai/) | [github.com/abduedris313-max/harmony-docs-ai](https://github.com/abduedris313-max/harmony-docs-ai) | Gemini AI powered document analysis, chat assistant & smart summaries |
+| **harmony-calendar** | [abduedris313-max.github.io/harmony-calendar](https://abduedris313-max.github.io/harmony-calendar/) | [github.com/abduedris313-max/harmony-calendar](https://github.com/abduedris313-max/harmony-calendar) | Tri-calendar platform (Gregorian, Hijri, Ethiopian) with astronomical converter & Google Calendar two-way sync |
+| **harmony-finance** | [abduedris313-max.github.io/harmony-finance](https://abduedris313-max.github.io/harmony-finance/) | [github.com/abduedris313-max/harmony-finance](https://github.com/abduedris313-max/harmony-finance) | Financial services suite: Expense & Income tracking, category budgeting, ledger accounts, loan EMI & amortization, and AI Advisor |
 
 ---
 
@@ -22,11 +24,14 @@ All Harmony WebApps are accessible via responsive iOS-style mini app frames and 
 
 - **Modular Multi-App Architecture**:
   - Each mini-app is merged into a self-contained module inside `/src/apps/` (`notes/`, `docs/`, `writing/`, `music/`, `docs-ai/`) containing dedicated component trees, types, Web Audio synthesizers, and Firestore hooks.
-- **iOS 18 Look & Feel**:
+- **iOS 18 Look & Feel & Focus Mode**:
   - Glassmorphic top headers, dynamic island notifications, springboard launcher grid, bottom dock, control center slider drawer, spotlight global search, and 3D app switcher card stack.
-- **Firebase Authentication & Cloud Storage**:
+  - **Focus Mode**: Quick toggle in Control Center that completely silences non-essential system sounds (typewriter clicks, chimes, UI audio) and suppresses banner notifications into a dedicated silenced tray.
+  - Top Status Bar dynamically displays the iOS crescent Moon Focus indicator when active.
+- **Firebase Authentication, Firestore Storage & Cross-Device Settings Sync**:
   - Firebase Auth (Anonymous & Email accounts).
   - Firestore Database persistence for Notes, Docs, Writing Drafts, Music Playlists, and Gemini AI Chat histories.
+  - **SystemSettings Multi-Device Sync**: User theme preferences (Dark Mode / Light Mode), master volume levels, and Focus Mode state persist and synchronize in real-time across devices via the `/system_settings/{userId}` Firestore collection.
 - **Full-Stack Express + Vite Setup**:
   - Express server (`server.ts`) handles API routes (`/api/harmony/ai`, `/api/gemini`, `/api/harmony/apps`, `/api/health`).
   - Bundled for production using `esbuild` into a single CommonJS file at `dist/server.cjs`.

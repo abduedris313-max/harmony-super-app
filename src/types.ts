@@ -88,14 +88,54 @@ export interface HarmonyAiChat {
   updatedAt: string;
 }
 
+export interface HarmonyCalendarEvent {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  location?: string;
+  // Gregorian anchor ISO date (YYYY-MM-DD)
+  gregorianDate: string;
+  startTime?: string; // HH:mm
+  endTime?: string;   // HH:mm
+  allDay: boolean;
+  color?: string;
+  category?: 'Personal' | 'Work' | 'Religious' | 'Holiday' | 'Other';
+  // Cached tri-calendar dates
+  hijriDate?: string;
+  ethiopianDate?: string;
+  // Google Calendar integration
+  googleEventId?: string;
+  syncedToGoogle?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ThemeMode = 'dark' | 'light' | 'system';
+export type ThemePreset = 'slate' | 'oled' | 'sunset' | 'emerald' | 'lavender';
+
 export interface SystemSettings {
   isDarkMode: boolean;
+  themeMode?: ThemeMode;
+  themePreset?: ThemePreset;
   volume: number;
   brightness: number;
   typewriterSounds: boolean;
   hapticFeedback: boolean;
   defaultViewMode: 'native' | 'iframe'; // 'iframe' loads GitHub Pages deployment, 'native' loads Firebase cloud version
   accentColor: string;
+  focusMode: boolean; // Focus Mode: suppresses notifications and mutes non-essential system sounds
+  updatedAt?: string;
+}
+
+export interface SystemNotification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: string;
+  appName?: string;
+  icon?: string;
+  suppressedByFocus?: boolean;
 }
 
 export interface SystemUser {

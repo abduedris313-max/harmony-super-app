@@ -28,7 +28,8 @@ import {
   Firestore 
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { HarmonyNote, HarmonyDoc, HarmonyWritingDraft, HarmonyPlaylist, HarmonyAiChat } from '../types';
+import { HarmonyNote, HarmonyDoc, HarmonyWritingDraft, HarmonyPlaylist, HarmonyAiChat, HarmonyCalendarEvent, SystemSettings } from '../types';
+import { FinanceTransaction, FinanceAccount, FinanceBudget, FinanceLoan, FinanceSubscription } from '../apps/finance/types';
 
 let app: FirebaseApp;
 if (!getApps().length) {
@@ -38,7 +39,7 @@ if (!getApps().length) {
 }
 
 export const auth = getAuth(app);
-export const db: Firestore = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+export const db: Firestore = getFirestore(app);
 
 // -----------------------------------------------------------------------------
 // AUTHENTICATION HELPERS
@@ -278,3 +279,346 @@ export function subscribeHarmonyAiChats(userId: string, callback: (chats: Harmon
     console.warn('[Firestore AI Chats Listener Warning]', err);
   });
 }
+
+// -----------------------------------------------------------------------------
+// SYSTEM SETTINGS FIRESTORE PERSISTENCE & MULTI-DEVICE SYNC
+// -----------------------------------------------------------------------------
+
+const SYSTEM_SETTINGS_COLLECTION = 'system_settings';
+
+/**
+ * Persists user system preferences (theme, volume, focusMode, etc.) to Firestore
+ * so that they sync across devices in real time.
+ */
+export async function saveSystemSettings(userId: string, settings: Partial<SystemSettings>): Promise<SystemSettings> {
+  const settingsRef = doc(db, SYSTEM_SETTINGS_COLLECTION, userId);
+  const data: Partial<SystemSettings> & { userId: string; updatedAt: string } = {
+    ...settings,
+    userId,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    await setDoc(settingsRef, data, { merge: true });
+    // Also save into users document for cross-compatibility
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, { settings: data, updatedAt: data.updatedAt }, { merge: true }).catch(() => {});
+  } catch (err) {
+    console.warn('[Firestore SystemSettings Save Warning]', err);
+  }
+
+  return data as SystemSettings;
+}
+
+/**
+ * Subscribes to real-time updates for a user's system settings across devices.
+ */
+export function subscribeSystemSettings(userId: string, callback: (settings: SystemSettings) => void) {
+  const settingsRef = doc(db, SYSTEM_SETTINGS_COLLECTION, userId);
+  return onSnapshot(settingsRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data() as SystemSettings;
+      callback(data);
+    }
+  }, (err) => {
+    console.warn('[Firestore SystemSettings Listener Warning]', err);
+  });
+}
+
+// -----------------------------------------------------------------------------
+// HARMONY CALENDAR FIRESTORE CRUD
+// -----------------------------------------------------------------------------
+
+const CALENDAR_COLLECTION = 'harmony_calendar';
+
+export async function saveHarmonyCalendarEvent(
+  userId: string,
+  event: Partial<HarmonyCalendarEvent> & { id: string; title: string; gregorianDate: string }
+): Promise<HarmonyCalendarEvent> {
+  const ref = doc(db, CALENDAR_COLLECTION, event.id);
+  const data: HarmonyCalendarEvent = {
+    id: event.id,
+    userId,
+    title: event.title,
+    description: event.description || '',
+    location: event.location || '',
+    gregorianDate: event.gregorianDate,
+    startTime: event.startTime || '09:00',
+    endTime: event.endTime || '10:00',
+    allDay: event.allDay ?? false,
+    color: event.color || '#ef4444',
+    category: event.category || 'Personal',
+    hijriDate: event.hijriDate || '',
+    ethiopianDate: event.ethiopianDate || '',
+    googleEventId: event.googleEventId || '',
+    syncedToGoogle: event.syncedToGoogle || false,
+    createdAt: event.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(ref, data, { merge: true });
+  return data;
+}
+
+export async function deleteHarmonyCalendarEvent(eventId: string): Promise<void> {
+  await deleteDoc(doc(db, CALENDAR_COLLECTION, eventId));
+}
+
+export function subscribeHarmonyCalendarEvents(userId: string, callback: (events: HarmonyCalendarEvent[]) => void) {
+  const q = query(
+    collection(db, CALENDAR_COLLECTION),
+    where('userId', '==', userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const events: HarmonyCalendarEvent[] = [];
+    snapshot.forEach((docSnap) => {
+      events.push(docSnap.data() as HarmonyCalendarEvent);
+    });
+    // Sort by gregorianDate asc, then startTime
+    events.sort((a, b) => {
+      const cmp = a.gregorianDate.localeCompare(b.gregorianDate);
+      if (cmp !== 0) return cmp;
+      return (a.startTime || '').localeCompare(b.startTime || '');
+    });
+    callback(events);
+  }, (err) => {
+    console.warn('[Firestore Calendar Listener Warning]', err);
+  });
+}
+
+// -----------------------------------------------------------------------------
+// HARMONY FINANCE & LEDGER FIRESTORE CRUD
+// -----------------------------------------------------------------------------
+
+const FINANCE_TX_COLLECTION = 'harmony_finance_transactions';
+const FINANCE_ACCOUNTS_COLLECTION = 'harmony_finance_accounts';
+const FINANCE_BUDGETS_COLLECTION = 'harmony_finance_budgets';
+const FINANCE_LOANS_COLLECTION = 'harmony_finance_loans';
+const FINANCE_SUBSCRIPTIONS_COLLECTION = 'harmony_finance_subscriptions';
+
+// --- Transactions ---
+export async function saveFinanceTransaction(
+  userId: string,
+  tx: Partial<FinanceTransaction> & { id: string }
+): Promise<FinanceTransaction> {
+  const ref = doc(db, FINANCE_TX_COLLECTION, tx.id);
+  const data: FinanceTransaction = {
+    id: tx.id,
+    userId,
+    title: tx.title || 'Untitled Transaction',
+    amount: tx.amount || 0,
+    type: tx.type || 'expense',
+    category: tx.category || 'Other',
+    date: tx.date || new Date().toISOString().slice(0, 10),
+    accountId: tx.accountId || 'acc-checking',
+    toAccountId: tx.toAccountId,
+    paymentMethod: tx.paymentMethod || 'bank_transfer',
+    notes: tx.notes,
+    tags: tx.tags || [],
+    isRecurring: tx.isRecurring || false,
+    createdAt: tx.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(ref, data, { merge: true });
+  return data;
+}
+
+export async function deleteFinanceTransaction(id: string): Promise<void> {
+  await deleteDoc(doc(db, FINANCE_TX_COLLECTION, id));
+}
+
+export function subscribeFinanceTransactions(userId: string, callback: (txs: FinanceTransaction[]) => void) {
+  const q = query(
+    collection(db, FINANCE_TX_COLLECTION),
+    where('userId', '==', userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const list: FinanceTransaction[] = [];
+    snapshot.forEach((docSnap) => {
+      list.push(docSnap.data() as FinanceTransaction);
+    });
+    list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    callback(list);
+  }, (err) => {
+    console.warn('[Firestore Finance Tx Listener Warning]', err);
+  });
+}
+
+// --- Accounts ---
+export async function saveFinanceAccount(
+  userId: string,
+  acc: Partial<FinanceAccount> & { id: string }
+): Promise<FinanceAccount> {
+  const ref = doc(db, FINANCE_ACCOUNTS_COLLECTION, acc.id);
+  const data: FinanceAccount = {
+    id: acc.id,
+    userId,
+    name: acc.name || 'Standard Account',
+    type: acc.type || 'checking',
+    balance: acc.balance !== undefined ? acc.balance : 0,
+    currency: acc.currency || 'USD',
+    institution: acc.institution,
+    accountNumberMasked: acc.accountNumberMasked,
+    color: acc.color || '#3b82f6',
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(ref, data, { merge: true });
+  return data;
+}
+
+export async function deleteFinanceAccount(id: string): Promise<void> {
+  await deleteDoc(doc(db, FINANCE_ACCOUNTS_COLLECTION, id));
+}
+
+export function subscribeFinanceAccounts(userId: string, callback: (accounts: FinanceAccount[]) => void) {
+  const q = query(
+    collection(db, FINANCE_ACCOUNTS_COLLECTION),
+    where('userId', '==', userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const list: FinanceAccount[] = [];
+    snapshot.forEach((docSnap) => {
+      list.push(docSnap.data() as FinanceAccount);
+    });
+    callback(list);
+  }, (err) => {
+    console.warn('[Firestore Finance Accounts Listener Warning]', err);
+  });
+}
+
+// --- Budgets ---
+export async function saveFinanceBudget(
+  userId: string,
+  budget: Partial<FinanceBudget> & { id: string }
+): Promise<FinanceBudget> {
+  const ref = doc(db, FINANCE_BUDGETS_COLLECTION, budget.id);
+  const data: FinanceBudget = {
+    id: budget.id,
+    userId,
+    category: budget.category || 'Other',
+    monthlyLimit: budget.monthlyLimit || 500,
+    alertThreshold: budget.alertThreshold || 80,
+    currency: budget.currency || 'USD',
+    createdAt: budget.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(ref, data, { merge: true });
+  return data;
+}
+
+export async function deleteFinanceBudget(id: string): Promise<void> {
+  await deleteDoc(doc(db, FINANCE_BUDGETS_COLLECTION, id));
+}
+
+export function subscribeFinanceBudgets(userId: string, callback: (budgets: FinanceBudget[]) => void) {
+  const q = query(
+    collection(db, FINANCE_BUDGETS_COLLECTION),
+    where('userId', '==', userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const list: FinanceBudget[] = [];
+    snapshot.forEach((docSnap) => {
+      list.push(docSnap.data() as FinanceBudget);
+    });
+    callback(list);
+  }, (err) => {
+    console.warn('[Firestore Finance Budgets Listener Warning]', err);
+  });
+}
+
+// --- Loans ---
+export async function saveFinanceLoan(
+  userId: string,
+  loan: Partial<FinanceLoan> & { id: string }
+): Promise<FinanceLoan> {
+  const ref = doc(db, FINANCE_LOANS_COLLECTION, loan.id);
+  const data: FinanceLoan = {
+    id: loan.id,
+    userId,
+    title: loan.title || 'Untitled Loan',
+    type: loan.type || 'borrowed',
+    lenderOrBorrower: loan.lenderOrBorrower || 'Lender',
+    originalPrincipal: loan.originalPrincipal || 10000,
+    currentBalance: loan.currentBalance !== undefined ? loan.currentBalance : 10000,
+    interestRate: loan.interestRate || 5.0,
+    tenureMonths: loan.tenureMonths || 36,
+    monthlyEmi: loan.monthlyEmi || 300,
+    startDate: loan.startDate || new Date().toISOString().slice(0, 10),
+    nextDueDate: loan.nextDueDate || new Date().toISOString().slice(0, 10),
+    totalPaidSoFar: loan.totalPaidSoFar || 0,
+    status: loan.status || 'active',
+    notes: loan.notes,
+    paymentHistory: loan.paymentHistory || [],
+    createdAt: loan.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(ref, data, { merge: true });
+  return data;
+}
+
+export async function deleteFinanceLoan(id: string): Promise<void> {
+  await deleteDoc(doc(db, FINANCE_LOANS_COLLECTION, id));
+}
+
+export function subscribeFinanceLoans(userId: string, callback: (loans: FinanceLoan[]) => void) {
+  const q = query(
+    collection(db, FINANCE_LOANS_COLLECTION),
+    where('userId', '==', userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const list: FinanceLoan[] = [];
+    snapshot.forEach((docSnap) => {
+      list.push(docSnap.data() as FinanceLoan);
+    });
+    callback(list);
+  }, (err) => {
+    console.warn('[Firestore Finance Loans Listener Warning]', err);
+  });
+}
+
+// --- Subscriptions ---
+export async function saveFinanceSubscription(
+  userId: string,
+  sub: Partial<FinanceSubscription> & { id: string }
+): Promise<FinanceSubscription> {
+  const ref = doc(db, FINANCE_SUBSCRIPTIONS_COLLECTION, sub.id);
+  const data: FinanceSubscription = {
+    id: sub.id,
+    userId,
+    name: sub.name || 'Subscription',
+    amount: sub.amount || 9.99,
+    category: sub.category || 'Subscriptions',
+    billingCycle: sub.billingCycle || 'monthly',
+    nextBillingDate: sub.nextBillingDate || new Date().toISOString().slice(0, 10),
+    accountId: sub.accountId || 'acc-checking',
+    status: sub.status || 'active',
+    remindDaysBefore: sub.remindDaysBefore || 3,
+    notes: sub.notes,
+    serviceIcon: sub.serviceIcon,
+    createdAt: sub.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(ref, data, { merge: true });
+  return data;
+}
+
+export async function deleteFinanceSubscription(id: string): Promise<void> {
+  await deleteDoc(doc(db, FINANCE_SUBSCRIPTIONS_COLLECTION, id));
+}
+
+export function subscribeFinanceSubscriptions(userId: string, callback: (subs: FinanceSubscription[]) => void) {
+  const q = query(
+    collection(db, FINANCE_SUBSCRIPTIONS_COLLECTION),
+    where('userId', '==', userId)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const list: FinanceSubscription[] = [];
+    snapshot.forEach((docSnap) => {
+      list.push(docSnap.data() as FinanceSubscription);
+    });
+    callback(list);
+  }, (err) => {
+    console.warn('[Firestore Finance Subs Listener Warning]', err);
+  });
+}
+
+

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Wifi, BatteryCharging, Flame, Disc, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Wifi, BatteryCharging, Flame, Disc, Sparkles, SlidersHorizontal, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface StatusBarProps {
@@ -12,13 +12,19 @@ interface StatusBarProps {
   activeMusicTrack?: string;
   isAiThinking?: boolean;
   isFirebaseConnected?: boolean;
+  focusMode?: boolean;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
   onOpenControlCenter,
   activeMusicTrack,
   isAiThinking,
-  isFirebaseConnected = true
+  isFirebaseConnected = true,
+  focusMode = false,
+  isDarkMode = true,
+  onToggleTheme
 }) => {
   const [timeStr, setTimeStr] = useState<string>('');
 
@@ -35,14 +41,29 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   return (
     <div 
       id="status-bar" 
-      className="w-full h-8 px-3.5 flex items-center justify-between text-[11px] font-semibold text-[#c9d1d9] z-40 relative backdrop-blur-md bg-[#0d1117]/80 select-none border-b border-[#30363d]"
+      className={`w-full h-8 px-3.5 flex items-center justify-between text-[11px] font-semibold z-40 relative backdrop-blur-md select-none border-b transition-colors ${
+        isDarkMode
+          ? 'bg-[#0d1117]/80 text-[#c9d1d9] border-[#30363d]'
+          : 'bg-white/85 text-neutral-800 border-neutral-200/80 shadow-xs'
+      }`}
     >
-      {/* Time Display */}
-      <div className="flex items-center gap-1.5 cursor-pointer" onClick={onOpenControlCenter}>
-        <span className="font-bold tracking-tight text-xs text-white">{timeStr || '9:41'}</span>
+      {/* Time Display & Focus Indicator */}
+      <div className="flex items-center gap-2 cursor-pointer" onClick={onOpenControlCenter}>
+        <span className={`font-bold tracking-tight text-xs ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+          {timeStr || '9:41'}
+        </span>
+
+        {/* iOS Focus Mode Moon Badge */}
+        {focusMode && (
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 dark:text-indigo-300 text-[9px] border border-indigo-500/30 animate-fade-in font-medium">
+            <Moon className="w-2.5 h-2.5 fill-indigo-400 text-indigo-400" />
+            <span className="hidden xs:inline">Focus</span>
+          </span>
+        )}
+
         {isFirebaseConnected && (
-          <span className="flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 text-[9px] border border-amber-500/30">
-            <Flame className="w-2.5 h-2.5 text-amber-400 animate-pulse" />
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-[9px] border border-amber-500/30">
+            <Flame className="w-2.5 h-2.5 text-amber-500 animate-pulse" />
             <span className="hidden sm:inline">Firebase</span>
           </span>
         )}
@@ -84,7 +105,9 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           ) : (
             <motion.div
               key="default-island"
-              className="h-4 w-20 bg-black/80 rounded-full border border-neutral-800/80 flex items-center justify-center gap-1 shadow-inner"
+              className={`h-4 w-20 rounded-full border flex items-center justify-center gap-1 shadow-inner ${
+                isDarkMode ? 'bg-black/80 border-neutral-800/80' : 'bg-neutral-800 border-neutral-700'
+              }`}
             >
               <div className="w-1.5 h-1.5 rounded-full bg-slate-400/80"></div>
               <div className="w-1 h-1 rounded-full bg-slate-600/60"></div>
@@ -93,20 +116,36 @@ export const StatusBar: React.FC<StatusBarProps> = ({
         </AnimatePresence>
       </motion.div>
 
-      {/* Battery, Wifi & Control Center Toggle Button */}
-      <div className="flex items-center gap-3">
-        <Wifi className="w-3.5 h-3.5 text-white/80" />
-        <div className="flex items-center gap-1 text-[11px] text-emerald-400">
+      {/* Battery, Wifi, Quick Theme & Control Center Toggle Button */}
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        {onToggleTheme && (
+          <button
+            id="btn-quick-theme-toggle"
+            onClick={onToggleTheme}
+            className={`p-1 rounded-full transition-transform active:scale-90 flex items-center justify-center ${
+              isDarkMode
+                ? 'hover:bg-white/10 text-amber-300 hover:text-amber-200'
+                : 'hover:bg-neutral-200 text-amber-600 hover:text-amber-700'
+            }`}
+            title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          >
+            {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+          </button>
+        )}
+        <Wifi className={`w-3.5 h-3.5 ${isDarkMode ? 'text-white/80' : 'text-neutral-700'}`} />
+        <div className="flex items-center gap-1 text-[11px] text-emerald-500">
           <span className="font-mono text-[10px] hidden sm:inline">100%</span>
-          <BatteryCharging className="w-4 h-4 text-emerald-400" />
+          <BatteryCharging className="w-4 h-4 text-emerald-500" />
         </div>
         <button
           id="btn-control-center-trigger"
           onClick={onOpenControlCenter}
-          className="p-1 rounded-full hover:bg-white/10 active:scale-90 transition-transform"
+          className={`p-1 rounded-full transition-transform active:scale-90 ${
+            isDarkMode ? 'hover:bg-white/10 text-white/90' : 'hover:bg-neutral-200 text-neutral-800'
+          }`}
           title="Open Control Center"
         >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-white/90" />
+          <SlidersHorizontal className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

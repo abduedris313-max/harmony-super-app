@@ -80,6 +80,82 @@
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "userId"]
+    },
+    "system_settings": {
+      "title": "System Settings",
+      "description": "User personalized system settings including theme, volume, and focus mode",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "isDarkMode": { "type": "boolean" },
+        "volume": { "type": "number" },
+        "brightness": { "type": "number" },
+        "typewriterSounds": { "type": "boolean" },
+        "hapticFeedback": { "type": "boolean" },
+        "defaultViewMode": { "type": "string" },
+        "accentColor": { "type": "string" },
+        "focusMode": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId"]
+    },
+    "harmony_calendar": {
+      "title": "Harmony Calendar Events",
+      "description": "Calendar events supporting Gregorian, Hijri, and Ethiopian dates with Google Calendar sync",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "location": { "type": "string" },
+        "gregorianDate": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "allDay": { "type": "boolean" },
+        "color": { "type": "string" },
+        "category": { "type": "string" },
+        "hijriDate": { "type": "string" },
+        "ethiopianDate": { "type": "string" },
+        "googleEventId": { "type": "string" },
+        "syncedToGoogle": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "gregorianDate"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "User profile information"
+    },
+    "/system_settings/{userId}": {
+      "schema": "system_settings",
+      "description": "User device settings including theme, volume, and focus mode"
+    },
+    "/harmony_notes/{noteId}": {
+      "schema": "harmony_notes",
+      "description": "User synchronized notes collection"
+    },
+    "/harmony_docs/{docId}": {
+      "schema": "harmony_docs",
+      "description": "User rich text documents collection"
+    },
+    "/harmony_writing/{draftId}": {
+      "schema": "harmony_writing",
+      "description": "User focus typewriter drafts collection"
+    },
+    "/harmony_music/{playlistId}": {
+      "schema": "harmony_music",
+      "description": "User music playlists collection"
+    },
+    "/harmony_ai_chats/{chatId}": {
+      "schema": "harmony_ai_chats",
+      "description": "User AI document conversation history"
+    },
+    "/harmony_calendar/{eventId}": {
+      "schema": "harmony_calendar",
+      "description": "User calendar events supporting Gregorian, Hijri, Ethiopian, and Google Calendar sync"
     }
   }
 }

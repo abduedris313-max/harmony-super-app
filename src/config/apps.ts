@@ -71,5 +71,18 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     repoUrl: 'https://github.com/abduedris313-max/harmony-docs-ai',
     description: 'Ask questions, summarize long documents, generate outlines, and refine draft prose.',
     badge: 'AI'
+  },
+  {
+    id: 'harmony-calendar',
+    name: 'Harmony Calendar',
+    tagline: 'Gregorian • Hijri • Ethiopian with Google Sync',
+    iconName: 'calendar',
+    iconCdnUrl: getLucideCdnIconUrl('calendar'),
+    colorGradient: 'from-rose-500 via-red-600 to-amber-600',
+    bgHex: '#ef4444',
+    deployedUrl: 'https://abduedris313-max.github.io/harmony-calendar/',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-calendar',
+    description: 'Tri-calendar system supporting Gregorian, Hijri, and Ethiopian dates, live converter, and Google Calendar sync.',
+    badge: 'Calendar'
   }
 ];

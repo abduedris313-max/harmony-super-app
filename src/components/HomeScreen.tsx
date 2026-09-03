@@ -20,7 +20,8 @@ import {
   Disc, 
   ExternalLink,
   ChevronRight,
-  Flame
+  Flame,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -34,6 +35,8 @@ interface HomeScreenProps {
   isPlayingMusic?: boolean;
   onTogglePlayMusic?: () => void;
   userDisplayName?: string | null;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -46,7 +49,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   currentTrack,
   isPlayingMusic,
   onTogglePlayMusic,
-  userDisplayName
+  userDisplayName,
+  isDarkMode = true,
+  onToggleTheme
 }) => {
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
@@ -55,6 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       case 'pen-tool': return <PenTool className="w-6 h-6 text-white drop-shadow-md" />;
       case 'disc': return <Disc className="w-6 h-6 text-white drop-shadow-md animate-spin-slow" />;
       case 'sparkles': return <Sparkles className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'calendar': return <CalendarIcon className="w-6 h-6 text-white drop-shadow-md" />;
       default: return <Sparkles className="w-6 h-6 text-white" />;
     }
   };
@@ -66,13 +72,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         id="btn-spotlight-search"
         onClick={onOpenSpotlight}
         whileTap={{ scale: 0.98 }}
-        className="w-full max-w-md mb-3 py-1.5 px-3 rounded-xl bg-[#161b22] border border-[#30363d] flex items-center justify-between text-[#8b949e] hover:text-white hover:border-[#58a6ff] transition-all shadow-md text-xs"
+        className={`w-full max-w-md mb-3 py-2 px-3.5 rounded-xl border flex items-center justify-between transition-all shadow-sm text-xs ${
+          isDarkMode
+            ? 'bg-[#161b22] border-[#30363d] text-[#8b949e] hover:text-white hover:border-[#58a6ff]'
+            : 'bg-white/85 border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:border-indigo-400'
+        }`}
       >
         <div className="flex items-center gap-2">
-          <Search className="w-3.5 h-3.5 text-[#8b949e]" />
+          <Search className={`w-3.5 h-3.5 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`} />
           <span>Search Apps, Notes, Docs & AI...</span>
         </div>
-        <kbd className="text-[9px] font-mono px-1 py-0.5 rounded bg-[#21262d] text-[#8b949e] border border-[#30363d]">⌘K</kbd>
+        <kbd className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
+          isDarkMode
+            ? 'bg-[#21262d] text-[#8b949e] border-[#30363d]'
+            : 'bg-neutral-100 text-neutral-600 border-neutral-200'
+        }`}>⌘K</kbd>
       </motion.button>
 
       {/* iOS Smart Stack Widgets Grid */}
@@ -80,16 +94,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Widget 1: Music Player Smart Widget */}
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="p-3 rounded-xl bg-[#161b22] border border-[#30363d] hover:border-[#58a6ff] transition-all shadow-md flex flex-col justify-between min-h-[110px]"
+          className={`p-3.5 rounded-xl border transition-all shadow-sm flex flex-col justify-between min-h-[110px] ${
+            isDarkMode
+              ? 'bg-[#161b22] border-[#30363d] hover:border-[#58a6ff]'
+              : 'bg-white/85 border-neutral-200/90 hover:border-indigo-400 hover:shadow-md'
+          }`}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-indigo-400 font-semibold text-[11px] tracking-wide">
+            <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 font-semibold text-[11px] tracking-wide">
               <Disc className="w-3.5 h-3.5 animate-spin-slow" />
               <span>MUSIC</span>
             </div>
             <button
               onClick={() => onOpenApp('harmony-music-player')}
-              className="text-[11px] text-[#8b949e] hover:text-white flex items-center gap-0.5"
+              className={`text-[11px] flex items-center gap-0.5 transition-colors ${
+                isDarkMode ? 'text-[#8b949e] hover:text-white' : 'text-neutral-500 hover:text-neutral-900 font-medium'
+              }`}
             >
               Open <ChevronRight className="w-3 h-3" />
             </button>
@@ -100,10 +120,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               🎵
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-semibold text-xs truncate">
+              <p className={`font-semibold text-xs truncate ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
                 {currentTrack ? currentTrack.title : 'Ambient Study Beats'}
               </p>
-              <p className="text-[#8b949e] text-[11px] truncate">
+              <p className={`text-[11px] truncate ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
                 {currentTrack ? currentTrack.artist : 'Harmony Music Player'}
               </p>
             </div>
@@ -115,32 +135,42 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[10px] text-[#8b949e] border-t border-[#30363d] pt-1.5">
+          <div className={`flex items-center justify-between text-[10px] border-t pt-1.5 ${
+            isDarkMode ? 'text-[#8b949e] border-[#30363d]' : 'text-neutral-500 border-neutral-200'
+          }`}>
             <span>Hi-Fi Audio Synth</span>
-            <span className="text-green-400 font-mono">Firebase Synced</span>
+            <span className="text-emerald-500 font-mono">Firebase Synced</span>
           </div>
         </motion.div>
 
         {/* Widget 2: Harmony AI Quick Copilot Widget */}
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="p-3 rounded-xl bg-[#161b22] border border-[#30363d] hover:border-[#58a6ff] transition-all shadow-md flex flex-col justify-between min-h-[110px]"
+          className={`p-3.5 rounded-xl border transition-all shadow-sm flex flex-col justify-between min-h-[110px] ${
+            isDarkMode
+              ? 'bg-[#161b22] border-[#30363d] hover:border-[#58a6ff]'
+              : 'bg-white/85 border-neutral-200/90 hover:border-indigo-400 hover:shadow-md'
+          }`}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-indigo-400 font-semibold text-[11px] tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 font-semibold text-[11px] tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
               <span>DOCS AI</span>
             </div>
             <button
               onClick={() => onOpenApp('harmony-docs-ai')}
-              className="text-[11px] text-[#8b949e] hover:text-white flex items-center gap-0.5"
+              className={`text-[11px] flex items-center gap-0.5 transition-colors ${
+                isDarkMode ? 'text-[#8b949e] hover:text-white' : 'text-neutral-500 hover:text-neutral-900 font-medium'
+              }`}
             >
               Launch AI <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
           <div className="my-1">
-            <p className="text-[#c9d1d9] text-[11px] font-medium line-clamp-2 italic">
+            <p className={`text-[11px] font-medium line-clamp-2 italic ${
+              isDarkMode ? 'text-[#c9d1d9]' : 'text-neutral-700'
+            }`}>
               "Summarize document, outline ideas, or refine draft prose with Gemini 2.5 AI."
             </p>
           </div>
@@ -148,21 +178,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="flex items-center justify-between">
             <button
               onClick={() => onOpenApp('harmony-docs-ai')}
-              className="px-2.5 py-1 rounded-full bg-[#21262d] text-white text-[11px] font-medium hover:bg-[#30363d] transition-colors flex items-center gap-1 border border-[#30363d]"
+              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors flex items-center gap-1 border ${
+                isDarkMode
+                  ? 'bg-[#21262d] text-white hover:bg-[#30363d] border-[#30363d]'
+                  : 'bg-neutral-100 text-neutral-800 hover:bg-neutral-200 border-neutral-200'
+              }`}
             >
-              <Sparkles className="w-3 h-3 text-indigo-400" />
+              <Sparkles className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
               <span>Ask AI Copilot</span>
             </button>
-            <span className="text-[10px] text-[#8b949e]">Gemini 2.5</span>
+            <span className={`text-[10px] ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`}>Gemini 2.5</span>
           </div>
         </motion.div>
       </div>
 
       {/* iOS Springboard App Launcher Grid Header */}
       <div className="w-full flex items-center justify-between mb-2.5">
-        <h2 className="text-[11px] font-bold tracking-wider text-white/50 uppercase">Harmony Mini Apps</h2>
-        <span className="text-[11px] text-amber-400/80 font-mono flex items-center gap-1">
-          <Flame className="w-3 h-3" /> 5 Mini Apps Ready
+        <h2 className={`text-[11px] font-bold tracking-wider uppercase ${
+          isDarkMode ? 'text-white/60' : 'text-neutral-700 font-bold'
+        }`}>Harmony Mini Apps</h2>
+        <span className="text-[11px] text-amber-500 font-mono flex items-center gap-1">
+          <Flame className="w-3 h-3" /> 6 Mini Apps Ready
         </span>
       </div>
 
@@ -179,7 +215,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             {/* iOS App Icon Squircle Container */}
             <div 
               id={`app-icon-${app.id}`}
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] bg-gradient-to-br ${app.colorGradient} p-0.5 shadow-md shadow-black/40 flex flex-col items-center justify-center relative overflow-hidden transition-all group-hover:shadow-lg group-hover:shadow-purple-500/20`}
+              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] bg-gradient-to-br ${app.colorGradient} p-0.5 shadow-md shadow-black/30 flex flex-col items-center justify-center relative overflow-hidden transition-all group-hover:shadow-lg group-hover:shadow-purple-500/20`}
             >
               {/* Glossy inner sheen */}
               <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-black/30 pointer-events-none rounded-[16px]" />
@@ -198,7 +234,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
 
             {/* iOS App Title Label */}
-            <span className="mt-1 text-[11px] font-medium text-white/90 text-center tracking-tight truncate max-w-[72px]">
+            <span className={`mt-1.5 text-[11px] text-center tracking-tight truncate max-w-[72px] ${
+              isDarkMode 
+                ? 'text-white/90 font-medium' 
+                : 'text-neutral-800 font-semibold'
+            }`}>
               {app.name}
             </span>
           </motion.div>
@@ -211,11 +251,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           className="flex flex-col items-center group cursor-pointer"
           onClick={onOpenSettings}
         >
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-0.5 shadow-md shadow-black/40 flex items-center justify-center relative overflow-hidden">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-0.5 shadow-md shadow-black/30 flex items-center justify-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none rounded-[16px]" />
             <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-slate-200 z-10" />
           </div>
-          <span className="mt-1 text-[11px] font-medium text-white/90 text-center tracking-tight">
+          <span className={`mt-1.5 text-[11px] text-center tracking-tight ${
+            isDarkMode ? 'text-white/90 font-medium' : 'text-neutral-800 font-semibold'
+          }`}>
             Settings
           </span>
         </motion.div>
@@ -227,19 +269,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           className="flex flex-col items-center group cursor-pointer"
           onClick={onOpenAuth}
         >
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] bg-gradient-to-br from-indigo-600 via-purple-700 to-slate-900 p-0.5 shadow-md shadow-black/40 flex items-center justify-center relative overflow-hidden">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] bg-gradient-to-br from-indigo-600 via-purple-700 to-slate-900 p-0.5 shadow-md shadow-black/30 flex items-center justify-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none rounded-[16px]" />
             <User className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-100 z-10" />
           </div>
-          <span className="mt-1 text-[11px] font-medium text-white/90 text-center tracking-tight truncate max-w-[72px]">
+          <span className={`mt-1.5 text-[11px] text-center tracking-tight truncate max-w-[72px] ${
+            isDarkMode ? 'text-white/90 font-medium' : 'text-neutral-800 font-semibold'
+          }`}>
             {userDisplayName || 'Auth'}
           </span>
         </motion.div>
       </div>
 
       {/* Quick Access Activity Snap Section */}
-      <div className="w-full bg-[#161b22] rounded-xl p-3 border border-[#30363d] mb-3 shadow-md">
-        <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8b949e] mb-2">
+      <div className={`w-full rounded-xl p-3.5 border mb-3 shadow-sm ${
+        isDarkMode
+          ? 'bg-[#161b22] border-[#30363d]'
+          : 'bg-white/85 border-neutral-200/80 shadow-sm'
+      }`}>
+        <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${
+          isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'
+        }`}>
           Recent Activity & Cloud Synced Items
         </h3>
         
@@ -249,24 +299,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <div
                 key={note.id}
                 onClick={() => onOpenApp('harmony-notes')}
-                className="p-2 rounded-lg bg-[#0d1117] hover:bg-[#21262d] cursor-pointer flex items-center justify-between border border-[#30363d] hover:border-[#58a6ff] transition-all"
+                className={`p-2 rounded-lg cursor-pointer flex items-center justify-between border transition-all ${
+                  isDarkMode
+                    ? 'bg-[#0d1117] hover:bg-[#21262d] border-[#30363d] hover:border-[#58a6ff]'
+                    : 'bg-neutral-50 hover:bg-neutral-100 border-neutral-200/90 text-neutral-900 hover:border-indigo-400'
+                }`}
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-[10px] border border-indigo-500/20">
+                  <div className="w-6 h-6 rounded bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-bold text-[10px] border border-indigo-500/20">
                     📝
                   </div>
                   <div>
-                    <h4 className="text-xs font-semibold text-white leading-tight">{note.title}</h4>
-                    <p className="text-[10px] text-[#8b949e] line-clamp-1 leading-tight">{note.content || 'Empty note content...'}</p>
+                    <h4 className={`text-xs font-semibold leading-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+                      {note.title}
+                    </h4>
+                    <p className={`text-[10px] line-clamp-1 leading-tight ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                      {note.content || 'Empty note content...'}
+                    </p>
                   </div>
                 </div>
-                <span className="text-[9px] text-indigo-400 px-1.5 py-0.2 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                <span className="text-[9px] text-indigo-500 dark:text-indigo-400 px-1.5 py-0.2 rounded-full bg-indigo-500/10 border border-indigo-500/20 font-medium">
                   {note.category}
                 </span>
               </div>
             ))
           ) : (
-            <p className="text-[11px] text-[#8b949e] italic py-1">
+            <p className={`text-[11px] italic py-1 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
               No recent notes. Launch Harmony Notes to write your first document.
             </p>
           )}

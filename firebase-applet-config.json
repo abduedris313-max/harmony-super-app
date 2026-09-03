@@ -1,12 +1,11 @@
 {
-  "projectId": "concrete-lead-kc9s2",
-  "appId": "1:726110013683:web:f4e18256f3bd44ca194f86",
-  "apiKey": "AIzaSyD2x5XPLdbW53lrJOieeAhGEdR3KKKvLCg",
-  "authDomain": "concrete-lead-kc9s2.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-85b51a1f-289a-45da-a03c-43dabe97457e",
-  "storageBucket": "concrete-lead-kc9s2.firebasestorage.app",
-  "messagingSenderId": "726110013683",
+  "projectId": "rising-footing-405822",
+  "appId": "1:855702605671:web:a304a0dfc1ca6873a5a9c2",
+  "apiKey": "AIzaSyBzxW-y4Vb7yno1D_F11BEoeqNxs7GiBrU",
+  "authDomain": "rising-footing-405822.firebaseapp.com",
+  "storageBucket": "rising-footing-405822.firebasestorage.app",
+  "messagingSenderId": "855702605671",
   "measurementId": "",
-  "oAuthClientId": "726110013683-2vbnt0bb2j06dsg8r9k05bs6qvro53bq.apps.googleusercontent.com",
+  "oAuthClientId": "855702605671-skgl8gse1ik38f43qmbb5u7gdjcsinqs.apps.googleusercontent.com",
   "recaptchaSiteKey": ""
 }

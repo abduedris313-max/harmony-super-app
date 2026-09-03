@@ -16,6 +16,7 @@ interface AppSwitcherProps {
   onSelectApp: (appId: string) => void;
   onCloseApp: (appId: string) => void;
   onCloseAllApps: () => void;
+  isDarkMode?: boolean;
 }
 
 export const AppSwitcher: React.FC<AppSwitcherProps> = ({
@@ -25,22 +26,27 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = ({
   activeAppId,
   onSelectApp,
   onCloseApp,
-  onCloseAllApps
+  onCloseAllApps,
+  isDarkMode = true
 }) => {
   if (!isOpen) return null;
 
   const runningApps = HARMONY_APPS.filter(a => openAppIds.includes(a.id));
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-between p-6 animate-fade-in">
+    <div className={`fixed inset-0 z-50 backdrop-blur-2xl flex flex-col items-center justify-between p-6 animate-fade-in ${
+      isDarkMode ? 'bg-black/80' : 'bg-neutral-900/60'
+    }`}>
       {/* Header */}
-      <div className="w-full max-w-4xl flex items-center justify-between text-[#c9d1d9] border-b border-[#30363d] pb-4">
+      <div className={`w-full max-w-4xl flex items-center justify-between border-b pb-4 ${
+        isDarkMode ? 'text-[#c9d1d9] border-[#30363d]' : 'text-white border-white/20'
+      }`}>
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-indigo-400" />
             <span>iOS App Switcher</span>
           </h2>
-          <p className="text-xs text-[#8b949e]">{runningApps.length} Harmony Mini Apps in background</p>
+          <p className="text-xs text-white/70">{runningApps.length} Harmony Mini Apps in background</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -55,7 +61,7 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = ({
           )}
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#21262d] hover:bg-[#30363d] flex items-center justify-center text-[#8b949e] hover:text-white"
+            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
