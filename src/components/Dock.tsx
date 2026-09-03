@@ -6,7 +6,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { HARMONY_APPS } from '../config/apps';
-import { Notebook, FileText, PenTool, Disc, Sparkles, Layers } from 'lucide-react';
+import { Notebook, FileText, PenTool, Disc, Sparkles, Layers, Calendar, Wallet } from 'lucide-react';
 
 interface DockProps {
   onOpenApp: (appId: string) => void;
@@ -23,6 +23,8 @@ export const Dock: React.FC<DockProps> = ({ onOpenApp, onOpenAppSwitcher, active
       case 'pen-tool': return <PenTool className="w-5 h-5 text-white" />;
       case 'disc': return <Disc className="w-5 h-5 text-white" />;
       case 'sparkles': return <Sparkles className="w-5 h-5 text-white" />;
+      case 'calendar': return <Calendar className="w-5 h-5 text-white" />;
+      case 'wallet': return <Wallet className="w-5 h-5 text-white" />;
       default: return <Layers className="w-5 h-5 text-white" />;
     }
   };

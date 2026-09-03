@@ -21,7 +21,8 @@ import {
   ExternalLink,
   ChevronRight,
   Flame,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Wallet
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -61,6 +62,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       case 'disc': return <Disc className="w-6 h-6 text-white drop-shadow-md animate-spin-slow" />;
       case 'sparkles': return <Sparkles className="w-6 h-6 text-white drop-shadow-md" />;
       case 'calendar': return <CalendarIcon className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'wallet': return <Wallet className="w-6 h-6 text-white drop-shadow-md" />;
       default: return <Sparkles className="w-6 h-6 text-white" />;
     }
   };
@@ -198,12 +200,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           isDarkMode ? 'text-white/60' : 'text-neutral-700 font-bold'
         }`}>Harmony Mini Apps</h2>
         <span className="text-[11px] text-amber-500 font-mono flex items-center gap-1">
-          <Flame className="w-3 h-3" /> 6 Mini Apps Ready
+          <Flame className="w-3 h-3" /> {HARMONY_APPS.length} Mini Apps Ready
         </span>
       </div>
 
-      {/* iOS 18 Springboard App Grid - Compact 4 cols on mobile, 7 cols on sm */}
-      <div className="w-full grid grid-cols-4 sm:grid-cols-7 gap-3 sm:gap-4 mb-5">
+      {/* iOS 18 Springboard App Grid - Responsive 4 cols on mobile, up to 8 cols on sm/md */}
+      <div className="w-full grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4 mb-5">
         {HARMONY_APPS.map((app) => (
           <motion.div
             key={app.id}

@@ -84,5 +84,18 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     repoUrl: 'https://github.com/abduedris313-max/harmony-calendar',
     description: 'Tri-calendar system supporting Gregorian, Hijri, and Ethiopian dates, live converter, and Google Calendar sync.',
     badge: 'Calendar'
+  },
+  {
+    id: 'harmony-finance',
+    name: 'Harmony Finance',
+    tagline: 'Expense Ledger, Budgets & Loan EMI Amortization',
+    iconName: 'wallet',
+    iconCdnUrl: getLucideCdnIconUrl('wallet'),
+    colorGradient: 'from-emerald-500 via-teal-600 to-cyan-700',
+    bgHex: '#059669',
+    deployedUrl: 'https://abduedris313-max.github.io/harmony-finance/',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-finance',
+    description: 'Personal finance & wealth engine: cash flow ledger, category budgets, debt amortization schedules, and Gemini AI advisor.',
+    badge: 'Finance'
   }
 ];
