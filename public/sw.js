@@ -9,17 +9,23 @@ const DATA_CACHE_NAME = 'harmony-os-data-v2';
 const ASSETS_CACHE_NAME = 'harmony-os-assets-v2';
 
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
-// Install Event: Precaches App Shell
+// Install Event: Precaches App Shell with resilient fallback
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(SHELL_CACHE_NAME).then((cache) => {
+    caches.open(SHELL_CACHE_NAME).then(async (cache) => {
       console.log('[SW] Precaching Harmony OS app shell');
-      return cache.addAll(PRECACHE_URLS);
+      await Promise.allSettled(
+        PRECACHE_URLS.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('[SW] Precache skipped for:', url, err);
+          })
+        )
+      );
     })
   );
   self.skipWaiting();
@@ -103,7 +109,7 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          return caches.match('/index.html') || caches.match('/');
+          return caches.match('./index.html') || caches.match('./') || caches.match('/index.html') || caches.match('/');
         })
     );
     return;

@@ -210,26 +210,53 @@ export const INITIAL_OFFLINE_EVENTS: HarmonyCalendarEvent[] = [
   }
 ];
 
-// Helper to safely read from localStorage
+// In-memory fallback if Tracking Prevention or browser policy blocks window.localStorage
+const memoryStorage = new Map<string, string>();
+
+function safeGetStorage(): Storage | null {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage;
+    }
+  } catch {
+    // Tracking Prevention or SecurityError
+  }
+  return null;
+}
+
+// Helper to safely read from localStorage (with tracking-prevention resilient memory fallback)
 export function getLocalItem<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    const storage = safeGetStorage();
+    const raw = storage ? storage.getItem(key) : memoryStorage.get(key);
     if (!raw) return fallback;
     return JSON.parse(raw) as T;
-  } catch (err) {
-    console.warn(`[OfflinePersistence] Error reading key ${key}:`, err);
+  } catch {
+    const memoryRaw = memoryStorage.get(key);
+    if (memoryRaw) {
+      try {
+        return JSON.parse(memoryRaw) as T;
+      } catch {
+        return fallback;
+      }
+    }
     return fallback;
   }
 }
 
-// Helper to safely write to localStorage & notify Service Worker
+// Helper to safely write to localStorage & notify Service Worker (with tracking-prevention resilient memory fallback)
 export function setLocalItem<T>(key: string, value: T): void {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
-    // Broadcast snapshot to Service Worker
+    const serialized = JSON.stringify(value);
+    memoryStorage.set(key, serialized);
+    const storage = safeGetStorage();
+    if (storage) {
+      storage.setItem(key, serialized);
+    }
+    // Broadcast snapshot to Service Worker if available
     notifyServiceWorkerSnapshot(key, value);
-  } catch (err) {
-    console.warn(`[OfflinePersistence] Error writing key ${key}:`, err);
+  } catch {
+    // Handled silently by in-memory storage fallback
   }
 }
 
