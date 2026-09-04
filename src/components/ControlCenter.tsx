@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { SystemSettings, SystemNotification } from '../types';
 import { soundManager } from '../lib/soundManager';
+import { HarmonyLogo } from './HarmonyLogo';
 
 interface ControlCenterProps {
   isOpen: boolean;
@@ -101,15 +102,13 @@ export const ControlCenter: React.FC<ControlCenterProps> = ({
         {/* Header */}
         <div className={`flex items-center justify-between pb-4 border-b mb-5 ${isDark ? 'border-[#30363d]' : 'border-neutral-200'}`}>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold border border-indigo-500/30">
-              <Layers className="w-5 h-5" />
-            </div>
+            <HarmonyLogo size="sm" isDarkMode={isDark} />
             <div>
-              <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
-                Control Center
+              <h3 className={`text-base font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                <span>Harmony Control</span>
               </h3>
               <p className={`text-xs ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
-                iOS 18 System Controls & Cloud State
+                System Controls, Focus & Audio
               </p>
             </div>
           </div>

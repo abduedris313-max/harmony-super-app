@@ -3,12 +3,19 @@
  * @description iOS System Settings App modal for Harmony OS Super App with Light, Dark, System themes and accent presets.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { X, Settings, Github, ExternalLink, ShieldCheck, Download, Smartphone, Flame, Info, Moon, Sun, Monitor, Volume2, BellOff, Check, Palette } from 'lucide-react';
+import { 
+  X, Settings, Github, ExternalLink, ShieldCheck, Download, Smartphone, 
+  Flame, Info, Moon, Sun, Monitor, Volume2, BellOff, Check, Palette,
+  Sliders, ArrowUp, ArrowDown, RotateCcw, Eye, Smartphone as MobileIcon, Laptop,
+  Notebook, FileText, PenTool, Disc, Sparkles, Calendar, Wallet, ShoppingBag, Layers, Plus, Trash2
+} from 'lucide-react';
 import { HARMONY_APPS } from '../config/apps';
 import { SystemSettings, ThemeMode, ThemePreset } from '../types';
 import { soundManager } from '../lib/soundManager';
+import { DEFAULT_DOCK_APP_IDS } from '../lib/offlinePersistence';
+import { HarmonyLogo } from './HarmonyLogo';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -94,6 +101,73 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onUpdateSettings({ themePreset: preset });
   };
 
+  // Dock Configuration State & Handlers
+  const [previewScreen, setPreviewScreen] = useState<'small' | 'large'>('small');
+
+  const dockAppIds = settings.dockAppIds && settings.dockAppIds.length > 0 
+    ? settings.dockAppIds 
+    : DEFAULT_DOCK_APP_IDS;
+
+  const dockMaxSmall = settings.dockMaxSmallScreen ?? 5;
+  const dockMaxLarge = settings.dockMaxLargeScreen ?? 7;
+
+  const getDockAppIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'notebook': return <Notebook className="w-4 h-4 text-white" />;
+      case 'file-text': return <FileText className="w-4 h-4 text-white" />;
+      case 'pen-tool': return <PenTool className="w-4 h-4 text-white" />;
+      case 'disc': return <Disc className="w-4 h-4 text-white" />;
+      case 'sparkles': return <Sparkles className="w-4 h-4 text-white" />;
+      case 'calendar': return <Calendar className="w-4 h-4 text-white" />;
+      case 'wallet': return <Wallet className="w-4 h-4 text-white" />;
+      case 'shopping-bag':
+      case 'store':
+        return <ShoppingBag className="w-4 h-4 text-white" />;
+      default: return <Layers className="w-4 h-4 text-white" />;
+    }
+  };
+
+  const handleToggleDockApp = (appId: string) => {
+    soundManager.playClickSound();
+    let next: string[];
+    if (dockAppIds.includes(appId)) {
+      if (dockAppIds.length <= 1) return;
+      next = dockAppIds.filter((id) => id !== appId);
+    } else {
+      next = [...dockAppIds, appId];
+    }
+    onUpdateSettings({ dockAppIds: next });
+  };
+
+  const handleMoveDockApp = (index: number, direction: 'up' | 'down') => {
+    soundManager.playClickSound();
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= dockAppIds.length) return;
+    const next = [...dockAppIds];
+    const [moved] = next.splice(index, 1);
+    next.splice(targetIndex, 0, moved);
+    onUpdateSettings({ dockAppIds: next });
+  };
+
+  const handleSetMaxSmall = (count: number) => {
+    soundManager.playClickSound();
+    onUpdateSettings({ dockMaxSmallScreen: count });
+  };
+
+  const handleSetMaxLarge = (count: number) => {
+    soundManager.playClickSound();
+    onUpdateSettings({ dockMaxLargeScreen: count });
+  };
+
+  const handleResetDock = () => {
+    soundManager.playClickSound();
+    onUpdateSettings({
+      dockAppIds: DEFAULT_DOCK_APP_IDS,
+      dockMaxSmallScreen: 5,
+      dockMaxLargeScreen: 7
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-2xl animate-fade-in">
       <motion.div
@@ -110,20 +184,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className={`p-4 sm:p-5 border-b flex items-center justify-between transition-colors ${
           isDark ? 'bg-[#0d1117] border-[#30363d]' : 'bg-neutral-50 border-neutral-200'
         }`}>
-          <div className="flex items-center gap-2.5">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
-              isDark
-                ? 'bg-[#21262d] text-indigo-400 border-[#30363d]'
-                : 'bg-indigo-50 text-indigo-600 border-indigo-100'
-            }`}>
-              <Settings className="w-5 h-5" />
-            </div>
+          <div className="flex items-center gap-3">
+            <HarmonyLogo size="sm" isDarkMode={isDark} />
             <div>
-              <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
-                System Settings
+              <h3 className={`text-base font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                <span>Harmony Settings</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-semibold">
+                  v2.0
+                </span>
               </h3>
               <p className={`text-xs ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
-                Themes, Focus Mode, Volume & Integrations
+                Themes, Dock, Focus Mode & Unified Apps
               </p>
             </div>
           </div>
@@ -394,6 +465,332 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Section: Bottom Dock Personalization & Icon Configuration */}
+          <div className={`p-4 rounded-xl border space-y-4 transition-colors ${
+            isDark ? 'bg-[#0d1117] border-[#30363d]' : 'bg-neutral-50/80 border-neutral-200'
+          }`}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400 flex items-center gap-2">
+                <Sliders className="w-4 h-4" /> Bottom Dock & App Icon Configuration
+              </h4>
+              <button
+                type="button"
+                onClick={handleResetDock}
+                className={`text-[11px] font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-colors self-start sm:self-auto ${
+                  isDark
+                    ? 'bg-[#161b22] border-[#30363d] text-neutral-300 hover:bg-[#21262d] hover:text-white'
+                    : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-100'
+                }`}
+                title="Reset dock to default 5 apps (mobile) and 7 apps (desktop)"
+              >
+                <RotateCcw className="w-3 h-3 text-indigo-400" />
+                <span>Reset Defaults</span>
+              </button>
+            </div>
+
+            <p className={`text-xs ${isDark ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+              Customize which apps appear on your bottom dock, their priority order, and the maximum number of visible icons on small and large screens.
+            </p>
+
+            {/* Screen Size Limits Configuration */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Small Screen Limit (Mobile) */}
+              <div className={`p-3 rounded-xl border transition-colors ${
+                isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-neutral-200'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    <MobileIcon className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Small Screen (Mobile)</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold">
+                    {dockMaxSmall} Apps {dockMaxSmall === 5 ? '(Default)' : ''}
+                  </span>
+                </div>
+                <p className={`text-[11px] mb-2.5 ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
+                  Max dock apps on phones & compact displays (&lt; 640px)
+                </p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[3, 4, 5, 6].map((num) => (
+                    <button
+                      key={`small-${num}`}
+                      type="button"
+                      onClick={() => handleSetMaxSmall(num)}
+                      className={`py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                        dockMaxSmall === num
+                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm'
+                          : isDark
+                            ? 'bg-[#0d1117] border-[#30363d] text-neutral-400 hover:text-white hover:border-neutral-500'
+                            : 'bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Large Screen Limit (Desktop & Tablets) */}
+              <div className={`p-3 rounded-xl border transition-colors ${
+                isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-neutral-200'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    <Laptop className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Large Screen (Desktop)</span>
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">
+                    {dockMaxLarge} Apps {dockMaxLarge === 7 ? '(Default)' : ''}
+                  </span>
+                </div>
+                <p className={`text-[11px] mb-2.5 ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
+                  Max dock apps on laptops, tablets & desktops (≥ 640px)
+                </p>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {[4, 5, 6, 7, 8].map((num) => (
+                    <button
+                      key={`large-${num}`}
+                      type="button"
+                      onClick={() => handleSetMaxLarge(num)}
+                      className={`py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                        dockMaxLarge === num
+                          ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm'
+                          : isDark
+                            ? 'bg-[#0d1117] border-[#30363d] text-neutral-400 hover:text-white hover:border-neutral-500'
+                            : 'bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Live Dock Preview */}
+            <div className={`p-3 rounded-xl border transition-colors ${
+              isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-neutral-200'
+            }`}>
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    Live Dock Preview
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 bg-neutral-200 dark:bg-[#0d1117] p-0.5 rounded-lg text-[10px] font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewScreen('small')}
+                    className={`px-2 py-0.5 rounded-md transition-all flex items-center gap-1 ${
+                      previewScreen === 'small'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-neutral-900'
+                    }`}
+                  >
+                    <MobileIcon className="w-2.5 h-2.5" />
+                    <span>Mobile ({dockMaxSmall})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewScreen('large')}
+                    className={`px-2 py-0.5 rounded-md transition-all flex items-center gap-1 ${
+                      previewScreen === 'large'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : isDark ? 'text-neutral-400 hover:text-white' : 'text-neutral-600 hover:text-neutral-900'
+                    }`}
+                  >
+                    <Laptop className="w-2.5 h-2.5" />
+                    <span>Desktop ({dockMaxLarge})</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Preview Dock Mockup */}
+              <div className="flex justify-center p-3 rounded-lg bg-neutral-100 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#21262d] overflow-x-auto">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 dark:bg-[#161b22]/90 border border-neutral-300/80 dark:border-[#30363d] shadow-sm">
+                  {dockAppIds
+                    .slice(0, previewScreen === 'small' ? dockMaxSmall : dockMaxLarge)
+                    .map((id) => {
+                      const app = HARMONY_APPS.find((a) => a.id === id);
+                      if (!app) return null;
+                      return (
+                        <div
+                          key={`preview-${id}`}
+                          className={`w-8 h-8 rounded-lg bg-gradient-to-br ${app.colorGradient} flex items-center justify-center shadow-sm text-white`}
+                          title={app.name}
+                        >
+                          {getDockAppIcon(app.iconName)}
+                        </div>
+                      );
+                    })}
+                  <div className="w-px h-5 bg-neutral-300 dark:bg-white/20 mx-0.5" />
+                  <div className="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-purple-400 border border-neutral-300 dark:border-neutral-700">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Configurable App List & Ordering */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className={isDark ? 'text-white' : 'text-neutral-900'}>
+                  Apps on Dock ({dockAppIds.length} of {HARMONY_APPS.length} enabled)
+                </span>
+                <span className={`text-[11px] font-normal ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
+                  Use arrows to prioritize position
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                {/* Apps currently in dock */}
+                {dockAppIds.map((id, index) => {
+                  const app = HARMONY_APPS.find((a) => a.id === id);
+                  if (!app) return null;
+
+                  const isVisibleMobile = index < dockMaxSmall;
+                  const isVisibleDesktop = index < dockMaxLarge;
+
+                  return (
+                    <div
+                      key={`dock-item-${id}`}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between gap-2.5 transition-colors ${
+                        isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-neutral-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className={`w-5 text-center text-xs font-mono font-bold ${
+                          isDark ? 'text-neutral-500' : 'text-neutral-400'
+                        }`}>
+                          #{index + 1}
+                        </span>
+                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${app.colorGradient} flex items-center justify-center shadow-sm text-white shrink-0`}>
+                          {getDockAppIcon(app.iconName)}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-xs font-bold truncate ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                              {app.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {isVisibleMobile && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-400 font-semibold">
+                                Mobile (1-{dockMaxSmall})
+                              </span>
+                            )}
+                            {isVisibleDesktop && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-semibold">
+                                Desktop (1-{dockMaxLarge})
+                              </span>
+                            )}
+                            {!isVisibleMobile && !isVisibleDesktop && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-semibold">
+                                Standby
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        {/* Move Up */}
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={() => handleMoveDockApp(index, 'up')}
+                          className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-colors ${
+                            index === 0
+                              ? 'opacity-30 cursor-not-allowed border-transparent'
+                              : isDark
+                                ? 'bg-[#0d1117] border-[#30363d] text-neutral-300 hover:bg-indigo-600 hover:text-white'
+                                : 'bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-indigo-600 hover:text-white'
+                          }`}
+                          title="Move up in dock priority"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Move Down */}
+                        <button
+                          type="button"
+                          disabled={index === dockAppIds.length - 1}
+                          onClick={() => handleMoveDockApp(index, 'down')}
+                          className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-colors ${
+                            index === dockAppIds.length - 1
+                              ? 'opacity-30 cursor-not-allowed border-transparent'
+                              : isDark
+                                ? 'bg-[#0d1117] border-[#30363d] text-neutral-300 hover:bg-indigo-600 hover:text-white'
+                                : 'bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-indigo-600 hover:text-white'
+                          }`}
+                          title="Move down in dock priority"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Remove from Dock */}
+                        <button
+                          type="button"
+                          disabled={dockAppIds.length <= 1}
+                          onClick={() => handleToggleDockApp(id)}
+                          className={`w-7 h-7 rounded-lg border flex items-center justify-center text-rose-500 transition-colors ${
+                            dockAppIds.length <= 1
+                              ? 'opacity-30 cursor-not-allowed'
+                              : isDark
+                                ? 'bg-[#0d1117] border-[#30363d] hover:bg-rose-600 hover:text-white'
+                                : 'bg-neutral-100 border-neutral-200 hover:bg-rose-600 hover:text-white'
+                          }`}
+                          title="Remove from Dock"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Available apps not in dock */}
+                {HARMONY_APPS.filter((a) => !dockAppIds.includes(a.id)).length > 0 && (
+                  <div className="pt-2">
+                    <span className={`text-[11px] font-bold uppercase tracking-wider block mb-1.5 ${
+                      isDark ? 'text-neutral-500' : 'text-neutral-400'
+                    }`}>
+                      Available Ecosystem Apps to Add
+                    </span>
+                    <div className="space-y-1.5">
+                      {HARMONY_APPS.filter((a) => !dockAppIds.includes(a.id)).map((app) => (
+                        <div
+                          key={`undocked-${app.id}`}
+                          className={`p-2 rounded-xl border flex items-center justify-between gap-2.5 transition-colors opacity-75 hover:opacity-100 ${
+                            isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-neutral-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${app.colorGradient} flex items-center justify-center shadow-sm text-white shrink-0`}>
+                              {getDockAppIcon(app.iconName)}
+                            </div>
+                            <span className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                              {app.name}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleDockApp(app.id)}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-600/10 text-indigo-500 dark:text-indigo-400 border border-indigo-500/20 text-xs font-semibold hover:bg-indigo-600 hover:text-white flex items-center gap-1 transition-colors"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add to Dock</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Section 2: Harmony WebApps Catalog */}
           <div>
             <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5 ${
@@ -461,13 +858,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>PWA Support & Offline Capability</span>
             </h4>
             <p className={`text-xs mb-3 ${isDark ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
-              Harmony OS Super App is PWA compliant with Web App Manifest (<code className="text-indigo-500 dark:text-indigo-400">manifest.json</code>) and Service Worker (<code className="text-indigo-500 dark:text-indigo-400">sw.js</code>) caching for mobile home screen installation.
+              Harmony is PWA compliant with Web App Manifest (<code className="text-indigo-500 dark:text-indigo-400">manifest.json</code>) and Service Worker (<code className="text-indigo-500 dark:text-indigo-400">sw.js</code>) caching for mobile home screen installation.
             </p>
             <div className="flex items-center justify-between text-xs text-emerald-500 font-mono">
               <span className="flex items-center gap-1">
                 <ShieldCheck className="w-4 h-4" /> Service Worker Registered
               </span>
-              <span className={isDark ? 'text-[#8b949e]' : 'text-neutral-500'}>Cache: harmony-os-v1</span>
+              <span className={isDark ? 'text-[#8b949e]' : 'text-neutral-500'}>Cache: harmony-v1</span>
             </div>
           </div>
 
@@ -483,13 +880,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               Project ID: <code className="font-mono font-bold text-amber-600 dark:text-amber-300">concrete-lead-kc9s2</code> • Auth & Firestore enabled.
             </p>
           </div>
+
+          {/* Section 5: About Harmony */}
+          <div className={`p-4 rounded-xl border flex items-center gap-4 transition-colors ${
+            isDark ? 'bg-[#0d1117] border-[#30363d]' : 'bg-neutral-50 border-neutral-200'
+          }`}>
+            <HarmonyLogo size="lg" isDarkMode={isDark} />
+            <div className="space-y-0.5 min-w-0">
+              <h4 className={`text-sm font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                <span>Harmony</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-400 font-semibold">
+                  Official Release
+                </span>
+              </h4>
+              <p className={`text-xs ${isDark ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                Next-generation unified mini-app ecosystem with real-time cloud sync, customizable smart dock, and live widgets.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Modal Footer */}
         <div className={`p-4 text-center text-xs border-t transition-colors ${
           isDark ? 'bg-[#0d1117] text-[#8b949e] border-[#30363d]' : 'bg-neutral-50 text-neutral-500 border-neutral-200'
         }`}>
-          Super App Base URL: <a href="https://abduedris313-max.github.io/" target="_blank" rel="noopener noreferrer" className="text-indigo-500 dark:text-indigo-400 underline">https://abduedris313-max.github.io/</a>
+          Harmony Portal: <a href="https://abduedris313-max.github.io/" target="_blank" rel="noopener noreferrer" className="text-indigo-500 dark:text-indigo-400 underline">https://abduedris313-max.github.io/</a>
         </div>
       </motion.div>
     </div>

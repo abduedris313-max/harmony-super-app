@@ -29,6 +29,7 @@ import {
   Layers
 } from 'lucide-react';
 import { WidgetFramework } from './widgets/WidgetFramework';
+import { HarmonyLogo } from './HarmonyLogo';
 
 interface HomeScreenProps {
   onOpenApp: (appId: string) => void;
@@ -90,6 +91,41 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <div id="home-screen" className="flex-1 w-full flex flex-col items-center overflow-y-auto px-3 py-3 scrollbar-none max-w-4xl mx-auto">
+      {/* Harmony Brand Header */}
+      <div className="w-full max-w-md flex items-center justify-between mb-2.5 px-1">
+        <HarmonyLogo 
+          size="sm" 
+          showText={true} 
+          subtitle={userDisplayName ? `Hello, ${userDisplayName.split(' ')[0]}` : 'Unified Ecosystem'} 
+          isDarkMode={isDarkMode}
+          onClick={onOpenSettings}
+        />
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={onOpenSettings}
+            className={`p-1.5 rounded-lg border text-xs transition-colors ${
+              isDarkMode
+                ? 'bg-[#161b22] border-[#30363d] text-neutral-400 hover:text-white'
+                : 'bg-white border-neutral-200 text-neutral-600 hover:text-neutral-900 shadow-xs'
+            }`}
+            title="System Settings"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={onOpenAuth}
+            className={`p-1.5 rounded-lg border text-xs transition-colors ${
+              isDarkMode
+                ? 'bg-[#161b22] border-[#30363d] text-neutral-400 hover:text-white'
+                : 'bg-white border-neutral-200 text-neutral-600 hover:text-neutral-900 shadow-xs'
+            }`}
+            title="Profile & Cloud"
+          >
+            <User className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
       {/* iOS Spotlight Search Trigger Bar */}
       <motion.button
         id="btn-spotlight-search"

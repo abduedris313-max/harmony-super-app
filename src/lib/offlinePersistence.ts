@@ -35,6 +35,17 @@ export const STORAGE_KEYS = {
   LAST_SYNC: 'harmony_last_sync_timestamp',
 } as const;
 
+export const DEFAULT_DOCK_APP_IDS: string[] = [
+  'harmony-notes',
+  'harmony-docs',
+  'harmony-writing',
+  'harmony-music-player',
+  'harmony-app-store',
+  'harmony-calendar',
+  'harmony-finance',
+  'harmony-docs-ai'
+];
+
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   isDarkMode: true,
   themeMode: 'dark',
@@ -46,6 +57,9 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   defaultViewMode: 'native',
   accentColor: '#8b5cf6',
   focusMode: false,
+  dockAppIds: DEFAULT_DOCK_APP_IDS,
+  dockMaxSmallScreen: 5,
+  dockMaxLargeScreen: 7,
 };
 
 export interface QueuedSyncAction {

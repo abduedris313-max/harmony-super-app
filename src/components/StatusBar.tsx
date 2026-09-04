@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wifi, BatteryCharging, Flame, Disc, Sparkles, SlidersHorizontal, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { HarmonyLogo } from './HarmonyLogo';
 
 interface StatusBarProps {
   onOpenControlCenter: () => void;
@@ -48,7 +49,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
       }`}
     >
       {/* Time Display & Focus Indicator */}
-      <div className="flex items-center gap-2 cursor-pointer" onClick={onOpenControlCenter}>
+      <div className="flex items-center gap-2 cursor-pointer" onClick={onOpenControlCenter} title="Harmony System Control">
+        <HarmonyLogo size="xs" isDarkMode={isDarkMode} />
         <span className={`font-bold tracking-tight text-xs ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
           {timeStr || '9:41'}
         </span>

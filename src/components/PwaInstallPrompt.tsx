@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, X, Smartphone } from 'lucide-react';
+import { Download, X } from 'lucide-react';
+import { HarmonyLogo } from './HarmonyLogo';
 
 export const PwaInstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -44,12 +45,10 @@ export const PwaInstallPrompt: React.FC = () => {
         className="fixed bottom-20 left-4 right-4 z-40 max-w-md mx-auto p-4 rounded-3xl bg-neutral-900/95 border border-purple-500/40 text-white shadow-2xl backdrop-blur-2xl flex items-center justify-between gap-3"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-bold shrink-0">
-            <Smartphone className="w-5 h-5" />
-          </div>
+          <HarmonyLogo size="md" />
           <div>
-            <h4 className="text-xs font-bold text-white">Install Harmony OS</h4>
-            <p className="text-[11px] text-white/60">Add Super App to your mobile home screen</p>
+            <h4 className="text-xs font-bold text-white">Install Harmony</h4>
+            <p className="text-[11px] text-white/60">Add Harmony to your home screen</p>
           </div>
         </div>
 

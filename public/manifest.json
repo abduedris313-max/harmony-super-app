@@ -1,12 +1,18 @@
 {
-  "short_name": "Harmony OS",
-  "name": "Harmony Super App - Mini App Ecosystem",
+  "short_name": "Harmony",
+  "name": "Harmony",
   "icons": [
     {
-      "src": "https://cdn.jsdelivr.net/gh/lucide-icons/lucide/icons/layers.svg",
-      "type": "image/svg+xml",
-      "sizes": "192x192 512x512",
+      "src": "./harmony-logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512",
       "purpose": "any maskable"
+    },
+    {
+      "src": "./icon.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192 512x512",
+      "purpose": "any"
     }
   ],
   "start_url": "./",

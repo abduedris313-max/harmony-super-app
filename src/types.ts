@@ -125,6 +125,10 @@ export interface SystemSettings {
   defaultViewMode: 'native' | 'iframe'; // 'iframe' loads GitHub Pages deployment, 'native' loads Firebase cloud version
   accentColor: string;
   focusMode: boolean; // Focus Mode: suppresses notifications and mutes non-essential system sounds
+  // Dock Configuration
+  dockAppIds?: string[]; // Ordered list of app IDs pinned to the dock
+  dockMaxSmallScreen?: number; // Maximum apps on small screen (<640px, default: 5)
+  dockMaxLargeScreen?: number; // Maximum apps on large screen (>=640px, default: 7)
   updatedAt?: string;
 }
 

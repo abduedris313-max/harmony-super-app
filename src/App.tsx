@@ -528,6 +528,11 @@ export default function App() {
               onOpenAppSwitcher={() => setIsAppSwitcherOpen(true)}
               activeAppId={activeAppId}
               isDarkMode={settings.isDarkMode}
+              dockAppIds={settings.dockAppIds}
+              dockMaxSmallScreen={settings.dockMaxSmallScreen}
+              dockMaxLargeScreen={settings.dockMaxLargeScreen}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onUpdateSettings={handleUpdateSettings}
             />
           </motion.div>
         )}
