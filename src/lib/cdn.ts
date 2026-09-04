@@ -26,6 +26,7 @@ export const CDN_ICONS = {
   docsAi: `${LUCIDE_CDN_BASE}/sparkles.svg`,
   calendar: `${LUCIDE_CDN_BASE}/calendar.svg`,
   finance: `${LUCIDE_CDN_BASE}/wallet.svg`,
+  store: `${LUCIDE_CDN_BASE}/shopping-bag.svg`,
   github: `${LUCIDE_CDN_BASE}/github.svg`,
   firebase: `${LUCIDE_CDN_BASE}/flame.svg`,
   search: `${LUCIDE_CDN_BASE}/search.svg`,

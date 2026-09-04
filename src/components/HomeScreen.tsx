@@ -3,10 +3,10 @@
  * @description iOS 18 Springboard Launcher Grid & Widgets view for Harmony OS Super App.
  */
 
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { HARMONY_APPS } from '../config/apps';
-import { MiniAppConfig, HarmonyNote, HarmonyWritingDraft, Track } from '../types';
+import { MiniAppConfig, HarmonyNote, HarmonyWritingDraft, HarmonyCalendarEvent, Track } from '../types';
 import { 
   Search, 
   Settings, 
@@ -22,8 +22,13 @@ import {
   ChevronRight,
   Flame,
   Calendar as CalendarIcon,
-  Wallet
+  Wallet,
+  ShoppingBag,
+  Pin,
+  Plus,
+  Layers
 } from 'lucide-react';
+import { WidgetFramework } from './widgets/WidgetFramework';
 
 interface HomeScreenProps {
   onOpenApp: (appId: string) => void;
@@ -32,12 +37,15 @@ interface HomeScreenProps {
   onOpenAuth: () => void;
   recentNotes: HarmonyNote[];
   latestDraft?: HarmonyWritingDraft;
-  currentTrack?: Track;
+  currentTrack?: Track | null;
   isPlayingMusic?: boolean;
   onTogglePlayMusic?: () => void;
   userDisplayName?: string | null;
   isDarkMode?: boolean;
   onToggleTheme?: () => void;
+  calendarEvents?: HarmonyCalendarEvent[];
+  pinnedAppIds?: string[];
+  onTogglePinApp?: (appId: string) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -47,13 +55,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenAuth,
   recentNotes,
   latestDraft,
-  currentTrack,
-  isPlayingMusic,
-  onTogglePlayMusic,
+  currentTrack = null,
+  isPlayingMusic = false,
+  onTogglePlayMusic = () => {},
   userDisplayName,
   isDarkMode = true,
-  onToggleTheme
+  onToggleTheme,
+  calendarEvents = [],
+  pinnedAppIds,
+  onTogglePinApp
 }) => {
+  const [showUnpinnedLibrary, setShowUnpinnedLibrary] = useState(false);
+
+  // Derive pinned vs unpinned apps
+  const effectivePinnedIds = pinnedAppIds || HARMONY_APPS.map(a => a.id);
+  const pinnedApps = HARMONY_APPS.filter(a => effectivePinnedIds.includes(a.id));
+  const unpinnedApps = HARMONY_APPS.filter(a => !effectivePinnedIds.includes(a.id));
+
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case 'notebook': return <Notebook className="w-6 h-6 text-white drop-shadow-md" />;
@@ -63,6 +81,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       case 'sparkles': return <Sparkles className="w-6 h-6 text-white drop-shadow-md" />;
       case 'calendar': return <CalendarIcon className="w-6 h-6 text-white drop-shadow-md" />;
       case 'wallet': return <Wallet className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'shopping-bag':
+      case 'store':
+        return <ShoppingBag className="w-6 h-6 text-white drop-shadow-md" />;
       default: return <Sparkles className="w-6 h-6 text-white" />;
     }
   };
@@ -91,122 +112,40 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         }`}>⌘K</kbd>
       </motion.button>
 
-      {/* iOS Smart Stack Widgets Grid */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        {/* Widget 1: Music Player Smart Widget */}
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          className={`p-3.5 rounded-xl border transition-all shadow-sm flex flex-col justify-between min-h-[110px] ${
-            isDarkMode
-              ? 'bg-[#161b22] border-[#30363d] hover:border-[#58a6ff]'
-              : 'bg-white/85 border-neutral-200/90 hover:border-indigo-400 hover:shadow-md'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 font-semibold text-[11px] tracking-wide">
-              <Disc className="w-3.5 h-3.5 animate-spin-slow" />
-              <span>MUSIC</span>
-            </div>
-            <button
-              onClick={() => onOpenApp('harmony-music-player')}
-              className={`text-[11px] flex items-center gap-0.5 transition-colors ${
-                isDarkMode ? 'text-[#8b949e] hover:text-white' : 'text-neutral-500 hover:text-neutral-900 font-medium'
-              }`}
-            >
-              Open <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          <div className="my-1 flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0">
-              🎵
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`font-semibold text-xs truncate ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
-                {currentTrack ? currentTrack.title : 'Ambient Study Beats'}
-              </p>
-              <p className={`text-[11px] truncate ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
-                {currentTrack ? currentTrack.artist : 'Harmony Music Player'}
-              </p>
-            </div>
-            <button
-              onClick={onTogglePlayMusic}
-              className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md hover:bg-indigo-500 active:scale-95 transition-transform shrink-0"
-            >
-              {isPlayingMusic ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-            </button>
-          </div>
-
-          <div className={`flex items-center justify-between text-[10px] border-t pt-1.5 ${
-            isDarkMode ? 'text-[#8b949e] border-[#30363d]' : 'text-neutral-500 border-neutral-200'
-          }`}>
-            <span>Hi-Fi Audio Synth</span>
-            <span className="text-emerald-500 font-mono">Firebase Synced</span>
-          </div>
-        </motion.div>
-
-        {/* Widget 2: Harmony AI Quick Copilot Widget */}
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          className={`p-3.5 rounded-xl border transition-all shadow-sm flex flex-col justify-between min-h-[110px] ${
-            isDarkMode
-              ? 'bg-[#161b22] border-[#30363d] hover:border-[#58a6ff]'
-              : 'bg-white/85 border-neutral-200/90 hover:border-indigo-400 hover:shadow-md'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 font-semibold text-[11px] tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-              <span>DOCS AI</span>
-            </div>
-            <button
-              onClick={() => onOpenApp('harmony-docs-ai')}
-              className={`text-[11px] flex items-center gap-0.5 transition-colors ${
-                isDarkMode ? 'text-[#8b949e] hover:text-white' : 'text-neutral-500 hover:text-neutral-900 font-medium'
-              }`}
-            >
-              Launch AI <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          <div className="my-1">
-            <p className={`text-[11px] font-medium line-clamp-2 italic ${
-              isDarkMode ? 'text-[#c9d1d9]' : 'text-neutral-700'
-            }`}>
-              "Summarize document, outline ideas, or refine draft prose with Gemini 2.5 AI."
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => onOpenApp('harmony-docs-ai')}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors flex items-center gap-1 border ${
-                isDarkMode
-                  ? 'bg-[#21262d] text-white hover:bg-[#30363d] border-[#30363d]'
-                  : 'bg-neutral-100 text-neutral-800 hover:bg-neutral-200 border-neutral-200'
-              }`}
-            >
-              <Sparkles className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
-              <span>Ask AI Copilot</span>
-            </button>
-            <span className={`text-[10px] ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`}>Gemini 2.5</span>
-          </div>
-        </motion.div>
-      </div>
+      {/* iOS Smart Stack Widgets Framework (Calendar, Finance, Music, AI, etc.) */}
+      <WidgetFramework
+        onOpenApp={onOpenApp}
+        calendarEvents={calendarEvents}
+        recentNotes={recentNotes}
+        latestDraft={latestDraft}
+        currentTrack={currentTrack}
+        isPlayingMusic={isPlayingMusic}
+        onTogglePlayMusic={onTogglePlayMusic}
+        isDarkMode={isDarkMode}
+      />
 
       {/* iOS Springboard App Launcher Grid Header */}
       <div className="w-full flex items-center justify-between mb-2.5">
-        <h2 className={`text-[11px] font-bold tracking-wider uppercase ${
-          isDarkMode ? 'text-white/60' : 'text-neutral-700 font-bold'
-        }`}>Harmony Mini Apps</h2>
-        <span className="text-[11px] text-amber-500 font-mono flex items-center gap-1">
-          <Flame className="w-3 h-3" /> {HARMONY_APPS.length} Mini Apps Ready
-        </span>
+        <div className="flex items-center gap-2">
+          <h2 className={`text-[11px] font-bold tracking-wider uppercase ${
+            isDarkMode ? 'text-white/60' : 'text-neutral-700 font-bold'
+          }`}>
+            Pinned Apps ({pinnedApps.length})
+          </h2>
+        </div>
+
+        {/* Quick link to App Store to pin/unpin apps */}
+        <button
+          onClick={() => onOpenApp('harmony-app-store')}
+          className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
+        >
+          <ShoppingBag className="w-3.5 h-3.5" /> App Store
+        </button>
       </div>
 
-      {/* iOS 18 Springboard App Grid - Responsive 4 cols on mobile, up to 8 cols on sm/md */}
-      <div className="w-full grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4 mb-5">
-        {HARMONY_APPS.map((app) => (
+      {/* iOS 18 Springboard App Grid - Shows only pinned apps */}
+      <div className="w-full grid grid-cols-4 sm:grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4 mb-4">
+        {pinnedApps.map((app) => (
           <motion.div
             key={app.id}
             whileHover={{ scale: 1.05 }}
@@ -282,6 +221,88 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </span>
         </motion.div>
       </div>
+
+      {/* Unpinned Apps Library Drawer (if any apps are unpinned) */}
+      {unpinnedApps.length > 0 && (
+        <div className={`w-full rounded-xl p-3 border mb-4 ${
+          isDarkMode ? 'bg-[#161b22]/70 border-[#30363d]' : 'bg-neutral-100/80 border-neutral-200'
+        }`}>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setShowUnpinnedLibrary(!showUnpinnedLibrary)}
+              className="flex items-center gap-2 text-xs font-semibold text-neutral-400 hover:text-white transition-colors"
+            >
+              <Layers className="w-3.5 h-3.5 text-indigo-400" />
+              <span>App Library ({unpinnedApps.length} unpinned {unpinnedApps.length === 1 ? 'app' : 'apps'})</span>
+              <ChevronRight className={`w-3 h-3 transition-transform ${showUnpinnedLibrary ? 'rotate-90' : ''}`} />
+            </button>
+
+            <button
+              onClick={() => onOpenApp('harmony-app-store')}
+              className="text-[11px] text-indigo-400 hover:underline"
+            >
+              Manage in App Store
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showUnpinnedLibrary && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden mt-3 pt-3 border-t border-neutral-700/40"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {unpinnedApps.map((app) => (
+                    <div
+                      key={app.id}
+                      className={`p-2 rounded-lg border flex items-center justify-between gap-2 ${
+                        isDarkMode ? 'bg-[#0d1117] border-[#30363d]' : 'bg-white border-neutral-200'
+                      }`}
+                    >
+                      <div 
+                        onClick={() => onOpenApp(app.id)}
+                        className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
+                      >
+                        <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${app.colorGradient} flex items-center justify-center text-white shrink-0`}>
+                          {getIconComponent(app.iconName)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`text-xs font-semibold truncate ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+                            {app.name}
+                          </p>
+                          <p className="text-[10px] text-neutral-400 truncate">
+                            {app.tagline}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {onTogglePinApp && (
+                          <button
+                            onClick={() => onTogglePinApp(app.id)}
+                            className="px-2 py-1 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 flex items-center gap-1 transition-colors"
+                            title="Pin to Home Screen"
+                          >
+                            <Plus className="w-3 h-3" /> Pin
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onOpenApp(app.id)}
+                          className="px-2 py-1 rounded text-[10px] font-semibold bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+                        >
+                          Open
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Quick Access Activity Snap Section */}
       <div className={`w-full rounded-xl p-3.5 border mb-3 shadow-sm ${

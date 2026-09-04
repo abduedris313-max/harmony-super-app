@@ -97,5 +97,18 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     repoUrl: 'https://github.com/abduedris313-max/harmony-finance',
     description: 'Personal finance & wealth engine: cash flow ledger, category budgets, debt amortization schedules, and Gemini AI advisor.',
     badge: 'Finance'
+  },
+  {
+    id: 'harmony-app-store',
+    name: 'App Store',
+    tagline: 'Discover & Personalize Ecosystem Apps',
+    iconName: 'shopping-bag',
+    iconCdnUrl: getLucideCdnIconUrl('shopping-bag'),
+    colorGradient: 'from-blue-600 via-sky-500 to-indigo-600',
+    bgHex: '#0284c7',
+    deployedUrl: '#',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-super-app',
+    description: 'Harmony ecosystem app hub: browse all productivity, creative, and finance apps, view details, and pin/unpin apps from your Home Screen.',
+    badge: 'Store'
   }
 ];

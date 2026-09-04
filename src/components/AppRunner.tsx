@@ -30,6 +30,7 @@ import { HarmonyMusicPlayerApp } from './mini-apps/HarmonyMusicPlayerApp';
 import { HarmonyDocsAiApp } from './mini-apps/HarmonyDocsAiApp';
 import { HarmonyCalendarApp } from './mini-apps/HarmonyCalendarApp';
 import { HarmonyFinanceApp } from './mini-apps/HarmonyFinanceApp';
+import { HarmonyAppStoreApp } from './mini-apps/HarmonyAppStoreApp';
 import { 
   useOfflinePersistence, 
   setLocalItem, 
@@ -61,6 +62,9 @@ interface AppRunnerProps {
   onSaveCalendarEvent?: (event: Partial<HarmonyCalendarEvent> & { id: string; title: string; gregorianDate: string }) => Promise<any>;
   onDeleteCalendarEvent?: (id: string) => Promise<void>;
   onPlayTrack?: (track: any) => void;
+  pinnedAppIds?: string[];
+  onTogglePinApp?: (appId: string) => void;
+  onOpenApp?: (appId: string) => void;
 }
 
 export const AppRunner: React.FC<AppRunnerProps> = ({
@@ -84,7 +88,10 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
   calendarEvents,
   onSaveCalendarEvent,
   onDeleteCalendarEvent,
-  onPlayTrack
+  onPlayTrack,
+  pinnedAppIds = [],
+  onTogglePinApp,
+  onOpenApp
 }) => {
   const [mode, setMode] = useState<'native' | 'iframe'>(defaultMode);
   const [iframeKey, setIframeKey] = useState(0);
@@ -356,6 +363,15 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
         return (
           <HarmonyFinanceApp
             user={user}
+          />
+        );
+      case 'harmony-app-store':
+        return (
+          <HarmonyAppStoreApp
+            user={user}
+            pinnedAppIds={pinnedAppIds}
+            onTogglePinApp={onTogglePinApp || (() => {})}
+            onOpenApp={onOpenApp || (() => {})}
           />
         );
       default:

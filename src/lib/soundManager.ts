@@ -235,6 +235,37 @@ class SystemSoundManager {
       // Audio autoplay policy guard
     }
   }
+
+  /**
+   * Subtle iOS haptic click/tap audio
+   */
+  public playClickSound() {
+    if (this.isNonEssentialMuted()) return;
+
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.04);
+
+      const vol = 0.08 * this.settings.volume;
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.04);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.04);
+    } catch {
+      // Guard
+    }
+  }
 }
 
 export const soundManager = new SystemSoundManager();

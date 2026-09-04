@@ -21,6 +21,8 @@ export const STORAGE_KEYS = {
   FINANCE_BUDGETS: 'harmony_finance_budgets_data',
   FINANCE_LOANS: 'harmony_finance_loans_data',
   FINANCE_SUBSCRIPTIONS: 'harmony_finance_subscriptions_data',
+  PINNED_APPS: 'harmony_pinned_apps_v1',
+  HOME_WIDGETS: 'harmony_home_widgets_v1',
   SETTINGS: 'harmony_system_settings_v1',
   NOTIFICATIONS: 'harmony_system_notifications_v1',
   SYSTEM_NOTES: 'harmony_offline_notes',

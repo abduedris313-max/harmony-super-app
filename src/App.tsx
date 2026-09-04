@@ -111,6 +111,35 @@ export default function App() {
     return getLocalItem<HarmonyCalendarEvent[]>(STORAGE_KEYS.CALENDAR, INITIAL_OFFLINE_EVENTS);
   });
 
+  // Pinned Apps for Home Screen personalization
+  const DEFAULT_PINNED_APPS = HARMONY_APPS.map(a => a.id);
+  const [pinnedAppIds, setPinnedAppIds] = useState<string[]>(() => {
+    return getLocalItem<string[]>(STORAGE_KEYS.PINNED_APPS, DEFAULT_PINNED_APPS);
+  });
+
+  // Toggle pinning/unpinning apps from the Home Screen
+  const handleTogglePinApp = (appId: string) => {
+    setPinnedAppIds((prev) => {
+      let next: string[];
+      const appConfig = HARMONY_APPS.find(a => a.id === appId);
+      const appName = appConfig ? appConfig.name : 'App';
+      if (prev.includes(appId)) {
+        if (prev.length <= 1) {
+          triggerNotification('Layout Notice', 'At least 1 app must remain pinned to your Home Screen.', 'App Store');
+          return prev;
+        }
+        next = prev.filter(id => id !== appId);
+        triggerNotification('App Unpinned', `${appName} moved to App Library.`, 'App Store');
+      } else {
+        next = [...prev, appId];
+        triggerNotification('App Pinned', `${appName} is now pinned to Home Screen.`, 'App Store');
+      }
+      setLocalItem(STORAGE_KEYS.PINNED_APPS, next);
+      soundManager.playClickSound();
+      return next;
+    });
+  };
+
   // System Settings with Offline Storage Cache & soundManager synchronization
   const [settings, setSettings] = useState<SystemSettings>(() => {
     const saved = getLocalItem<SystemSettings>(STORAGE_KEYS.SETTINGS, DEFAULT_SYSTEM_SETTINGS);
@@ -449,6 +478,9 @@ export default function App() {
                 setCurrentTrack(track);
                 setIsPlayingMusic(true);
               }}
+              pinnedAppIds={pinnedAppIds}
+              onTogglePinApp={handleTogglePinApp}
+              onOpenApp={handleOpenApp}
             />
           ) : (
             <motion.div
@@ -471,6 +503,9 @@ export default function App() {
                 onTogglePlayMusic={() => setIsPlayingMusic(!isPlayingMusic)}
                 userDisplayName={user?.displayName}
                 isDarkMode={settings.isDarkMode}
+                calendarEvents={calendarEvents}
+                pinnedAppIds={pinnedAppIds}
+                onTogglePinApp={handleTogglePinApp}
               />
             </motion.div>
           )}
