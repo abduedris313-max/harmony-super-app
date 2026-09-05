@@ -119,47 +119,47 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
   };
 
   return (
-    <div className="space-y-4 text-white">
+    <div className="space-y-4 text-neutral-900 dark:text-white">
       {/* Top Banner: Burn Rate Summary */}
-      <div className="p-4.5 rounded-2xl bg-gradient-to-br from-[#1c2230] via-[#161b22] to-[#0f131a] border border-[#30363d] shadow-xl">
+      <div className="p-4.5 rounded-2xl bg-white dark:bg-gradient-to-br dark:from-[#1c2230] dark:via-[#161b22] dark:to-[#0f131a] border border-neutral-200 dark:border-[#30363d] shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b949e]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#8b949e]">
               Recurring Subscriptions & Fixed Burn Rate
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold font-mono text-white mt-0.5">
+            <h2 className="text-2xl sm:text-3xl font-bold font-mono text-neutral-900 dark:text-white mt-0.5">
               {formatCurrency(monthlyBurn, currencyCode)}{' '}
-              <span className="text-xs font-normal text-indigo-300">/month</span>
+              <span className="text-xs font-normal text-indigo-600 dark:text-indigo-300">/month</span>
             </h2>
           </div>
 
           <button
             onClick={handleOpenAdd}
-            className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+            className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Subscription</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-3 border-t border-[#30363d]/70 text-xs">
-          <div className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d]/60">
-            <span className="text-[10px] text-[#8b949e] uppercase font-bold">Annual Total</span>
-            <p className="text-sm font-bold font-mono text-white mt-0.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-3 border-t border-neutral-200 dark:border-[#30363d]/70 text-xs">
+          <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/60">
+            <span className="text-[10px] text-neutral-500 dark:text-[#8b949e] uppercase font-bold">Annual Total</span>
+            <p className="text-sm font-bold font-mono text-neutral-900 dark:text-white mt-0.5">
               {formatCurrency(yearlyBurn, currencyCode)} /yr
             </p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d]/60">
-            <span className="text-[10px] text-[#8b949e] uppercase font-bold">Active Subscriptions</span>
-            <p className="text-sm font-bold font-mono text-indigo-300 mt-0.5">
+          <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/60">
+            <span className="text-[10px] text-neutral-500 dark:text-[#8b949e] uppercase font-bold">Active Subscriptions</span>
+            <p className="text-sm font-bold font-mono text-indigo-600 dark:text-indigo-300 mt-0.5">
               {subscriptions.filter(s => s.status === 'active').length} Active
             </p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d]/60 col-span-2 sm:col-span-1">
-            <span className="text-[10px] text-[#8b949e] uppercase font-bold">Auto-Renewals</span>
-            <p className="text-sm font-bold font-mono text-emerald-400 mt-0.5">
+          <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/60 col-span-2 sm:col-span-1">
+            <span className="text-[10px] text-neutral-500 dark:text-[#8b949e] uppercase font-bold">Auto-Renewals</span>
+            <p className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
               Cloud Monitored
             </p>
           </div>
@@ -172,30 +172,30 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
           subscriptions.map((sub) => (
             <div
               key={sub.id}
-              className="p-4 rounded-2xl bg-[#161b22] border border-[#30363d] hover:border-[#58a6ff]/50 transition-all shadow-sm flex flex-col justify-between"
+              className="p-4 rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] hover:border-indigo-300 dark:hover:border-[#58a6ff]/50 transition-all shadow-xs flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center font-bold text-xs">
+                    <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">
                       📺
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">{sub.name}</h4>
-                      <p className="text-[10px] text-[#8b949e]">{sub.category}</p>
+                      <h4 className="text-sm font-bold text-neutral-900 dark:text-white">{sub.name}</h4>
+                      <p className="text-[10px] text-neutral-500 dark:text-[#8b949e]">{sub.category}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenEdit(sub)}
-                      className="p-1 rounded-lg bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] hover:text-white transition-colors text-xs"
+                      className="p-1 rounded-lg bg-neutral-100 dark:bg-[#21262d] hover:bg-neutral-200 dark:hover:bg-[#30363d] text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white transition-colors text-xs"
                     >
                       <Edit3 className="w-3 h-3" />
                     </button>
                     <button
                       onClick={() => onDeleteSubscription(sub.id)}
-                      className="p-1 rounded-lg bg-[#21262d] hover:bg-rose-500/20 text-[#8b949e] hover:text-rose-400 transition-colors text-xs"
+                      className="p-1 rounded-lg bg-neutral-100 dark:bg-[#21262d] hover:bg-rose-500/20 text-neutral-600 dark:text-[#8b949e] hover:text-rose-600 dark:hover:text-rose-400 transition-colors text-xs"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -204,30 +204,30 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
 
                 <div className="my-3 pt-1">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold font-mono text-white">
+                    <span className="text-xl font-bold font-mono text-neutral-900 dark:text-white">
                       {formatCurrency(sub.amount, currencyCode)}
                     </span>
-                    <span className="text-xs text-[#8b949e] capitalize">
+                    <span className="text-xs text-neutral-500 dark:text-[#8b949e] capitalize">
                       / {sub.billingCycle.replace('ly', '')}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#30363d]/60 text-[10px] text-[#8b949e] flex items-center justify-between">
-                <span>Renews: <strong className="text-indigo-300 font-mono">{sub.nextBillingDate}</strong></span>
+              <div className="pt-2 border-t border-neutral-200 dark:border-[#30363d]/60 text-[10px] text-neutral-500 dark:text-[#8b949e] flex items-center justify-between">
+                <span>Renews: <strong className="text-indigo-600 dark:text-indigo-300 font-mono">{sub.nextBillingDate}</strong></span>
                 <span className="capitalize">{getAccountName(sub.accountId)}</span>
               </div>
             </div>
           ))
         ) : (
-          <div className="sm:col-span-3 p-12 text-center text-[#8b949e] rounded-2xl bg-[#161b22] border border-[#30363d]">
-            <Clock className="w-10 h-10 mx-auto text-[#8b949e]/40 mb-3" />
-            <h4 className="text-sm font-bold text-white">No Recurring Subscriptions Added</h4>
-            <p className="text-xs text-[#8b949e] mt-1">Track software licenses, streaming services, gym memberships, and utility bills.</p>
+          <div className="sm:col-span-3 p-12 text-center text-neutral-500 dark:text-[#8b949e] rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] shadow-xs">
+            <Clock className="w-10 h-10 mx-auto text-neutral-400 dark:text-[#8b949e]/40 mb-3" />
+            <h4 className="text-sm font-bold text-neutral-900 dark:text-white">No Recurring Subscriptions Added</h4>
+            <p className="text-xs text-neutral-500 dark:text-[#8b949e] mt-1">Track software licenses, streaming services, gym memberships, and utility bills.</p>
             <button
               onClick={handleOpenAdd}
-              className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
+              className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs"
             >
               + Add First Subscription
             </button>
@@ -237,28 +237,28 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
 
       {/* Subscription Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#161b22] border border-[#30363d] text-white rounded-2xl w-full max-w-md p-4 space-y-4 shadow-2xl animate-fade-in text-xs">
-            <h3 className="text-sm font-bold text-white">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] text-neutral-900 dark:text-white rounded-2xl w-full max-w-md p-4 space-y-4 shadow-2xl animate-fade-in text-xs">
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
               {subToEdit ? 'Edit Subscription' : 'Add Recurring Subscription'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Service / Bill Name *</label>
+                <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Service / Bill Name *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Netflix 4K, Spotify Duo, AWS Cloud, Rent"
-                  className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                  className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Amount ({currencyCode})</label>
+                  <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Amount ({currencyCode})</label>
                   <input
                     type="number"
                     step="0.01"
@@ -266,16 +266,16 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="19.99"
-                    className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white font-mono focus:outline-none"
+                    className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white font-mono focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Billing Cycle</label>
+                  <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Billing Cycle</label>
                   <select
                     value={billingCycle}
                     onChange={(e) => setBillingCycle(e.target.value as BillingCycle)}
-                    className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                    className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
                   >
                     <option value="monthly">Monthly</option>
                     <option value="quarterly">Quarterly</option>
@@ -286,11 +286,11 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Category</label>
+                  <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Category</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as FinanceCategory)}
-                    className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                    className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
                   >
                     {CATEGORIES.map(c => (
                       <option key={c} value={c}>{c}</option>
@@ -299,23 +299,23 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Next Billing Date</label>
+                  <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Next Billing Date</label>
                   <input
                     type="date"
                     required
                     value={nextBillingDate}
                     onChange={(e) => setNextBillingDate(e.target.value)}
-                    className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white font-mono focus:outline-none"
+                    className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white font-mono focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Payment Method / Account</label>
+                <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Payment Method / Account</label>
                 <select
                   value={accountId}
                   onChange={(e) => setAccountId(e.target.value)}
-                  className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                  className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
                 >
                   {accounts.map(acc => (
                     <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -323,17 +323,17 @@ export const SubscriptionsView: React.FC<SubscriptionsViewProps> = ({
                 </select>
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#30363d]">
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-neutral-200 dark:border-[#30363d]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] font-medium"
+                  className="px-4 py-2 rounded-xl bg-neutral-100 dark:bg-[#21262d] hover:bg-neutral-200 dark:hover:bg-[#30363d] text-neutral-700 dark:text-[#c9d1d9] font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold"
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-xs"
                 >
                   Save Subscription
                 </button>

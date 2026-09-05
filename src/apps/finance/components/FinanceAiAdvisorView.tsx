@@ -179,7 +179,7 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-[500px] text-white space-y-3">
+    <div className="flex flex-col h-full min-h-[500px] text-neutral-900 dark:text-white space-y-3">
       {/* Quick Prompts Carousel */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {QUICK_PROMPTS.map((qp, idx) => (
@@ -187,43 +187,43 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
             key={idx}
             onClick={() => handleSendMessage(qp.prompt)}
             disabled={isLoading}
-            className="px-3 py-1.5 rounded-xl bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] hover:border-indigo-500 text-[11px] font-medium text-[#c9d1d9] hover:text-white shrink-0 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#161b22] hover:bg-neutral-50 dark:hover:bg-[#21262d] border border-neutral-200 dark:border-[#30363d] hover:border-indigo-400 dark:hover:border-indigo-500 text-[11px] font-medium text-neutral-700 dark:text-[#c9d1d9] hover:text-neutral-900 dark:hover:text-white shrink-0 flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-xs"
           >
-            <Sparkles className="w-3 h-3 text-indigo-400" />
+            <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
             <span>{qp.label}</span>
           </button>
         ))}
       </div>
 
       {/* Chat Messages Log */}
-      <div className="flex-1 bg-[#161b22] border border-[#30363d] rounded-2xl p-4 overflow-y-auto space-y-3 scrollbar-none text-xs">
+      <div className="flex-1 bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] rounded-2xl p-4 overflow-y-auto space-y-3 scrollbar-none text-xs shadow-xs">
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.sender === 'assistant' && (
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-sm">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 mt-0.5 shadow-xs">
                 <Bot className="w-4 h-4" />
               </div>
             )}
 
             <div
-              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3.5 space-y-1 shadow-sm relative group ${
+              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3.5 space-y-1 shadow-xs relative group ${
                 msg.sender === 'user'
                   ? 'bg-indigo-600 text-white rounded-tr-none'
-                  : 'bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] rounded-tl-none'
+                  : 'bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] text-neutral-800 dark:text-[#c9d1d9] rounded-tl-none'
               }`}
             >
               <div className="flex items-center justify-between gap-4 mb-1">
-                <span className="text-[10px] font-semibold text-[#8b949e]">
+                <span className="text-[10px] font-semibold text-neutral-500 dark:text-[#8b949e]">
                   {msg.sender === 'user' ? 'You' : 'Harmony Financial AI'}
                 </span>
-                <span className="text-[9px] text-[#8b949e] font-mono">{msg.timestamp}</span>
+                <span className="text-[9px] text-neutral-400 dark:text-[#8b949e] font-mono">{msg.timestamp}</span>
               </div>
 
               {msg.sender === 'assistant' ? (
-                <div className="markdown-body prose prose-invert max-w-none text-xs leading-relaxed space-y-2">
+                <div className="markdown-body prose dark:prose-invert max-w-none text-xs leading-relaxed space-y-2">
                   <Markdown>{msg.text}</Markdown>
                 </div>
               ) : (
@@ -234,9 +234,9 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
                 <div className="pt-2 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleCopyText(msg.id, msg.text)}
-                    className="text-[10px] text-[#8b949e] hover:text-white flex items-center gap-1 transition-colors"
+                    className="text-[10px] text-neutral-500 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white flex items-center gap-1 transition-colors"
                   >
-                    {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
                   </button>
                 </div>
@@ -244,7 +244,7 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
             </div>
 
             {msg.sender === 'user' && (
-              <div className="w-7 h-7 rounded-lg bg-[#21262d] border border-[#30363d] flex items-center justify-center text-[#8b949e] shrink-0 mt-0.5">
+              <div className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-[#21262d] border border-neutral-200 dark:border-[#30363d] flex items-center justify-center text-neutral-600 dark:text-[#8b949e] shrink-0 mt-0.5">
                 <User className="w-4 h-4" />
               </div>
             )}
@@ -252,7 +252,7 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
         ))}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-xs text-indigo-400 p-2 bg-[#0d1117] rounded-xl border border-[#30363d] w-fit">
+          <div className="flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 p-2 bg-neutral-50 dark:bg-[#0d1117] rounded-xl border border-neutral-200 dark:border-[#30363d] w-fit">
             <RefreshCw className="w-3.5 h-3.5 animate-spin" />
             <span>Analyzing financial models & generating strategy...</span>
           </div>
@@ -260,7 +260,7 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
       </div>
 
       {/* Input Box */}
-      <div className="p-2 rounded-2xl bg-[#161b22] border border-[#30363d] flex items-center gap-2">
+      <div className="p-2 rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] flex items-center gap-2 shadow-xs">
         <input
           type="text"
           value={prompt}
@@ -272,12 +272,12 @@ export const FinanceAiAdvisorView: React.FC<FinanceAiAdvisorViewProps> = ({
             }
           }}
           placeholder="Ask AI Financial Advisor (e.g. 'How much can I save if I cut dining by 20%?')..."
-          className="flex-1 bg-transparent px-3 py-2 text-xs text-white placeholder-[#8b949e] focus:outline-none"
+          className="flex-1 bg-transparent px-3 py-2 text-xs text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-[#8b949e] focus:outline-none"
         />
         <button
           onClick={() => handleSendMessage()}
           disabled={!prompt.trim() || isLoading}
-          className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-colors disabled:opacity-50 shrink-0"
+          className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-colors disabled:opacity-50 shrink-0 shadow-xs"
         >
           <Send className="w-4 h-4" />
         </button>

@@ -56,6 +56,7 @@ import {
   STORAGE_KEYS,
   INITIAL_OFFLINE_EVENTS
 } from '../../lib/offlinePersistence';
+import { useTheme } from '../../hooks/useTheme';
 
 interface HarmonyCalendarAppModuleProps {
   user?: SystemUser | null;
@@ -70,6 +71,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
   onSaveEvent: propOnSaveEvent,
   onDeleteEvent: propOnDeleteEvent
 }) => {
+  const theme = useTheme();
   // Calendar View mode: 'month' | 'converter' | 'events' | 'google-sync'
   const [viewMode, setViewMode] = useState<CalendarViewMode>('month');
 
@@ -331,12 +333,12 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0d1117] text-white select-none overflow-hidden">
+    <div className="flex flex-col h-full bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-white select-none overflow-hidden">
       {/* Top Application Bar */}
-      <header className="px-4 py-2.5 border-b border-white/10 bg-[#161b22] flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <header className="px-4 py-2.5 border-b border-neutral-200 dark:border-white/10 bg-white dark:bg-[#161b22] flex flex-wrap items-center justify-between gap-3 shrink-0">
         {/* Title, Navigation & Quick 'Today' button */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-rose-500 to-amber-600 flex items-center justify-center text-white shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-amber-600 flex items-center justify-center text-white shadow-xs">
             <CalendarIcon className="w-4 h-4" />
           </div>
 
@@ -344,20 +346,20 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-neutral-300 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
               title="Previous Month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <h1 className="text-sm md:text-base font-bold text-white min-w-[150px] text-center">
+            <h1 className="text-sm md:text-base font-bold text-neutral-900 dark:text-white min-w-[150px] text-center">
               {GREGORIAN_MONTH_NAMES[currentMonth - 1]} {currentYear}
             </h1>
 
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-neutral-300 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition-colors"
               title="Next Month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -366,7 +368,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
             <button
               type="button"
               onClick={handleJumpToToday}
-              className="ml-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-semibold text-neutral-200 transition-colors"
+              className="ml-1 px-2.5 py-1 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-semibold text-neutral-700 dark:text-neutral-200 transition-colors"
             >
               Today
             </button>
@@ -374,13 +376,13 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
         </div>
 
         {/* Center Multi-Calendar Subtitle */}
-        <div className="hidden lg:flex items-center gap-3 text-xs text-neutral-400 font-mono">
-          <span className="flex items-center gap-1 text-emerald-400">
+        <div className="hidden lg:flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400 font-mono">
+          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
             <Sunrise className="w-3.5 h-3.5" />
             {HIJRI_MONTH_NAMES[currentMonthBundle.hijri.month - 1]?.split(' ')[0]} {currentMonthBundle.hijri.year} AH
           </span>
           <span>•</span>
-          <span className="flex items-center gap-1 text-amber-400">
+          <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
             <Compass className="w-3.5 h-3.5" />
             {ETHIOPIAN_MONTH_NAMES[currentMonthBundle.ethiopian.month - 1]?.split(' ')[0]} {currentMonthBundle.ethiopian.year} EE
           </span>
@@ -389,12 +391,12 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
         {/* View Switcher, Primary System Selector & Add Event Button */}
         <div className="flex items-center gap-2">
           {/* Primary View Mode Tabs */}
-          <div className="flex items-center p-1 rounded-xl bg-white/5 border border-white/10 text-xs">
+          <div className="flex items-center p-1 rounded-xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-xs">
             <button
               type="button"
               onClick={() => setViewMode('month')}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
-                viewMode === 'month' ? 'bg-rose-500 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                viewMode === 'month' ? 'bg-rose-500 text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               Calendar
@@ -403,7 +405,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
               type="button"
               onClick={() => setViewMode('converter')}
               className={`px-3 py-1 rounded-lg font-medium flex items-center gap-1 transition-all ${
-                viewMode === 'converter' ? 'bg-rose-500 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                viewMode === 'converter' ? 'bg-rose-500 text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               <ArrowRightLeft className="w-3 h-3" />
@@ -413,7 +415,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
               type="button"
               onClick={() => setViewMode('google-sync')}
               className={`px-3 py-1 rounded-lg font-medium flex items-center gap-1 transition-all ${
-                viewMode === 'google-sync' ? 'bg-blue-600 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                viewMode === 'google-sync' ? 'bg-blue-600 text-white shadow-xs' : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               <Cloud className="w-3 h-3" />
@@ -436,7 +438,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
 
       {/* Sub-header for Primary Calendar System Focus (when in month view) */}
       {viewMode === 'month' && (
-        <div className="px-4 py-1.5 bg-[#161b22]/70 border-b border-white/5 flex items-center justify-between text-xs text-neutral-400">
+        <div className="px-4 py-1.5 bg-neutral-100/70 dark:bg-[#161b22]/70 border-b border-neutral-200 dark:border-white/5 flex items-center justify-between text-xs text-neutral-600 dark:text-neutral-400">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
               Primary System:
@@ -446,7 +448,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
                 type="button"
                 onClick={() => setPrimarySystem('gregorian')}
                 className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors ${
-                  primarySystem === 'gregorian' ? 'bg-rose-500/20 text-rose-400 font-bold' : 'hover:text-white'
+                  primarySystem === 'gregorian' ? 'bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold' : 'hover:text-neutral-900 dark:hover:text-white'
                 }`}
               >
                 Gregorian (Standard)
@@ -455,7 +457,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
                 type="button"
                 onClick={() => setPrimarySystem('hijri')}
                 className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors ${
-                  primarySystem === 'hijri' ? 'bg-emerald-500/20 text-emerald-400 font-bold' : 'hover:text-white'
+                  primarySystem === 'hijri' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold' : 'hover:text-neutral-900 dark:hover:text-white'
                 }`}
               >
                 Hijri (Islamic)
@@ -464,7 +466,7 @@ export const HarmonyCalendarAppModule: React.FC<HarmonyCalendarAppModuleProps> =
                 type="button"
                 onClick={() => setPrimarySystem('ethiopian')}
                 className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors ${
-                  primarySystem === 'ethiopian' ? 'bg-amber-500/20 text-amber-400 font-bold' : 'hover:text-white'
+                  primarySystem === 'ethiopian' ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold' : 'hover:text-neutral-900 dark:hover:text-white'
                 }`}
               >
                 Ethiopian (Ge'ez)

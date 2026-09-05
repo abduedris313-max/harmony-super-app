@@ -131,28 +131,28 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#161b22] border border-[#30363d] text-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] text-neutral-900 dark:text-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in">
         {/* Header */}
-        <div className="p-4 border-b border-[#30363d] flex items-center justify-between bg-[#0d1117]">
+        <div className="p-4 border-b border-neutral-200 dark:border-[#30363d] flex items-center justify-between bg-neutral-50 dark:bg-[#0d1117]">
           <div className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-              type === 'expense' ? 'bg-rose-500/20 text-rose-400' :
-              type === 'income' ? 'bg-emerald-500/20 text-emerald-400' :
-              'bg-blue-500/20 text-blue-400'
+              type === 'expense' ? 'bg-rose-500/20 text-rose-600 dark:text-rose-400' :
+              type === 'income' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' :
+              'bg-blue-500/20 text-blue-600 dark:text-blue-400'
             }`}>
               {type === 'expense' ? '-' : type === 'income' ? '+' : '⇄'}
             </div>
             <div>
-              <h3 className="text-sm font-bold">
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
                 {transactionToEdit ? 'Edit Transaction' : 'Record Transaction'}
               </h3>
-              <p className="text-[11px] text-[#8b949e]">Harmony Ledger & Cash Flow</p>
+              <p className="text-[11px] text-neutral-500 dark:text-[#8b949e]">Harmony Ledger & Cash Flow</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-[#8b949e] hover:text-white hover:bg-[#21262d] transition-colors"
+            className="p-1 rounded-full text-neutral-500 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-[#21262d] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -161,14 +161,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-4 overflow-y-auto space-y-4 flex-1 scrollbar-none text-xs">
           {/* Type Selector Pills */}
-          <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#0d1117] rounded-xl border border-[#30363d]">
+          <div className="grid grid-cols-3 gap-1.5 p-1 bg-neutral-100 dark:bg-[#0d1117] rounded-xl border border-neutral-200 dark:border-[#30363d]">
             <button
               type="button"
               onClick={() => { setType('expense'); setCategory('Food & Dining'); }}
               className={`py-1.5 rounded-lg font-semibold transition-all ${
                 type === 'expense'
-                  ? 'bg-rose-600 text-white shadow-sm'
-                  : 'text-[#8b949e] hover:text-white'
+                  ? 'bg-rose-600 text-white shadow-xs'
+                  : 'text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               Expense
@@ -178,8 +178,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               onClick={() => { setType('income'); setCategory('Salary'); }}
               className={`py-1.5 rounded-lg font-semibold transition-all ${
                 type === 'income'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-[#8b949e] hover:text-white'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               Income
@@ -189,8 +189,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               onClick={() => { setType('transfer'); setCategory('Other'); }}
               className={`py-1.5 rounded-lg font-semibold transition-all ${
                 type === 'transfer'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-[#8b949e] hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               Transfer
@@ -200,11 +200,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {/* Amount & Title */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">
+              <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">
                 Amount ({currencyCode}) *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-[#8b949e] font-mono text-sm">$</span>
+                <span className="absolute left-3 top-2.5 text-neutral-400 dark:text-[#8b949e] font-mono text-sm">$</span>
                 <input
                   type="number"
                   step="0.01"
@@ -213,13 +213,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl pl-8 pr-3 py-2 text-white font-mono text-sm font-semibold focus:outline-none"
+                  className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl pl-8 pr-3 py-2 text-neutral-900 dark:text-white font-mono text-sm font-semibold focus:outline-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">
+              <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">
                 Description / Title *
               </label>
               <input
@@ -228,7 +228,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Grocery Store, Client Payment"
-                className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
               />
             </div>
           </div>
@@ -236,11 +236,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {/* Category & Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Category</label>
+              <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as FinanceCategory)}
-                className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -249,13 +249,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Date</label>
+              <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Date</label>
               <input
                 type="date"
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none font-mono"
+                className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none font-mono"
               />
             </div>
           </div>
@@ -263,13 +263,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {/* Source Account & Destination Account (if transfer) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">
+              <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">
                 {type === 'transfer' ? 'From Account' : 'Account'}
               </label>
               <select
                 value={accountId}
                 onChange={(e) => setAccountId(e.target.value)}
-                className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -281,11 +281,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
             {type === 'transfer' ? (
               <div>
-                <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">To Account</label>
+                <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">To Account</label>
                 <select
                   value={toAccountId}
                   onChange={(e) => setToAccountId(e.target.value)}
-                  className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                  className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
                 >
                   {accounts.filter(a => a.id !== accountId).map((acc) => (
                     <option key={acc.id} value={acc.id}>
@@ -296,11 +296,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               </div>
             ) : (
               <div>
-                <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Payment Method</label>
+                <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Payment Method</label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                  className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-white focus:outline-none"
+                  className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-2 text-neutral-900 dark:text-white focus:outline-none"
                 >
                   <option value="bank_account">Bank Account / Transfer</option>
                   <option value="debit_card">Debit Card</option>
@@ -315,24 +315,24 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {/* Notes */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Notes (Optional)</label>
+            <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Notes (Optional)</label>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Receipt details, tax memo, merchant location..."
-              className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl p-2.5 text-white focus:outline-none"
+              className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl p-2.5 text-neutral-900 dark:text-white focus:outline-none"
             />
           </div>
 
           {/* Tags */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#8b949e] mb-1">Tags (Press Enter)</label>
+            <label className="block text-[11px] font-semibold text-neutral-600 dark:text-[#8b949e] mb-1">Tags (Press Enter)</label>
             <div className="flex flex-wrap gap-1.5 mb-1.5">
               {tags.map((tag) => (
-                <span key={tag} className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 text-[10px]">
+                <span key={tag} className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 flex items-center gap-1 text-[10px]">
                   #{tag}
-                  <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:text-white">
+                  <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:text-neutral-900 dark:hover:text-white">
                     <X className="w-2.5 h-2.5" />
                   </button>
                 </span>
@@ -344,23 +344,23 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleAddTag}
               placeholder="Add tag (e.g. TaxDeductible, Vacation, ProjectX)..."
-              className="w-full bg-[#0d1117] border border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-1.5 text-white focus:outline-none text-[11px]"
+              className="w-full bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d] focus:border-indigo-500 rounded-xl px-3 py-1.5 text-neutral-900 dark:text-white focus:outline-none text-[11px]"
             />
           </div>
 
           {/* Footer Submit */}
-          <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#30363d]">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-neutral-200 dark:border-[#30363d]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] font-medium transition-colors"
+              className="px-4 py-2 rounded-xl bg-neutral-100 dark:bg-[#21262d] hover:bg-neutral-200 dark:hover:bg-[#30363d] text-neutral-700 dark:text-[#c9d1d9] font-medium transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+              className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-xs"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Saving...' : 'Save Transaction'}</span>

@@ -4,48 +4,12 @@ import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firesto
 import { DocSidebar } from './components/DocSidebar';
 import { DocEditor } from './components/DocEditor';
 import { DocItem } from './types';
+import { useTheme } from '../../hooks/useTheme';
 
-const DEFAULT_DOCS: DocItem[] = [
-  {
-    id: 'doc-1',
-    title: '🌐 Harmony OS Technical Specification & Standards',
-    content: `# Harmony OS Technical Specification
-
-## Overview
-Harmony OS brings a seamless Apple iOS 18 Springboard aesthetic to full-stack web applications.
-
-### Architectural Pillars:
-1. **Modular Mini-Apps**: Each mini-app resides in a clean sub-system module.
-2. **Dual Execution Engine**: Supports Native Cloud components alongside GitHub Pages deployments.
-3. **PWA Mobile First**: Fully offline capable with Service Worker caching and home screen install prompts.
-
----
-
-### Security & Data Model:
-All user notes, documents, typewriter drafts, and music playlists automatically synchronize with Firestore collections protected by Firebase security rules.`,
-    wordCount: 78,
-    readingTime: 1,
-    updatedAt: Date.now(),
-    createdAt: Date.now(),
-  },
-  {
-    id: 'doc-2',
-    title: '📘 Developer Quickstart Guide',
-    content: `# Developer Quickstart Guide
-
-To add a new mini-app to the Harmony Super App platform:
-1. Create a dedicated module directory under \`/src/apps/your-app/\`.
-2. Define core data interfaces in \`types.ts\`.
-3. Register the app metadata in \`/src/config/apps.ts\`.
-4. Import and bind the module in \`AppRunner.tsx\`.`,
-    wordCount: 42,
-    readingTime: 1,
-    updatedAt: Date.now() - 7200000,
-    createdAt: Date.now() - 7200000,
-  },
-];
+const DEFAULT_DOCS: DocItem[] = [];
 
 export const HarmonyDocsAppModule: React.FC = () => {
+  const theme = useTheme();
   const [docsList, setDocsList] = useState<DocItem[]>([]);
   const [activeDocId, setActiveDocId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,7 +32,7 @@ export const HarmonyDocsAppModule: React.FC = () => {
             if (!activeDocId) setActiveDocId(loaded[0].id);
           } else {
             setDocsList(DEFAULT_DOCS);
-            setActiveDocId(DEFAULT_DOCS[0].id);
+            setActiveDocId(null);
           }
         },
         () => {
@@ -79,13 +43,13 @@ export const HarmonyDocsAppModule: React.FC = () => {
             if (parsed.length > 0 && !activeDocId) setActiveDocId(parsed[0].id);
           } else {
             setDocsList(DEFAULT_DOCS);
-            setActiveDocId(DEFAULT_DOCS[0].id);
+            setActiveDocId(null);
           }
         }
       );
     } catch {
       setDocsList(DEFAULT_DOCS);
-      setActiveDocId(DEFAULT_DOCS[0].id);
+      setActiveDocId(null);
     }
 
     return () => {
@@ -174,7 +138,7 @@ export const HarmonyDocsAppModule: React.FC = () => {
   const activeDoc = docsList.find((d) => d.id === activeDocId) || null;
 
   return (
-    <div id="harmony-docs-container" className="flex-1 w-full flex flex-col md:flex-row bg-[#0d1117] text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden">
+    <div id="harmony-docs-container" className="flex-1 w-full flex flex-col md:flex-row bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden">
       <DocSidebar
         docs={filteredDocs}
         activeDocId={activeDocId}

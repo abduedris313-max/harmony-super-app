@@ -3,7 +3,7 @@
  * @description iOS 18 Springboard Launcher Grid & Widgets view for Harmony OS Super App.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HARMONY_APPS } from '../config/apps';
 import { MiniAppConfig, HarmonyNote, HarmonyWritingDraft, HarmonyCalendarEvent, Track } from '../types';
@@ -55,7 +55,7 @@ interface HomeScreenProps {
   onUpdateWidgets?: (widgets: HomeWidgetId[]) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({
+export const HomeScreenComponent: React.FC<HomeScreenProps> = ({
   onOpenApp,
   onOpenSpotlight,
   onOpenSettings,
@@ -77,11 +77,47 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onUpdateWidgets
 }) => {
   const [showUnpinnedLibrary, setShowUnpinnedLibrary] = useState(false);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  // Derive pinned vs unpinned apps
-  const effectivePinnedIds = pinnedAppIds || HARMONY_APPS.map(a => a.id);
-  const pinnedApps = HARMONY_APPS.filter(a => effectivePinnedIds.includes(a.id));
-  const unpinnedApps = HARMONY_APPS.filter(a => !effectivePinnedIds.includes(a.id));
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setTouchStartY(e.touches[0].clientY);
+      setTouchStartX(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY === null || touchStartX === null) return;
+    const endY = e.changedTouches[0].clientY;
+    const endX = e.changedTouches[0].clientX;
+    const deltaY = endY - touchStartY;
+    const deltaX = endX - touchStartX;
+
+    // Detect swipe down (deltaY > 60px) -> Trigger Spotlight Search
+    if (deltaY > 60 && Math.abs(deltaY) > Math.abs(deltaX) * 1.2) {
+      onOpenSpotlight();
+    }
+    // Detect swipe left (deltaX < -70px) -> Switch to Unpinned App Library
+    else if (deltaX < -70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      setShowUnpinnedLibrary(true);
+    }
+    // Detect swipe right (deltaX > 70px) -> Switch to Main Springboard Grid
+    else if (deltaX > 70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      setShowUnpinnedLibrary(false);
+    }
+
+    setTouchStartY(null);
+    setTouchStartX(null);
+  };
+
+  // Derive pinned vs unpinned apps with useMemo
+  const { pinnedApps, unpinnedApps } = useMemo(() => {
+    const effectivePinnedIds = pinnedAppIds || HARMONY_APPS.map(a => a.id);
+    const pinned = HARMONY_APPS.filter(a => effectivePinnedIds.includes(a.id));
+    const unpinned = HARMONY_APPS.filter(a => !effectivePinnedIds.includes(a.id));
+    return { pinnedApps: pinned, unpinnedApps: unpinned };
+  }, [pinnedAppIds]);
 
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
@@ -100,7 +136,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   return (
-    <div id="home-screen" className="flex-1 w-full flex flex-col items-center overflow-y-auto px-3 py-3 scrollbar-none max-w-4xl mx-auto">
+    <div 
+      id="home-screen" 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="flex-1 w-full flex flex-col items-center overflow-y-auto px-3 py-3 scrollbar-none max-w-4xl mx-auto select-none"
+    >
       {/* Harmony Brand Header */}
       <div className="w-full max-w-md flex items-center justify-between mb-2.5 px-1">
         <HarmonyLogo 
@@ -441,3 +482,5 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     </div>
   );
 };
+
+export const HomeScreen = React.memo(HomeScreenComponent);

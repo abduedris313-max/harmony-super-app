@@ -86,43 +86,43 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
     .slice(0, 5);
 
   return (
-    <div className="space-y-4 text-white">
+    <div className="space-y-4 text-neutral-900 dark:text-white">
       {/* Top Banner: Net Worth & Liquid Balances */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Net Worth Hero Card */}
-        <div className="md:col-span-2 rounded-2xl bg-gradient-to-br from-[#1c2230] via-[#161b22] to-[#0f131a] border border-[#30363d] p-4.5 relative overflow-hidden shadow-xl">
+        <div className="md:col-span-2 rounded-2xl bg-white dark:bg-gradient-to-br dark:from-[#1c2230] dark:via-[#161b22] dark:to-[#0f131a] border border-neutral-200 dark:border-[#30363d] p-4.5 relative overflow-hidden shadow-sm dark:shadow-xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
           
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b949e] flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 dark:text-[#8b949e] flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
               <span>Total Estimated Net Worth</span>
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20 font-mono">
               Live Balance
             </span>
           </div>
 
           <div className="flex flex-wrap items-baseline gap-3 my-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-white">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-neutral-900 dark:text-white">
               {formatCurrency(netWorth, currencyCode)}
             </h2>
-            <div className="flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
+            <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
               <TrendingUp className="w-3.5 h-3.5" />
               <span>{cashFlow.savingsRate}% Savings Rate</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-[#30363d]/70">
+          <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-neutral-200 dark:border-[#30363d]/70">
             <div>
-              <span className="text-[10px] text-[#8b949e] uppercase font-bold">Total Assets (Accounts)</span>
-              <p className="text-sm font-bold text-emerald-400 font-mono mt-0.5">
+              <span className="text-[10px] text-neutral-500 dark:text-[#8b949e] uppercase font-bold">Total Assets (Accounts)</span>
+              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">
                 +{formatCurrency(totalAssets, currencyCode)}
               </p>
             </div>
             <div>
-              <span className="text-[10px] text-[#8b949e] uppercase font-bold">Total Liabilities (Debts/Loans)</span>
-              <p className="text-sm font-bold text-rose-400 font-mono mt-0.5">
+              <span className="text-[10px] text-neutral-500 dark:text-[#8b949e] uppercase font-bold">Total Liabilities (Debts/Loans)</span>
+              <p className="text-sm font-bold text-rose-600 dark:text-rose-400 font-mono mt-0.5">
                 -{formatCurrency(totalLiabilities, currencyCode)}
               </p>
             </div>
@@ -130,52 +130,52 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
         </div>
 
         {/* Quick Action Matrix Card */}
-        <div className="rounded-2xl bg-[#161b22] border border-[#30363d] p-4 flex flex-col justify-between shadow-sm">
+        <div className="rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] p-4 flex flex-col justify-between shadow-sm">
           <div>
-            <h3 className="text-xs font-bold text-white mb-1 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            <h3 className="text-xs font-bold text-neutral-900 dark:text-white mb-1 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
               <span>Quick Actions</span>
             </h3>
-            <p className="text-[11px] text-[#8b949e]">Record transactions or manage loans</p>
+            <p className="text-[11px] text-neutral-500 dark:text-[#8b949e]">Record transactions or manage loans</p>
           </div>
 
           <div className="grid grid-cols-2 gap-2 my-2">
             <button
               onClick={() => onOpenAddTransaction('expense')}
-              className="p-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/25 text-rose-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
+              className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-700 dark:text-rose-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
             >
-              <ArrowUpRight className="w-4 h-4 text-rose-400" />
+              <ArrowUpRight className="w-4 h-4 text-rose-600 dark:text-rose-400" />
               <span>Add Expense</span>
             </button>
 
             <button
               onClick={() => onOpenAddTransaction('income')}
-              className="p-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 text-emerald-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
+              className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
             >
-              <ArrowDownLeft className="w-4 h-4 text-emerald-400" />
+              <ArrowDownLeft className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Add Income</span>
             </button>
 
             <button
               onClick={() => onOpenAddTransaction('transfer')}
-              className="p-2.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/25 text-blue-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
+              className="p-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-700 dark:text-blue-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
             >
-              <ArrowRightLeft className="w-4 h-4 text-blue-400" />
+              <ArrowRightLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Transfer</span>
             </button>
 
             <button
               onClick={() => onNavigateTab('ai-advisor')}
-              className="p-2.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/25 text-purple-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
+              className="p-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-700 dark:text-purple-300 font-semibold flex flex-col items-center gap-1 text-[11px] transition-colors"
             >
-              <Sparkles className="w-4 h-4 text-purple-400" />
+              <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span>AI Advisor</span>
             </button>
           </div>
 
           <button
             onClick={onOpenAddLoan}
-            className="w-full py-1.5 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-indigo-300 text-[11px] font-medium transition-colors flex items-center justify-center gap-1"
+            className="w-full py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-indigo-600 dark:text-indigo-300 text-[11px] font-medium transition-colors flex items-center justify-center gap-1"
           >
             <Landmark className="w-3 h-3" />
             <span>+ Add Loan / Debt Tracker</span>
@@ -185,64 +185,64 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
 
       {/* Monthly Cash Flow Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-3.5 rounded-xl bg-[#161b22] border border-[#30363d] flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
               <ArrowDownLeft className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#8b949e]">Monthly Income</span>
-              <p className="text-base font-bold text-white font-mono">
-                {formatCurrency(cashFlow.totalIncome, currencyCode)}
+              <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#8b949e]">Monthly Income</span>
+              <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                +{formatCurrency(cashFlow.totalIncome, currencyCode)}
               </p>
             </div>
           </div>
-          <span className="text-[10px] text-emerald-400 font-mono font-medium">Received</span>
+          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-medium">Received</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161b22] border border-[#30363d] flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
               <ArrowUpRight className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#8b949e]">Monthly Expenses</span>
-              <p className="text-base font-bold text-white font-mono">
-                {formatCurrency(cashFlow.totalExpenses, currencyCode)}
+              <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#8b949e]">Monthly Expenses</span>
+              <p className="text-base font-bold text-rose-600 dark:text-rose-400 font-mono">
+                -{formatCurrency(cashFlow.totalExpenses, currencyCode)}
               </p>
             </div>
           </div>
-          <span className="text-[10px] text-rose-400 font-mono font-medium">Spent</span>
+          <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono font-medium">Spent</span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#161b22] border border-[#30363d] flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
               <Wallet className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-[#8b949e]">Net Cash Flow</span>
-              <p className={`text-base font-bold font-mono ${cashFlow.netSavings >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <span className="text-[10px] uppercase font-bold text-neutral-500 dark:text-[#8b949e]">Net Cash Flow</span>
+              <p className={`text-base font-bold font-mono ${cashFlow.netSavings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {cashFlow.netSavings >= 0 ? '+' : ''}{formatCurrency(cashFlow.netSavings, currencyCode)}
               </p>
             </div>
           </div>
-          <span className="text-[10px] text-indigo-300 font-mono font-medium">{cashFlow.savingsRate}% Saved</span>
+          <span className="text-[10px] text-indigo-600 dark:text-indigo-300 font-mono font-medium">{cashFlow.savingsRate}% Saved</span>
         </div>
       </div>
 
       {/* Alert Banner if Over Budget */}
       {overBudgetItems.length > 0 && (
-        <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2 text-rose-300">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 text-rose-700 dark:text-rose-300">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
             <span>
               <strong>Budget Warning:</strong> You have exceeded budget in {overBudgetItems.map(i => i.category).join(', ')}.
             </span>
           </div>
           <button
             onClick={() => onNavigateTab('budget')}
-            className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-white text-[11px] font-semibold shrink-0"
+            className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-semibold shrink-0"
           >
             Review Budgets
           </button>
@@ -254,51 +254,63 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
         {/* Left: Accounts & Obligations */}
         <div className="space-y-3">
           {/* Account Balances Preview */}
-          <div className="p-4 rounded-2xl bg-[#161b22] border border-[#30363d]">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8b949e] flex items-center gap-1.5">
-                <Landmark className="w-3.5 h-3.5 text-indigo-400" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-[#8b949e] flex items-center gap-1.5">
+                <Landmark className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                 <span>Ledger Accounts ({accounts.length})</span>
               </h3>
               <button
                 onClick={() => onNavigateTab('ledger')}
-                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 font-medium"
+                className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 flex items-center gap-0.5 font-medium"
               >
                 Manage <ChevronRight className="w-3 h-3" />
               </button>
             </div>
 
             <div className="space-y-2">
-              {accounts.slice(0, 4).map((acc) => (
-                <div
-                  key={acc.id}
-                  className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d]/80 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs" style={{ backgroundColor: `${acc.color}20`, color: acc.color }}>
-                      {acc.type === 'checking' ? '🏦' : acc.type === 'savings' ? '💰' : acc.type === 'credit_card' ? '💳' : '💵'}
+              {accounts.length > 0 ? (
+                accounts.slice(0, 4).map((acc) => (
+                  <div
+                    key={acc.id}
+                    className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/80 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs" style={{ backgroundColor: `${acc.color}20`, color: acc.color }}>
+                        {acc.type === 'checking' ? '🏦' : acc.type === 'savings' ? '💰' : acc.type === 'credit_card' ? '💳' : '💵'}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-neutral-900 dark:text-white">{acc.name}</h4>
+                        <p className="text-[10px] text-neutral-500 dark:text-[#8b949e]">{acc.institution || acc.type}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-xs font-semibold text-white">{acc.name}</h4>
-                      <p className="text-[10px] text-[#8b949e]">{acc.institution || acc.type}</p>
-                    </div>
+                    <span className="text-xs font-bold font-mono text-neutral-900 dark:text-white">
+                      {formatCurrency(acc.balance, currencyCode)}
+                    </span>
                   </div>
-                  <span className="text-xs font-bold font-mono text-white">
-                    {formatCurrency(acc.balance, currencyCode)}
-                  </span>
+                ))
+              ) : (
+                <div className="p-4 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/80 text-center text-neutral-500 dark:text-[#8b949e]">
+                  <p className="text-xs">No accounts linked yet.</p>
+                  <button
+                    onClick={() => onNavigateTab('ledger')}
+                    className="mt-2 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors"
+                  >
+                    + Add Account
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           {/* Monthly Obligations: Loans & Subscriptions */}
-          <div className="p-4 rounded-2xl bg-[#161b22] border border-[#30363d]">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8b949e] flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-[#8b949e] flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>Monthly Fixed Obligations</span>
               </h3>
-              <span className="text-xs font-bold font-mono text-amber-400">
+              <span className="text-xs font-bold font-mono text-amber-600 dark:text-amber-400">
                 {formatCurrency(totalMonthlyEmi + totalMonthlySubs, currencyCode)} /mo
               </span>
             </div>
@@ -306,45 +318,45 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
             <div className="grid grid-cols-2 gap-2">
               <div 
                 onClick={() => onNavigateTab('loans')}
-                className="p-3 rounded-xl bg-[#0d1117] border border-[#30363d]/80 cursor-pointer hover:border-indigo-500/50 transition-colors"
+                className="p-3 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/80 cursor-pointer hover:border-indigo-500/50 transition-colors"
               >
-                <div className="flex items-center justify-between text-[11px] text-[#8b949e]">
+                <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-[#8b949e]">
                   <span>Active Loans EMI</span>
-                  <Landmark className="w-3.5 h-3.5 text-indigo-400" />
+                  <Landmark className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                 </div>
-                <p className="text-sm font-bold text-white font-mono mt-1">
+                <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono mt-1">
                   {formatCurrency(totalMonthlyEmi, currencyCode)}
                 </p>
-                <span className="text-[10px] text-indigo-300">{activeLoans.length} active debts</span>
+                <span className="text-[10px] text-indigo-600 dark:text-indigo-300">{activeLoans.length} active debts</span>
               </div>
 
               <div 
                 onClick={() => onNavigateTab('subscriptions')}
-                className="p-3 rounded-xl bg-[#0d1117] border border-[#30363d]/80 cursor-pointer hover:border-indigo-500/50 transition-colors"
+                className="p-3 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/80 cursor-pointer hover:border-indigo-500/50 transition-colors"
               >
-                <div className="flex items-center justify-between text-[11px] text-[#8b949e]">
+                <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-[#8b949e]">
                   <span>Subscriptions</span>
-                  <Clock className="w-3.5 h-3.5 text-purple-400" />
+                  <Clock className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
                 </div>
-                <p className="text-sm font-bold text-white font-mono mt-1">
+                <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono mt-1">
                   {formatCurrency(totalMonthlySubs, currencyCode)}
                 </p>
-                <span className="text-[10px] text-purple-300">{activeSubs.length} recurring</span>
+                <span className="text-[10px] text-purple-600 dark:text-purple-300">{activeSubs.length} recurring</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right: Recent Ledger Transactions */}
-        <div className="p-4 rounded-2xl bg-[#161b22] border border-[#30363d] flex flex-col">
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] flex flex-col shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#8b949e] flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-indigo-400" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-[#8b949e] flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
               <span>Recent Transactions</span>
             </h3>
             <button
               onClick={() => onNavigateTab('expenses')}
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 font-medium"
+              className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 flex items-center gap-0.5 font-medium"
             >
               View All ({transactions.length}) <ChevronRight className="w-3 h-3" />
             </button>
@@ -355,30 +367,30 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
               recentTransactions.map((tx) => (
                 <div
                   key={tx.id}
-                  className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d]/80 flex items-center justify-between"
+                  className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#0d1117] border border-neutral-200 dark:border-[#30363d]/80 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
-                      tx.type === 'expense' ? 'bg-rose-500/15 text-rose-400' :
-                      tx.type === 'income' ? 'bg-emerald-500/15 text-emerald-400' :
-                      'bg-blue-500/15 text-blue-400'
+                      tx.type === 'expense' ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400' :
+                      tx.type === 'income' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' :
+                      'bg-blue-500/15 text-blue-600 dark:text-blue-400'
                     }`}>
                       {tx.type === 'expense' ? '↓' : tx.type === 'income' ? '↑' : '⇄'}
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-white truncate max-w-[140px] sm:max-w-[180px]">
+                      <h4 className="text-xs font-semibold text-neutral-900 dark:text-white truncate max-w-[140px] sm:max-w-[180px]">
                         {tx.title}
                       </h4>
-                      <p className="text-[10px] text-[#8b949e]">
+                      <p className="text-[10px] text-neutral-500 dark:text-[#8b949e]">
                         {tx.category} • {tx.date}
                       </p>
                     </div>
                   </div>
 
                   <span className={`text-xs font-bold font-mono ${
-                    tx.type === 'expense' ? 'text-rose-400' :
-                    tx.type === 'income' ? 'text-emerald-400' :
-                    'text-blue-400'
+                    tx.type === 'expense' ? 'text-rose-600 dark:text-rose-400' :
+                    tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' :
+                    'text-blue-600 dark:text-blue-400'
                   }`}>
                     {tx.type === 'expense' ? '-' : tx.type === 'income' ? '+' : ''}
                     {formatCurrency(tx.amount, currencyCode)}
@@ -386,12 +398,12 @@ export const FinanceOverview: React.FC<FinanceOverviewProps> = ({
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-[#8b949e] flex flex-col items-center justify-center flex-1">
-                <Wallet className="w-8 h-8 text-[#8b949e]/40 mb-2" />
+              <div className="p-8 text-center text-neutral-500 dark:text-[#8b949e] flex flex-col items-center justify-center flex-1">
+                <Wallet className="w-8 h-8 text-neutral-400 dark:text-[#8b949e]/40 mb-2" />
                 <p className="text-xs">No transactions recorded yet.</p>
                 <button
                   onClick={() => onOpenAddTransaction('expense')}
-                  className="mt-3 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
+                  className="mt-3 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors"
                 >
                   + Add First Transaction
                 </button>

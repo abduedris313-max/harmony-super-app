@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ContextSidebar } from './components/ContextSidebar';
 import { ChatConsole } from './components/ChatConsole';
 import { ChatMessage, AiPresetPrompt } from './types';
+import { useTheme } from '../../hooks/useTheme';
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
@@ -110,10 +111,12 @@ Key features include Notes with tags, Docs with markdown export, Typewriter stud
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const theme = useTheme();
+
   return (
     <div
       id="harmony-docs-ai-container"
-      className="flex-1 w-full flex flex-col md:flex-row bg-[#0d1117] text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden"
+      className={`flex-1 w-full flex flex-col md:flex-row min-h-0 overflow-y-auto md:overflow-hidden ${theme.classes.appBg}`}
     >
       <ContextSidebar
         docContext={docContext}

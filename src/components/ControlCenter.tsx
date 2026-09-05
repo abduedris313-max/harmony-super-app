@@ -86,6 +86,24 @@ export const ControlCenter: React.FC<ControlCenterProps> = ({
     });
   };
 
+  const PRESETS: { id: 'slate' | 'oled' | 'sunset' | 'emerald' | 'lavender'; name: string; accent: string; dot: string }[] = [
+    { id: 'slate', name: 'Slate', accent: '#6366f1', dot: 'bg-indigo-500' },
+    { id: 'oled', name: 'OLED', accent: '#a855f7', dot: 'bg-purple-500' },
+    { id: 'sunset', name: 'Sunset', accent: '#f59e0b', dot: 'bg-amber-500' },
+    { id: 'emerald', name: 'Emerald', accent: '#10b981', dot: 'bg-emerald-500' },
+    { id: 'lavender', name: 'Lavender', accent: '#d946ef', dot: 'bg-fuchsia-500' }
+  ];
+
+  const handleSelectThemePreset = (preset: 'slate' | 'oled' | 'sunset' | 'emerald' | 'lavender', e: React.MouseEvent) => {
+    e.stopPropagation();
+    soundManager.playHapticClick();
+    const matched = PRESETS.find(p => p.id === preset);
+    onUpdateSettings({
+      themePreset: preset,
+      accentColor: matched?.accent || '#6366f1'
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-12 px-3 sm:px-4 bg-black/70 backdrop-blur-xl animate-fade-in overflow-y-auto">
       <motion.div
@@ -250,6 +268,29 @@ export const ControlCenter: React.FC<ControlCenterProps> = ({
                   {settings.themePreset || 'slate'}
                 </span>
               </p>
+
+              {/* Theme Preset Quick Selector */}
+              <div className="flex items-center gap-1.5 mt-2 overflow-x-auto pb-0.5">
+                {PRESETS.map((p) => {
+                  const isSelected = (settings.themePreset || 'slate') === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={(e) => handleSelectThemePreset(p.id, e)}
+                      className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold flex items-center gap-1 transition-all ${
+                        isSelected
+                          ? 'bg-neutral-800 text-white dark:bg-white dark:text-neutral-900 shadow-xs'
+                          : isDark ? 'bg-black/30 text-neutral-400 hover:text-white' : 'bg-neutral-100 text-neutral-600 hover:text-neutral-900'
+                      }`}
+                      title={`${p.name} theme`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${p.dot}`} />
+                      <span>{p.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

@@ -98,6 +98,30 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showOfflineDetails, setShowOfflineDetails] = useState(false);
   const [justSavedLocal, setJustSavedLocal] = useState(false);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  const handleBottomTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setTouchStartY(e.touches[0].clientY);
+      setTouchStartX(e.touches[0].clientX);
+    }
+  };
+
+  const handleBottomTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY === null || touchStartX === null) return;
+    const endY = e.changedTouches[0].clientY;
+    const endX = e.changedTouches[0].clientX;
+    const deltaY = endY - touchStartY;
+    const deltaX = endX - touchStartX;
+
+    // Swipe up gesture detection (negative deltaY < -60px)
+    if (deltaY < -60 && Math.abs(deltaY) > Math.abs(deltaX) * 1.1) {
+      onClose();
+    }
+    setTouchStartY(null);
+    setTouchStartX(null);
+  };
 
   // Hook into offline persistence layer
   const { 
@@ -425,10 +449,10 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
       initial="initial"
       animate="animate"
       exit="exit"
-      className={`w-full flex-1 flex flex-col bg-[#0d1117] overflow-hidden relative min-h-0 ${
+      className={`w-full flex-1 flex flex-col bg-white dark:bg-[#0d1117] text-neutral-900 dark:text-white overflow-hidden relative min-h-0 ${
         isFullscreen 
           ? 'fixed inset-0 z-50 rounded-none' 
-          : 'max-w-6xl mx-auto rounded-t-xl border-t border-x border-[#30363d] shadow-2xl'
+          : 'max-w-6xl mx-auto rounded-t-xl border-t border-x border-neutral-200 dark:border-[#30363d] shadow-2xl'
       }`}
     >
       {/* iOS App Navigation Header - Compact height with offline persistence indicators */}
@@ -436,16 +460,16 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.2 }}
-        className="h-10 px-3 bg-[#161b22] border-b border-[#30363d] flex items-center justify-between text-[#c9d1d9] shrink-0 z-20"
+        className="h-10 px-3 bg-neutral-100 dark:bg-[#161b22] border-b border-neutral-200 dark:border-[#30363d] flex items-center justify-between text-neutral-700 dark:text-[#c9d1d9] shrink-0 z-20"
       >
         <div className="flex items-center gap-2">
           {/* iOS Back to Home Button */}
           <button
             onClick={onClose}
-            className="p-1 rounded-md bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] hover:text-white flex items-center gap-0.5 text-[11px] font-semibold px-2 transition-colors border border-[#30363d] active:scale-95"
+            className="p-1 rounded-md bg-white dark:bg-[#21262d] hover:bg-neutral-200 dark:hover:bg-[#30363d] text-neutral-700 dark:text-[#c9d1d9] hover:text-neutral-900 dark:hover:text-white flex items-center gap-0.5 text-[11px] font-semibold px-2 transition-colors border border-neutral-300 dark:border-[#30363d] active:scale-95 shadow-xs"
             title="Return to Springboard (Esc)"
           >
-            <ChevronLeft className="w-3.5 h-3.5 text-indigo-400" />
+            <ChevronLeft className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
             <span>Home</span>
           </button>
 
@@ -455,7 +479,7 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
               📱
             </div>
             <div>
-              <h3 className="text-xs font-bold text-white leading-none">{app.name}</h3>
+              <h3 className="text-xs font-bold text-neutral-900 dark:text-white leading-none">{app.name}</h3>
             </div>
           </div>
 
@@ -465,16 +489,16 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
               onClick={() => setShowOfflineDetails(!showOfflineDetails)}
               className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-all ${
                 !isOnline
-                  ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
                   : justSavedLocal
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                  : 'bg-white/5 text-[#8b949e] hover:text-white border-[#30363d] hover:border-[#58a6ff]'
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/40'
+                  : 'bg-white dark:bg-white/5 text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white border-neutral-300 dark:border-[#30363d] hover:border-indigo-400 dark:hover:border-[#58a6ff]'
               }`}
               title="Click to view Service Worker & Offline Persistence status"
             >
               {!isOnline ? (
                 <>
-                  <WifiOff className="w-2.5 h-2.5 text-amber-400" />
+                  <WifiOff className="w-2.5 h-2.5 text-amber-500 dark:text-amber-400" />
                   <span>Offline Storage Active</span>
                   {pendingSyncCount > 0 && (
                     <span className="bg-amber-500 text-black px-1 rounded-full text-[9px] font-bold">
@@ -484,13 +508,13 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
                 </>
               ) : justSavedLocal ? (
                 <>
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />
                   <span>Cached Locally</span>
                 </>
               ) : (
                 <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[#c9d1d9]">Cloud Synced</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+                  <span className="text-neutral-700 dark:text-[#c9d1d9]">Cloud Synced</span>
                 </>
               )}
             </button>
@@ -503,54 +527,54 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 6, scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute left-0 top-7 w-64 p-2.5 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl text-xs z-50 text-[#c9d1d9]"
+                  className="absolute left-0 top-7 w-64 p-2.5 bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] rounded-xl shadow-2xl text-xs z-50 text-neutral-700 dark:text-[#c9d1d9]"
                 >
-                  <div className="flex items-center justify-between pb-1.5 border-b border-[#30363d] mb-2">
-                    <div className="flex items-center gap-1.5 font-semibold text-white">
-                      <HardDrive className="w-3.5 h-3.5 text-indigo-400" />
+                  <div className="flex items-center justify-between pb-1.5 border-b border-neutral-200 dark:border-[#30363d] mb-2">
+                    <div className="flex items-center gap-1.5 font-semibold text-neutral-900 dark:text-white">
+                      <HardDrive className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
                       <span>Mini-App Persistence Layer</span>
                     </div>
-                    <span className="text-[10px] text-emerald-400 font-mono">SW v2</span>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">SW v2</span>
                   </div>
 
                   <div className="space-y-1.5 text-[11px]">
                     <div className="flex items-center justify-between">
-                      <span className="text-[#8b949e]">Network State:</span>
-                      <span className={`font-semibold flex items-center gap-1 ${isOnline ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      <span className="text-neutral-500 dark:text-[#8b949e]">Network State:</span>
+                      <span className={`font-semibold flex items-center gap-1 ${isOnline ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
                         {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
                         {isOnline ? 'Online' : 'Offline'}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[#8b949e]">Service Worker:</span>
-                      <span className="text-indigo-300 font-medium">Active (Cache-First)</span>
+                      <span className="text-neutral-500 dark:text-[#8b949e]">Service Worker:</span>
+                      <span className="text-indigo-600 dark:text-indigo-300 font-medium">Active (Cache-First)</span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[#8b949e]">Cached Records:</span>
-                      <span className="font-mono text-white">{cachedItemsCount} items</span>
+                      <span className="text-neutral-500 dark:text-[#8b949e]">Cached Records:</span>
+                      <span className="font-mono text-neutral-900 dark:text-white">{cachedItemsCount} items</span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[#8b949e]">Pending Cloud Queue:</span>
-                      <span className="font-mono text-amber-300">{pendingSyncCount} edits</span>
+                      <span className="text-neutral-500 dark:text-[#8b949e]">Pending Cloud Queue:</span>
+                      <span className="font-mono text-amber-600 dark:text-amber-300">{pendingSyncCount} edits</span>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[#8b949e]">Last Sync:</span>
-                      <span className="text-[#8b949e]">{lastSyncTime}</span>
+                      <span className="text-neutral-500 dark:text-[#8b949e]">Last Sync:</span>
+                      <span className="text-neutral-500 dark:text-[#8b949e]">{lastSyncTime}</span>
                     </div>
                   </div>
 
-                  <div className="mt-2.5 pt-2 border-t border-[#30363d] flex items-center justify-between">
+                  <div className="mt-2.5 pt-2 border-t border-neutral-200 dark:border-[#30363d] flex items-center justify-between">
                     <button
                       onClick={() => {
                         snapshotMiniAppData(app.id, { manualCache: true, timestamp: Date.now() });
                         setJustSavedLocal(true);
                         setTimeout(() => setJustSavedLocal(false), 1500);
                       }}
-                      className="w-full py-1 rounded-md bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 flex items-center justify-center gap-1.5 text-[10px] font-medium transition-colors"
+                      className="w-full py-1 rounded-md bg-indigo-50 dark:bg-indigo-600/30 hover:bg-indigo-100 dark:hover:bg-indigo-600/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center gap-1.5 text-[10px] font-medium transition-colors"
                     >
                       <RefreshCw className="w-2.5 h-2.5" />
                       <span>Take Data Snapshot</span>
@@ -565,17 +589,17 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
         {/* Mode Switcher & Controls */}
         <div className="flex items-center gap-1.5">
           {/* Mode Switcher Pill */}
-          <div className="flex items-center bg-[#0d1117] p-0.5 rounded-lg border border-[#30363d] text-[10px]">
+          <div className="flex items-center bg-white dark:bg-[#0d1117] p-0.5 rounded-lg border border-neutral-200 dark:border-[#30363d] text-[10px]">
             <button
               onClick={() => setMode('native')}
-              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all ${mode === 'native' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#8b949e] hover:text-white'}`}
+              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all ${mode === 'native' ? 'bg-indigo-600 text-white shadow-xs' : 'text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white'}`}
             >
               <Cloud className="w-2.5 h-2.5" />
               <span>Native</span>
             </button>
             <button
               onClick={() => setMode('iframe')}
-              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all ${mode === 'iframe' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#8b949e] hover:text-white'}`}
+              className={`px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all ${mode === 'iframe' ? 'bg-indigo-600 text-white shadow-xs' : 'text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white'}`}
             >
               <Globe className="w-2.5 h-2.5" />
               <span>GitHub Pages</span>
@@ -587,7 +611,7 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
             href={app.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden md:flex"
+            className="p-1.5 rounded-lg bg-neutral-200/60 dark:bg-white/5 hover:bg-neutral-300/80 dark:hover:bg-white/10 text-neutral-700 dark:text-white/70 hover:text-neutral-900 dark:hover:text-white transition-colors hidden md:flex"
             title="Open GitHub Repository"
           >
             <Github className="w-3.5 h-3.5" />
@@ -598,7 +622,7 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
             href={app.deployedUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg bg-neutral-200/60 dark:bg-white/5 hover:bg-neutral-300/80 dark:hover:bg-white/10 text-neutral-700 dark:text-white/70 hover:text-neutral-900 dark:hover:text-white transition-colors"
             title="Open Deployed WebApp"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -608,7 +632,7 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
           {mode === 'iframe' && (
             <button
               onClick={() => setIframeKey(k => k + 1)}
-              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg bg-neutral-200/60 dark:bg-white/5 hover:bg-neutral-300/80 dark:hover:bg-white/10 text-neutral-700 dark:text-white/70 hover:text-neutral-900 dark:hover:text-white transition-colors"
               title="Refresh IFrame"
             >
               <RotateCw className="w-3.5 h-3.5" />
@@ -618,7 +642,7 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
           {/* Fullscreen Toggle */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors hidden sm:flex"
+            className="p-1.5 rounded-lg bg-neutral-200/60 dark:bg-white/5 hover:bg-neutral-300/80 dark:hover:bg-white/10 text-neutral-700 dark:text-white/70 hover:text-neutral-900 dark:hover:text-white transition-colors hidden sm:flex"
             title="Toggle Fullscreen"
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -646,14 +670,25 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
         )}
       </motion.div>
 
-      {/* iOS Bottom Home Bar Indicator Gesture (Click or Tap to dismiss smoothly) */}
-      <div 
+      {/* iOS Bottom Home Bar Indicator Gesture (Swipe up, drag up, or tap to dismiss smoothly) */}
+      <motion.div 
+        drag="y"
+        dragConstraints={{ top: -300, bottom: 0 }}
+        dragElastic={0.4}
+        dragSnapToOrigin={true}
+        onDragEnd={(e, info) => {
+          if (info.offset.y < -50 || info.velocity.y < -200) {
+            onClose();
+          }
+        }}
+        onTouchStart={handleBottomTouchStart}
+        onTouchEnd={handleBottomTouchEnd}
         onClick={onClose}
-        className="h-3.5 w-full bg-[#161b22] border-t border-[#30363d]/60 flex items-center justify-center cursor-pointer hover:bg-[#21262d] transition-colors group shrink-0"
-        title="Click to return to Home Screen (Esc)"
+        className="h-5 w-full bg-neutral-100 dark:bg-[#161b22] border-t border-neutral-200 dark:border-[#30363d]/60 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing hover:bg-neutral-200 dark:hover:bg-[#21262d] transition-colors group shrink-0 touch-none select-none z-30"
+        title="Swipe up or click to return to Home Screen (Esc)"
       >
-        <div className="w-28 h-1 bg-white/20 rounded-full group-hover:bg-white/50 group-hover:w-32 transition-all" />
-      </div>
+        <div className="w-28 h-1.5 bg-neutral-400 dark:bg-white/30 group-hover:bg-indigo-500 rounded-full group-hover:w-32 transition-all shadow-xs" />
+      </motion.div>
     </motion.div>
   );
 };

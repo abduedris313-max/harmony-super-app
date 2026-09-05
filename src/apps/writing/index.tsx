@@ -4,34 +4,19 @@ import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firesto
 import { DraftSidebar } from './components/DraftSidebar';
 import { TypewriterCanvas } from './components/TypewriterCanvas';
 import { WritingDraft, WritingTheme } from './types';
+import { useTheme } from '../../hooks/useTheme';
 
-const DEFAULT_DRAFTS: WritingDraft[] = [
-  {
-    id: 'draft-1',
-    title: '📖 The Art of Modular Systems & Clean Code',
-    content: `Chapter 1: The Foundations of Architecture
-
-True craftsmanship in software engineering is defined by restraint, structure, and intent. When building a multi-application ecosystem, every module must remain self-contained, decoupled, and focused on its singular domain.
-
-Notice how the mechanical typewriter sounds feedback with every stroke on your keyboard. Set a word goal above to measure your creative progress.`,
-    targetWords: 500,
-    wordCount: 61,
-    charCount: 382,
-    theme: 'dark',
-    typewriterSound: true,
-    updatedAt: Date.now(),
-    createdAt: Date.now(),
-  },
-];
+const DEFAULT_DRAFTS: WritingDraft[] = [];
 
 const THEME_STYLES: Record<WritingTheme, string> = {
-  dark: 'bg-[#0d1117] text-[#c9d1d9]',
-  sepia: 'bg-[#1c1917] text-[#f5f5f4]',
-  emerald: 'bg-[#064e3b] text-[#ecfdf5]',
-  midnight: 'bg-[#0f172a] text-[#f8fafc]',
+  dark: 'bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9]',
+  sepia: 'bg-[#fef3c7] dark:bg-[#1c1917] text-[#78350f] dark:text-[#f5f5f4]',
+  emerald: 'bg-[#ecfdf5] dark:bg-[#064e3b] text-[#065f46] dark:text-[#ecfdf5]',
+  midnight: 'bg-[#f0f9ff] dark:bg-[#0f172a] text-[#0c4a6e] dark:text-[#f8fafc]',
 };
 
 export const HarmonyWritingAppModule: React.FC = () => {
+  const theme = useTheme();
   const [drafts, setDrafts] = useState<WritingDraft[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,25 +38,31 @@ export const HarmonyWritingAppModule: React.FC = () => {
             setDrafts(loaded);
             if (!activeDraftId) setActiveDraftId(loaded[0].id);
           } else {
-            setDrafts(DEFAULT_DRAFTS);
-            setActiveDraftId(DEFAULT_DRAFTS[0].id);
+            setDrafts([]);
+            setActiveDraftId(null);
           }
         },
         () => {
           const local = localStorage.getItem('harmony_writing_data');
           if (local) {
-            const parsed = JSON.parse(local);
-            setDrafts(parsed);
-            if (parsed.length > 0 && !activeDraftId) setActiveDraftId(parsed[0].id);
-          } else {
-            setDrafts(DEFAULT_DRAFTS);
-            setActiveDraftId(DEFAULT_DRAFTS[0].id);
+            try {
+              const parsed = JSON.parse(local);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setDrafts(parsed);
+                if (!activeDraftId) setActiveDraftId(parsed[0].id);
+                return;
+              }
+            } catch {
+              // fallback
+            }
           }
+          setDrafts([]);
+          setActiveDraftId(null);
         }
       );
     } catch {
-      setDrafts(DEFAULT_DRAFTS);
-      setActiveDraftId(DEFAULT_DRAFTS[0].id);
+      setDrafts([]);
+      setActiveDraftId(null);
     }
 
     return () => {

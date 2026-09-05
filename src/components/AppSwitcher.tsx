@@ -74,8 +74,17 @@ export const AppSwitcher: React.FC<AppSwitcherProps> = ({
           runningApps.map((app) => (
             <motion.div
               key={app.id}
+              drag="y"
+              dragConstraints={{ top: -400, bottom: 0 }}
+              dragElastic={0.5}
+              dragSnapToOrigin={true}
+              onDragEnd={(e, info) => {
+                if (info.offset.y < -80 || info.velocity.y < -250) {
+                  onCloseApp(app.id);
+                }
+              }}
               whileHover={{ y: -10, scale: 1.02 }}
-              className={`w-72 sm:w-80 h-[420px] rounded-[32px] bg-gradient-to-br ${app.colorGradient} p-1 shadow-2xl flex flex-col justify-between relative shrink-0 border border-white/20 cursor-pointer overflow-hidden ${activeAppId === app.id ? 'ring-4 ring-white' : ''}`}
+              className={`w-72 sm:w-80 h-[420px] rounded-[32px] bg-gradient-to-br ${app.colorGradient} p-1 shadow-2xl flex flex-col justify-between relative shrink-0 border border-white/20 cursor-grab active:cursor-grabbing overflow-hidden ${activeAppId === app.id ? 'ring-4 ring-white' : ''}`}
               onClick={() => {
                 onSelectApp(app.id);
                 onClose();

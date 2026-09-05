@@ -108,14 +108,14 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
   }, [currentYear, currentMonth, events]);
 
   return (
-    <div className="flex-1 flex flex-col bg-[#0d1117] overflow-hidden">
+    <div className="flex-1 flex flex-col bg-neutral-100 dark:bg-[#0d1117] overflow-hidden">
       {/* Weekday Labels Header */}
-      <div className="grid grid-cols-7 border-b border-white/10 bg-white/[0.02]">
+      <div className="grid grid-cols-7 border-b border-neutral-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02]">
         {WEEKDAY_SHORT_EN.map((day, idx) => (
           <div
             key={day}
             className={`py-2 text-center text-[11px] font-bold tracking-wider uppercase ${
-              idx === 0 || idx === 6 ? 'text-rose-400/80' : 'text-neutral-400'
+              idx === 0 || idx === 6 ? 'text-rose-500 dark:text-rose-400/80' : 'text-neutral-600 dark:text-neutral-400'
             }`}
           >
             {day}
@@ -124,7 +124,7 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
       </div>
 
       {/* Days Matrix */}
-      <div className="flex-1 grid grid-cols-7 grid-rows-5 md:grid-rows-6 gap-[1px] bg-white/10 p-[1px]">
+      <div className="flex-1 grid grid-cols-7 grid-rows-5 md:grid-rows-6 gap-px bg-neutral-200 dark:bg-white/10 p-px">
         {gridCells.map((cell, index) => {
           const greg = cell.dateBundle.gregorian;
           const hijri = cell.dateBundle.hijri;
@@ -144,9 +144,9 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
               onClick={() => onSelectDate(isoDate)}
               onDoubleClick={() => onOpenNewEvent(isoDate)}
               className={`relative flex flex-col p-1.5 md:p-2 select-none cursor-pointer transition-colors ${
-                cell.isCurrentMonth ? 'bg-[#161b22]' : 'bg-[#161b22]/50 opacity-60'
+                cell.isCurrentMonth ? 'bg-white dark:bg-[#161b22]' : 'bg-neutral-50 dark:bg-[#161b22]/50 opacity-60'
               } ${
-                isSelected ? 'ring-2 ring-rose-500 ring-inset z-10' : 'hover:bg-white/[0.06]'
+                isSelected ? 'ring-2 ring-rose-500 ring-inset z-10' : 'hover:bg-neutral-100 dark:hover:bg-white/[0.06]'
               }`}
             >
               {/* Day Header with Primary and Secondary numbers */}
@@ -157,8 +157,8 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
                       cell.isToday
                         ? 'bg-rose-500 text-white shadow-xs'
                         : cell.isCurrentMonth
-                        ? 'text-white'
-                        : 'text-neutral-500'
+                        ? 'text-neutral-900 dark:text-white'
+                        : 'text-neutral-400 dark:text-neutral-500'
                     }`}
                   >
                     {primaryNumber}
@@ -166,7 +166,7 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
 
                   {/* Show primary month name badge if 1st of month */}
                   {primaryNumber === 1 && (
-                    <span className="hidden sm:inline px-1 py-0.2 rounded-xs bg-rose-500/20 text-rose-400 text-[9px] font-semibold">
+                    <span className="hidden sm:inline px-1 py-0.2 rounded-xs bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[9px] font-semibold">
                       {primarySystem === 'hijri' 
                         ? HIJRI_MONTH_NAMES[hijri.month - 1]?.split(' ')[0] 
                         : primarySystem === 'ethiopian'
@@ -179,17 +179,17 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
                 {/* Secondary & Tertiary Badges (Subtle) */}
                 <div className="flex flex-col items-end text-[9px] leading-tight font-mono">
                   {primarySystem !== 'hijri' && (
-                    <span className="text-emerald-400/90" title={`Hijri: ${hijri.day}/${hijri.month}`}>
+                    <span className="text-emerald-600 dark:text-emerald-400/90" title={`Hijri: ${hijri.day}/${hijri.month}`}>
                       H:{hijri.day}
                     </span>
                   )}
                   {primarySystem !== 'ethiopian' && (
-                    <span className="text-amber-400/90" title={`Ethiopian: ${eth.day}/${eth.month}`}>
+                    <span className="text-amber-600 dark:text-amber-400/90" title={`Ethiopian: ${eth.day}/${eth.month}`}>
                       E:{eth.day}
                     </span>
                   )}
                   {primarySystem !== 'gregorian' && (
-                    <span className="text-neutral-400" title={`Gregorian: ${greg.day}/${greg.month}`}>
+                    <span className="text-neutral-500 dark:text-neutral-400" title={`Gregorian: ${greg.day}/${greg.month}`}>
                       G:{greg.day}
                     </span>
                   )}
@@ -206,17 +206,17 @@ export const CalendarMonthGrid: React.FC<CalendarMonthGridProps> = ({
                       onOpenEditEvent(ev);
                     }}
                     style={{ borderLeftColor: ev.color || '#ef4444' }}
-                    className="px-1.5 py-0.5 rounded-sm bg-white/10 hover:bg-white/15 border-l-2 text-[10px] text-white truncate font-medium flex items-center gap-1"
+                    className="px-1.5 py-0.5 rounded-xs bg-neutral-100 dark:bg-white/10 hover:bg-neutral-200 dark:hover:bg-white/15 border-l-2 text-[10px] text-neutral-900 dark:text-white truncate font-medium flex items-center gap-1 shadow-xs"
                   >
                     {ev.syncedToGoogle && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" title="Synced to Google Calendar" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" title="Synced to Google Calendar" />
                     )}
                     <span className="truncate">{ev.title}</span>
                   </div>
                 ))}
 
                 {cell.events.length > 2 && (
-                  <span className="text-[9px] text-neutral-400 font-semibold pl-1">
+                  <span className="text-[9px] text-neutral-500 dark:text-neutral-400 font-semibold pl-1">
                     +{cell.events.length - 2} more
                   </span>
                 )}

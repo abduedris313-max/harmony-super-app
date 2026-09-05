@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { HARMONY_APPS } from '../../config/apps';
 import { MiniAppConfig, SystemUser } from '../../types';
+import { useTheme } from '../../hooks/useTheme';
 
 interface HarmonyAppStoreProps {
   user?: SystemUser | null;
@@ -43,8 +44,10 @@ export const HarmonyAppStoreModule: React.FC<HarmonyAppStoreProps> = ({
   pinnedAppIds,
   onTogglePinApp,
   onOpenApp,
-  isDarkMode = true,
+  isDarkMode: propIsDarkMode,
 }) => {
+  const theme = useTheme();
+  const isDarkMode = propIsDarkMode !== undefined ? propIsDarkMode : theme.isDark;
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
   const [selectedApp, setSelectedApp] = useState<MiniAppConfig | null>(null);

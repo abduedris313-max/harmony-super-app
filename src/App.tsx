@@ -256,17 +256,42 @@ export default function App() {
     });
   };
 
-  // Sync document root class and data-theme with settings
+  // Helper to convert hex to rgb string "r, g, b"
+  const hexToRgb = (hex: string) => {
+    const cleaned = (hex || '#6366f1').replace('#', '');
+    if (cleaned.length === 3) {
+      const r = parseInt(cleaned[0] + cleaned[0], 16) || 99;
+      const g = parseInt(cleaned[1] + cleaned[1], 16) || 102;
+      const b = parseInt(cleaned[2] + cleaned[2], 16) || 241;
+      return `${r}, ${g}, ${b}`;
+    }
+    if (cleaned.length === 6) {
+      const r = parseInt(cleaned.slice(0, 2), 16) || 99;
+      const g = parseInt(cleaned.slice(2, 4), 16) || 102;
+      const b = parseInt(cleaned.slice(4, 6), 16) || 241;
+      return `${r}, ${g}, ${b}`;
+    }
+    return '99, 102, 241';
+  };
+
+  // Sync document root class, data-theme, and accent color CSS custom properties with settings
   useEffect(() => {
     if (typeof document !== 'undefined') {
+      const root = document.documentElement;
       if (settings.isDarkMode) {
-        document.documentElement.classList.add('dark');
+        root.classList.add('dark');
       } else {
-        document.documentElement.classList.remove('dark');
+        root.classList.remove('dark');
       }
-      document.documentElement.setAttribute('data-theme', settings.themePreset || 'slate');
+      root.setAttribute('data-theme', settings.themePreset || 'slate');
+
+      // Sync accent color CSS variables
+      if (settings.accentColor) {
+        root.style.setProperty('--accent-color', settings.accentColor);
+        root.style.setProperty('--accent-color-rgb', hexToRgb(settings.accentColor));
+      }
     }
-  }, [settings.isDarkMode, settings.themePreset]);
+  }, [settings.isDarkMode, settings.themePreset, settings.accentColor]);
 
   // Listen for OS system color scheme changes when themeMode is 'system'
   useEffect(() => {
@@ -425,7 +450,8 @@ export default function App() {
     const isDark = settings.isDarkMode;
     const matched = WALLPAPER_PRESETS.find(p => p.id === wallpaperTheme);
     if (matched) {
-      return `bg-gradient-to-br ${matched.bgClass}`;
+      const gradient = isDark ? matched.darkBgClass : matched.lightBgClass;
+      return `bg-gradient-to-br ${gradient}`;
     }
     switch (settings.themePreset) {
       case 'oled':
@@ -433,20 +459,20 @@ export default function App() {
       case 'sunset':
         return isDark
           ? 'bg-gradient-to-br from-[#271026] via-[#160d1f] to-[#0d0714]'
-          : 'bg-gradient-to-br from-[#fff1f2] via-[#fff7ed] to-[#fef2f2]';
+          : 'bg-gradient-to-br from-[#fff7ed] via-[#ffedd5] to-[#fef2f2]';
       case 'emerald':
         return isDark
           ? 'bg-gradient-to-br from-[#06201a] via-[#081512] to-[#040c0a]'
-          : 'bg-gradient-to-br from-[#ecfdf5] via-[#f0fdf4] to-[#e6f4ea]';
+          : 'bg-gradient-to-br from-[#ecfdf5] via-[#d1fae5] to-[#f0fdf4]';
       case 'lavender':
         return isDark
           ? 'bg-gradient-to-br from-[#1a122c] via-[#100e1e] to-[#080713]'
-          : 'bg-gradient-to-br from-[#f5f3ff] via-[#faf5ff] to-[#ede9fe]';
+          : 'bg-gradient-to-br from-[#faf5ff] via-[#f3e8ff] to-[#ede9fe]';
       case 'slate':
       default:
         return isDark
-          ? 'bg-gradient-to-br from-[#161b22] via-[#0d1117] to-black'
-          : 'bg-gradient-to-br from-[#e5e5ea] via-[#f2f2f7] to-[#e4e4ed]';
+          ? 'bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0a0d12]'
+          : 'bg-gradient-to-br from-[#f1f5f9] via-[#e2e8f0] to-[#f8fafc]';
     }
   };
 
@@ -454,7 +480,7 @@ export default function App() {
     <div 
       id="harmony-os-root" 
       className={`w-screen h-screen flex flex-col font-sans overflow-hidden select-none relative transition-colors duration-300 ${
-        settings.isDarkMode ? 'bg-[#0d1117] text-[#c9d1d9] dark' : 'bg-[#f2f2f7] text-neutral-800'
+        settings.isDarkMode ? 'bg-[#0d1117] text-[#c9d1d9] dark' : 'bg-[#f8fafc] text-neutral-900'
       }`}
     >
       {/* Dynamic Background Wallpaper Glow */}

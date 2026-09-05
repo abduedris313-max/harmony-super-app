@@ -52,13 +52,80 @@ interface HomeScreenSetupModalProps {
   onSaveToast?: (msg: string) => void;
 }
 
-export const WALLPAPER_PRESETS = [
-  { id: 'obsidian', name: 'Obsidian Deep', bgClass: 'from-[#0d1117] to-[#161b22]', previewHex: '#0d1117' },
-  { id: 'indigo-cosmic', name: 'Midnight Indigo', bgClass: 'from-[#0f172a] via-[#1e1b4b] to-[#0f172a]', previewHex: '#1e1b4b' },
-  { id: 'nebula-purple', name: 'Nebula Violet', bgClass: 'from-[#180d2b] via-[#2e1065] to-[#0f172a]', previewHex: '#2e1065' },
-  { id: 'slate-minimal', name: 'Slate Monochrome', bgClass: 'from-[#18181b] to-[#27272a]', previewHex: '#27272a' },
-  { id: 'sunset-ember', name: 'Sunset Ember', bgClass: 'from-[#1c1917] via-[#451a03] to-[#1c1917]', previewHex: '#451a03' },
-  { id: 'pearl-light', name: 'Clean Pearl (Light)', bgClass: 'from-neutral-100 to-neutral-200', previewHex: '#e5e7eb' },
+export interface WallpaperPreset {
+  id: string;
+  name: string;
+  bgClass: string; // for compatibility
+  darkBgClass: string;
+  lightBgClass: string;
+  previewHexDark: string;
+  previewHexLight: string;
+}
+
+export const WALLPAPER_PRESETS: WallpaperPreset[] = [
+  { 
+    id: 'obsidian', 
+    name: 'Apple Slate', 
+    bgClass: 'from-[#0d1117] via-[#161b22] to-[#0a0d12]',
+    darkBgClass: 'from-[#0d1117] via-[#161b22] to-[#0a0d12]', 
+    lightBgClass: 'from-[#f1f5f9] via-[#e2e8f0] to-[#f8fafc]', 
+    previewHexDark: '#0d1117',
+    previewHexLight: '#e2e8f0'
+  },
+  { 
+    id: 'indigo-cosmic', 
+    name: 'Midnight Indigo', 
+    bgClass: 'from-[#0f172a] via-[#1e1b4b] to-[#0f172a]',
+    darkBgClass: 'from-[#0f172a] via-[#1e1b4b] to-[#0f172a]', 
+    lightBgClass: 'from-[#eef2ff] via-[#e0e7ff] to-[#f5f3ff]', 
+    previewHexDark: '#1e1b4b',
+    previewHexLight: '#e0e7ff'
+  },
+  { 
+    id: 'nebula-purple', 
+    name: 'Nebula Violet', 
+    bgClass: 'from-[#180d2b] via-[#2e1065] to-[#0f172a]',
+    darkBgClass: 'from-[#180d2b] via-[#2e1065] to-[#0f172a]', 
+    lightBgClass: 'from-[#faf5ff] via-[#f3e8ff] to-[#ede9fe]', 
+    previewHexDark: '#2e1065',
+    previewHexLight: '#f3e8ff'
+  },
+  { 
+    id: 'slate-minimal', 
+    name: 'Minimal Clean', 
+    bgClass: 'from-[#18181b] to-[#27272a]',
+    darkBgClass: 'from-[#18181b] via-[#27272a] to-[#18181b]', 
+    lightBgClass: 'from-[#ffffff] via-[#f4f4f5] to-[#e4e4e7]', 
+    previewHexDark: '#27272a',
+    previewHexLight: '#f4f4f5'
+  },
+  { 
+    id: 'sunset-ember', 
+    name: 'Solar Sunset', 
+    bgClass: 'from-[#1c1917] via-[#451a03] to-[#1c1917]',
+    darkBgClass: 'from-[#1c1917] via-[#451a03] to-[#1c1917]', 
+    lightBgClass: 'from-[#fff7ed] via-[#ffedd5] to-[#fef2f2]', 
+    previewHexDark: '#451a03',
+    previewHexLight: '#ffedd5'
+  },
+  { 
+    id: 'emerald-aurora', 
+    name: 'Alpine Emerald', 
+    bgClass: 'from-[#06201a] via-[#064e3b] to-[#022c22]',
+    darkBgClass: 'from-[#06201a] via-[#064e3b] to-[#022c22]', 
+    lightBgClass: 'from-[#ecfdf5] via-[#d1fae5] to-[#f0fdf4]', 
+    previewHexDark: '#064e3b',
+    previewHexLight: '#d1fae5'
+  },
+  { 
+    id: 'pearl-light', 
+    name: 'Pure Ceramic', 
+    bgClass: 'from-[#ffffff] via-[#f8fafc] to-[#f1f5f9]',
+    darkBgClass: 'from-[#1e293b] via-[#0f172a] to-[#020617]', 
+    lightBgClass: 'from-[#ffffff] via-[#f8fafc] to-[#f1f5f9]', 
+    previewHexDark: '#0f172a',
+    previewHexLight: '#ffffff'
+  },
 ];
 
 export const HomeScreenSetupModal: React.FC<HomeScreenSetupModalProps> = ({
@@ -537,6 +604,8 @@ export const HomeScreenSetupModal: React.FC<HomeScreenSetupModalProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {WALLPAPER_PRESETS.map(preset => {
                   const isSelected = wallpaperTheme === preset.id;
+                  const bgGradient = isDark ? preset.darkBgClass : preset.lightBgClass;
+                  const previewColor = isDark ? preset.previewHexDark : preset.previewHexLight;
                   return (
                     <button
                       key={preset.id}
@@ -547,12 +616,12 @@ export const HomeScreenSetupModal: React.FC<HomeScreenSetupModalProps> = ({
                       className={`p-3 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between h-20 ${
                         isSelected
                           ? 'border-indigo-500 ring-2 ring-indigo-500/40 shadow-lg'
-                          : isDark ? 'border-[#30363d]' : 'border-neutral-200'
+                          : isDark ? 'border-[#30363d]' : 'border-neutral-300'
                       }`}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${preset.bgClass} opacity-80`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-90`} />
                       <div className="relative z-10 flex items-center justify-between w-full">
-                        <span className="text-xs font-bold text-white drop-shadow-sm">
+                        <span className={`text-xs font-bold drop-shadow-xs ${isDark ? 'text-white' : 'text-neutral-900'}`}>
                           {preset.name}
                         </span>
                         {isSelected && (
@@ -561,7 +630,7 @@ export const HomeScreenSetupModal: React.FC<HomeScreenSetupModalProps> = ({
                           </div>
                         )}
                       </div>
-                      <div className="relative z-10 w-4 h-4 rounded-full border border-white/40" style={{ backgroundColor: preset.previewHex }} />
+                      <div className="relative z-10 w-4 h-4 rounded-full border border-black/20 dark:border-white/40 shadow-xs" style={{ backgroundColor: previewColor }} />
                     </button>
                   );
                 })}

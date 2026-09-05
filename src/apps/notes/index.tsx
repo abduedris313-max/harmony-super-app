@@ -4,45 +4,12 @@ import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firesto
 import { NoteSidebar } from './components/NoteSidebar';
 import { NoteEditor } from './components/NoteEditor';
 import { NoteItem, NoteCategory } from './types';
+import { useTheme } from '../../hooks/useTheme';
 
-const DEFAULT_NOTES: NoteItem[] = [
-  {
-    id: 'note-1',
-    title: '🚀 Harmony OS Architecture & Roadmap',
-    content: `# Harmony OS Architecture
-
-Harmony OS is a modular multi-app environment supporting dual native components and GitHub Pages iframe execution.
-
-## Key Principles:
-- **Client-First Responsiveness**: Desktop precision paired with Mobile-First iOS design.
-- **Firebase Sync**: Automated Firestore data persistence across devices.
-- **Modular App Architecture**: Every mini-app lives in a self-contained module.
-
-### Next Features:
-1. Live Audio Synthesizer for Music Player
-2. Gemini 2.5 AI Context Analyzer
-3. Offline PWA Service Worker caching`,
-    category: 'Work',
-    tags: ['Architecture', 'HarmonyOS', 'Roadmap'],
-    isPinned: true,
-    updatedAt: Date.now(),
-    createdAt: Date.now(),
-  },
-  {
-    id: 'note-2',
-    title: '💡 Product Features & Creative Brainstorming',
-    content: `- Add dark/light mode auto switching based on system preferences.
-- Implement drag-and-drop widget reordering on iOS Springboard.
-- Enable export to PDF and JSON backup format for document collections.`,
-    category: 'Ideas',
-    tags: ['Features', 'Design'],
-    isPinned: false,
-    updatedAt: Date.now() - 3600000,
-    createdAt: Date.now() - 3600000,
-  },
-];
+const DEFAULT_NOTES: NoteItem[] = [];
 
 export const HarmonyNotesAppModule: React.FC = () => {
+  const theme = useTheme();
   const [notes, setNotes] = useState<NoteItem[]>([]);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,7 +34,7 @@ export const HarmonyNotesAppModule: React.FC = () => {
             if (!activeNoteId) setActiveNoteId(loaded[0].id);
           } else {
             setNotes(DEFAULT_NOTES);
-            setActiveNoteId(DEFAULT_NOTES[0].id);
+            setActiveNoteId(null);
           }
         },
         () => {
@@ -79,13 +46,13 @@ export const HarmonyNotesAppModule: React.FC = () => {
             if (parsed.length > 0 && !activeNoteId) setActiveNoteId(parsed[0].id);
           } else {
             setNotes(DEFAULT_NOTES);
-            setActiveNoteId(DEFAULT_NOTES[0].id);
+            setActiveNoteId(null);
           }
         }
       );
     } catch {
       setNotes(DEFAULT_NOTES);
-      setActiveNoteId(DEFAULT_NOTES[0].id);
+      setActiveNoteId(null);
     }
 
     return () => {
@@ -125,7 +92,7 @@ export const HarmonyNotesAppModule: React.FC = () => {
       title: 'Untitled Note',
       content: '',
       category: 'Personal',
-      tags: ['New'],
+      tags: [],
       isPinned: false,
       updatedAt: Date.now(),
       createdAt: Date.now(),
@@ -194,7 +161,7 @@ export const HarmonyNotesAppModule: React.FC = () => {
   const activeNote = notes.find((n) => n.id === activeNoteId) || null;
 
   return (
-    <div id="harmony-notes-container" className="flex-1 w-full flex flex-col md:flex-row bg-[#0d1117] text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden">
+    <div id="harmony-notes-container" className="flex-1 w-full flex flex-col md:flex-row bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden">
       <NoteSidebar
         notes={filteredNotes}
         activeNoteId={activeNoteId}

@@ -71,12 +71,14 @@ import {
   INITIAL_OFFLINE_FINANCE_LOANS,
   INITIAL_OFFLINE_FINANCE_SUBSCRIPTIONS
 } from '../../lib/offlinePersistence';
+import { useTheme } from '../../hooks/useTheme';
 
 interface HarmonyFinanceAppModuleProps {
   user?: SystemUser | null;
 }
 
 export const HarmonyFinanceAppModule: React.FC<HarmonyFinanceAppModuleProps> = ({ user }) => {
+  const theme = useTheme();
   const userId = user?.uid || 'offline-user';
 
   // Active Tab
@@ -377,21 +379,21 @@ export const HarmonyFinanceAppModule: React.FC<HarmonyFinanceAppModuleProps> = (
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0d1117] text-white overflow-hidden select-none">
+    <div className="flex-1 flex flex-col h-full bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-white overflow-hidden select-none">
       {/* Mini App Top Header Bar */}
-      <div className="px-3.5 py-2.5 bg-[#161b22] border-b border-[#30363d] flex items-center justify-between shrink-0">
+      <div className="px-3.5 py-2.5 bg-white dark:bg-[#161b22] border-b border-neutral-200 dark:border-[#30363d] flex items-center justify-between shrink-0 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-sm font-bold text-xs">
             <Landmark className="w-4 h-4" />
           </div>
           <div>
-            <h1 className="text-xs font-bold text-white tracking-tight flex items-center gap-1.5">
+            <h1 className="text-xs font-bold text-neutral-900 dark:text-white tracking-tight flex items-center gap-1.5">
               <span>Harmony Finance & Ledger</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 font-mono border border-emerald-500/30">
                 PRO Suite
               </span>
             </h1>
-            <p className="text-[10px] text-[#8b949e]">Personal & Business Wealth Management</p>
+            <p className="text-[10px] text-neutral-500 dark:text-[#8b949e]">Personal & Business Wealth Management</p>
           </div>
         </div>
 
@@ -401,15 +403,15 @@ export const HarmonyFinanceAppModule: React.FC<HarmonyFinanceAppModuleProps> = (
           <div className="relative">
             <button
               onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-              className="px-2.5 py-1 rounded-xl bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] text-xs font-mono font-bold text-white flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] border border-neutral-200 dark:border-[#30363d] text-xs font-mono font-bold text-neutral-800 dark:text-white flex items-center gap-1 transition-colors"
               title="Change Display Currency"
             >
               <span>{currencyCode}</span>
-              <span className="text-[9px] text-[#8b949e]">▼</span>
+              <span className="text-[9px] text-neutral-500 dark:text-[#8b949e]">▼</span>
             </button>
 
             {isCurrencyDropdownOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-44 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl p-1 z-50 text-xs font-mono max-h-56 overflow-y-auto scrollbar-none">
+              <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-[#161b22] border border-neutral-200 dark:border-[#30363d] rounded-xl shadow-2xl p-1 z-50 text-xs font-mono max-h-56 overflow-y-auto scrollbar-none">
                 {SUPPORTED_CURRENCIES.map((curr) => (
                   <button
                     key={curr.code}
@@ -417,7 +419,7 @@ export const HarmonyFinanceAppModule: React.FC<HarmonyFinanceAppModuleProps> = (
                     className={`w-full px-2.5 py-1.5 rounded-lg flex items-center justify-between text-left transition-colors ${
                       currencyCode === curr.code
                         ? 'bg-indigo-600 text-white font-bold'
-                        : 'text-[#c9d1d9] hover:bg-[#21262d] hover:text-white'
+                        : 'text-neutral-700 dark:text-[#c9d1d9] hover:bg-neutral-100 dark:hover:bg-[#21262d] hover:text-neutral-900 dark:hover:text-white'
                     }`}
                   >
                     <span>{curr.code} ({curr.symbol})</span>
@@ -443,7 +445,7 @@ export const HarmonyFinanceAppModule: React.FC<HarmonyFinanceAppModuleProps> = (
       </div>
 
       {/* iOS Segmented Navigation Tab Bar */}
-      <div className="px-3 py-2 bg-[#161b22]/70 border-b border-[#30363d]/60 flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
+      <div className="px-3 py-2 bg-neutral-100/80 dark:bg-[#161b22]/70 border-b border-neutral-200 dark:border-[#30363d]/60 flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
         {[
           { id: 'overview', label: 'Overview', icon: ShieldCheck },
           { id: 'expenses', label: 'Transactions', icon: Wallet },
@@ -462,7 +464,7 @@ export const HarmonyFinanceAppModule: React.FC<HarmonyFinanceAppModuleProps> = (
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0 ${
                 isActive
                   ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                  : 'bg-[#0d1117] text-[#8b949e] hover:text-white hover:bg-[#21262d] border border-[#30363d]/60'
+                  : 'bg-white dark:bg-[#0d1117] text-neutral-600 dark:text-[#8b949e] hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-[#21262d] border border-neutral-200 dark:border-[#30363d]/60'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />

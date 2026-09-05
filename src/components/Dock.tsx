@@ -4,7 +4,7 @@
  * Highly configurable & editable dock with responsive app counts (5 for small screen, 7 for large screen by default).
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HARMONY_APPS } from '../config/apps';
 import { DEFAULT_DOCK_APP_IDS } from '../lib/offlinePersistence';
@@ -41,7 +41,7 @@ interface DockProps {
   onUpdateSettings?: (updated: Partial<SystemSettings>) => void;
 }
 
-export const Dock: React.FC<DockProps> = ({ 
+export const DockComponent: React.FC<DockProps> = ({ 
   onOpenApp, 
   onOpenAppSwitcher, 
   activeAppId, 
@@ -89,19 +89,29 @@ export const Dock: React.FC<DockProps> = ({
     }
   };
 
-  // Resolve active configured apps from catalog
-  const currentAppIds = dockAppIds && dockAppIds.length > 0 ? dockAppIds : DEFAULT_DOCK_APP_IDS;
-  const configuredApps = currentAppIds
-    .map((id) => HARMONY_APPS.find((app) => app.id === id))
-    .filter((app): app is typeof HARMONY_APPS[number] => Boolean(app));
+  // Resolve active configured apps from catalog using useMemo
+  const currentAppIds = useMemo(() => {
+    return dockAppIds && dockAppIds.length > 0 ? dockAppIds : DEFAULT_DOCK_APP_IDS;
+  }, [dockAppIds]);
+
+  const configuredApps = useMemo(() => {
+    return currentAppIds
+      .map((id) => HARMONY_APPS.find((app) => app.id === id))
+      .filter((app): app is typeof HARMONY_APPS[number] => Boolean(app));
+  }, [currentAppIds]);
 
   // Determine maximum apps to display based on responsive breakpoint
   const maxVisibleCount = isLargeScreen ? (dockMaxLargeScreen || 7) : (dockMaxSmallScreen || 5);
+  
   // When in edit mode, show all configured apps so the user can see and organize their full dock list
-  const visibleApps = isEditMode ? configuredApps : configuredApps.slice(0, maxVisibleCount);
+  const visibleApps = useMemo(() => {
+    return isEditMode ? configuredApps : configuredApps.slice(0, maxVisibleCount);
+  }, [isEditMode, configuredApps, maxVisibleCount]);
 
   // Available apps not currently on the dock
-  const unDockedApps = HARMONY_APPS.filter((app) => !currentAppIds.includes(app.id));
+  const unDockedApps = useMemo(() => {
+    return HARMONY_APPS.filter((app) => !currentAppIds.includes(app.id));
+  }, [currentAppIds]);
 
   // Reorder app on dock
   const handleMoveApp = (index: number, direction: 'left' | 'right') => {
@@ -398,3 +408,5 @@ export const Dock: React.FC<DockProps> = ({
     </div>
   );
 };
+
+export const Dock = React.memo(DockComponent);

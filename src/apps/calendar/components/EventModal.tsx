@@ -160,20 +160,20 @@ export const EventModal: React.FC<EventModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
       <div 
-        className="w-full max-w-lg bg-[#1c2128] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-lg bg-white dark:bg-[#1c2128] border border-neutral-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-neutral-200 dark:border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center">
               <CalendarIcon className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
                 {eventToEdit ? 'Edit Event' : 'New Calendar Event'}
               </h3>
-              <p className="text-[11px] text-neutral-400">
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
                 Synchronizes with Gregorian, Hijri, and Ethiopian timelines
               </p>
             </div>
@@ -181,7 +181,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white transition-colors"
+            className="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -191,7 +191,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Title */}
           <div>
-            <label className="text-xs font-semibold text-neutral-300 block mb-1">
+            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
               Event Title *
             </label>
             <input
@@ -200,13 +200,13 @@ export const EventModal: React.FC<EventModalProps> = ({
               placeholder="e.g., Team Sync or Eid Gathering"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 text-xs focus:outline-hidden focus:border-rose-500"
+              className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 text-xs focus:outline-hidden focus:border-rose-500"
             />
           </div>
 
           {/* Date Picker & Tri-Calendar badges */}
           <div>
-            <label className="text-xs font-semibold text-neutral-300 block mb-1">
+            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">
               Date (Gregorian Anchor) *
             </label>
             <input
@@ -214,17 +214,17 @@ export const EventModal: React.FC<EventModalProps> = ({
               required
               value={gregorianDate}
               onChange={(e) => setGregorianDate(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-rose-500"
+              className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white text-xs focus:outline-hidden focus:border-rose-500"
             />
 
             {/* Tri-Calendar Live Preview */}
             <div className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
-              <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center gap-1.5">
-                <Sunrise className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                <Sunrise className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span className="truncate">{formatHijriString(dateBundle.hijri)}</span>
               </div>
-              <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center gap-1.5">
-                <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                <Compass className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="truncate">{formatEthiopianString(dateBundle.ethiopian)}</span>
               </div>
             </div>
@@ -233,13 +233,13 @@ export const EventModal: React.FC<EventModalProps> = ({
           {/* Time & All-Day Toggle */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-neutral-300">Time</label>
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-neutral-300">
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">Time</label>
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-neutral-700 dark:text-neutral-300">
                 <input
                   type="checkbox"
                   checked={allDay}
                   onChange={(e) => setAllDay(e.target.checked)}
-                  className="rounded border-white/20 text-rose-500 focus:ring-rose-500 bg-white/5"
+                  className="rounded border-neutral-300 dark:border-white/20 text-rose-500 focus:ring-rose-500 bg-neutral-50 dark:bg-white/5"
                 />
                 All-Day Event
               </label>
@@ -248,21 +248,21 @@ export const EventModal: React.FC<EventModalProps> = ({
             {!allDay && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] text-neutral-400 block mb-1">Start Time</label>
+                  <label className="text-[11px] text-neutral-500 dark:text-neutral-400 block mb-1">Start Time</label>
                   <input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-rose-500"
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white text-xs focus:outline-hidden focus:border-rose-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] text-neutral-400 block mb-1">End Time</label>
+                  <label className="text-[11px] text-neutral-500 dark:text-neutral-400 block mb-1">End Time</label>
                   <input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-rose-500"
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white text-xs focus:outline-hidden focus:border-rose-500"
                   />
                 </div>
               </div>
@@ -272,11 +272,11 @@ export const EventModal: React.FC<EventModalProps> = ({
           {/* Category & Color */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-neutral-300 block mb-1">Category</label>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl bg-[#161b22] border border-white/10 text-white text-xs focus:outline-hidden focus:border-rose-500"
+                className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-[#161b22] border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white text-xs focus:outline-hidden focus:border-rose-500"
               >
                 {CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -285,7 +285,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-neutral-300 block mb-1">Accent Color</label>
+              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">Accent Color</label>
               <div className="flex items-center gap-2 pt-1">
                 {COLOR_OPTIONS.map((c) => (
                   <button
@@ -294,7 +294,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     onClick={() => setColor(c.hex)}
                     style={{ backgroundColor: c.hex }}
                     className={`w-6 h-6 rounded-full transition-transform ${
-                      color === c.hex ? 'ring-2 ring-white ring-offset-2 ring-offset-[#1c2128] scale-110' : 'opacity-70 hover:opacity-100'
+                      color === c.hex ? 'ring-2 ring-neutral-900 dark:ring-white ring-offset-2 ring-offset-white dark:ring-offset-[#1c2128] scale-110' : 'opacity-70 hover:opacity-100'
                     }`}
                     title={c.label}
                   />
@@ -305,7 +305,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
           {/* Location */}
           <div>
-            <label className="text-xs font-semibold text-neutral-300 block mb-1 flex items-center gap-1.5">
+            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1 flex items-center gap-1.5">
               <MapPin className="w-3 h-3 text-neutral-400" />
               Location
             </label>
@@ -314,29 +314,29 @@ export const EventModal: React.FC<EventModalProps> = ({
               placeholder="e.g. Conference Room A or Online Meet"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 text-xs focus:outline-hidden focus:border-rose-500"
+              className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 text-xs focus:outline-hidden focus:border-rose-500"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-xs font-semibold text-neutral-300 block mb-1">Notes & Description</label>
+            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 block mb-1">Notes & Description</label>
             <textarea
               rows={2}
               placeholder="Add details, agenda, or prayer notes..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 text-xs focus:outline-hidden focus:border-rose-500 resize-none"
+              className="w-full px-3 py-2 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-300 dark:border-white/10 text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 text-xs focus:outline-hidden focus:border-rose-500 resize-none"
             />
           </div>
 
           {/* Google Calendar Sync Option */}
-          <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between">
+          <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Cloud className="w-4 h-4 text-blue-400" />
+              <Cloud className="w-4 h-4 text-blue-500 dark:text-blue-400" />
               <div>
-                <div className="text-xs font-semibold text-white">Sync with Google Calendar</div>
-                <div className="text-[10px] text-blue-300">
+                <div className="text-xs font-semibold text-neutral-900 dark:text-white">Sync with Google Calendar</div>
+                <div className="text-[10px] text-blue-600 dark:text-blue-300">
                   {isGoogleConnected 
                     ? 'Sync this event directly to primary Google Calendar'
                     : 'Requires Google account connection in top bar'}
@@ -348,18 +348,18 @@ export const EventModal: React.FC<EventModalProps> = ({
               disabled={!isGoogleConnected}
               checked={syncGoogle && isGoogleConnected}
               onChange={(e) => setSyncGoogle(e.target.checked)}
-              className="rounded border-white/20 text-blue-500 focus:ring-blue-500 bg-white/5 disabled:opacity-40"
+              className="rounded border-neutral-300 dark:border-white/20 text-blue-500 focus:ring-blue-500 bg-neutral-50 dark:bg-white/5 disabled:opacity-40"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 flex items-center justify-between border-t border-white/10">
+          <div className="pt-2 flex items-center justify-between border-t border-neutral-200 dark:border-white/10">
             {eventToEdit?.id && onDelete ? (
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isSaving}
-                className="px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                className="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-600 dark:text-rose-400 text-xs font-medium flex items-center gap-1.5 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete
@@ -370,7 +370,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 text-xs font-medium transition-colors"
+                className="px-3.5 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-white/5 dark:hover:bg-white/10 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors"
               >
                 Cancel
               </button>

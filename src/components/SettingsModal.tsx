@@ -105,9 +105,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
   };
 
+  const PRESET_ACCENTS: Record<ThemePreset, string> = {
+    slate: '#6366f1',
+    oled: '#a855f7',
+    sunset: '#f59e0b',
+    emerald: '#10b981',
+    lavender: '#d946ef'
+  };
+
   const handlePresetChange = (preset: ThemePreset) => {
     soundManager.playHapticClick();
-    onUpdateSettings({ themePreset: preset });
+    onUpdateSettings({ 
+      themePreset: preset,
+      accentColor: PRESET_ACCENTS[preset]
+    });
   };
 
   // Dock Configuration State & Handlers

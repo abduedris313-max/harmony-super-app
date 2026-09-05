@@ -72,159 +72,12 @@ export interface QueuedSyncAction {
   timestamp: number;
 }
 
-// Default initial datasets if storage is empty offline
-export const INITIAL_OFFLINE_NOTES: HarmonyNote[] = [
-  {
-    id: 'offline-note-1',
-    userId: 'offline-user',
-    title: '📱 Offline Cache & Service Worker Ready',
-    content: `# Offline First in Harmony OS
-
-All core mini-apps in Harmony OS are backed by a Service Worker and an in-browser persistence layer.
-
-## How it works:
-1. **Instant Offline Access**: Every note, doc, and draft is cached in LocalStorage & Service Worker Cache.
-2. **Background Sync Queue**: Changes made while disconnected are queued and automatically pushed to Firebase when connectivity resumes.
-3. **PWA Compliance**: The app shell, assets, and data remain available even with zero network.`,
-    category: 'Work',
-    tags: ['Offline', 'PWA', 'Architecture'],
-    pinned: true,
-    updatedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'offline-note-2',
-    userId: 'offline-user',
-    title: '💡 Quick Offline Scratchpad',
-    content: `Jot down thoughts anywhere, on any device. Changes sync seamlessly once you're back online.`,
-    category: 'Ideas',
-    tags: ['Scratchpad', 'Notes'],
-    pinned: false,
-    updatedAt: new Date(Date.now() - 3600000).toISOString(),
-    createdAt: new Date(Date.now() - 3600000).toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_DOCS: HarmonyDoc[] = [
-  {
-    id: 'offline-doc-1',
-    userId: 'offline-user',
-    title: '📖 Harmony Super App Offline Guide',
-    content: `# Harmony Super App Offline Architecture
-
-The Harmony Super App uses a dual-engine architecture:
-- **Cloud Firestore**: Real-time multi-device synchronization when online.
-- **Service Worker Cache & Offline Persistence**: Complete offline capability for Native Mini-Apps.
-
-### Caching Strategy:
-- **App Shell**: Cached on first load using the Cache API.
-- **Data Persistence**: Synced to LocalStorage and posted to Service Worker cache snapshots.
-- **Graceful Fallback**: Native mini-apps seamlessly switch to local cache when offline.`,
-    wordCount: 82,
-    readingTimeMinutes: 1,
-    category: 'Documentation',
-    updatedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_DRAFTS: HarmonyWritingDraft[] = [
-  {
-    id: 'offline-draft-1',
-    userId: 'offline-user',
-    title: 'Midnight Musings (Offline Draft)',
-    content: `The hum of the machine is quiet now. Through the glass, the faint glow of city lights scatters across the desk. Words flow uninterrupted, saved directly to local storage.`,
-    targetWordCount: 500,
-    currentWordCount: 31,
-    typewriterSound: true,
-    theme: 'twilight',
-    updatedAt: new Date().toISOString(),
-    createdAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_PLAYLISTS: HarmonyPlaylist[] = [
-  {
-    id: 'offline-playlist-1',
-    userId: 'offline-user',
-    name: 'Lo-Fi Focus & Offline Beats',
-    tracks: [
-      {
-        id: 't-1',
-        title: 'Harmony Ambient Flow',
-        artist: 'Harmony Soundscapes',
-        album: 'Serenade OS Vol. 1',
-        duration: 180,
-        coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&q=80',
-        genre: 'Ambient Chill'
-      },
-      {
-        id: 't-2',
-        title: 'Deep Coding Frequency',
-        artist: 'SynthWave Harmony',
-        album: 'Serenade OS Vol. 1',
-        duration: 215,
-        coverUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80',
-        genre: 'Lo-Fi Chill'
-      }
-    ],
-    updatedAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_EVENTS: HarmonyCalendarEvent[] = [
-  {
-    id: 'cal-event-1',
-    userId: 'offline-user',
-    title: 'Enkutatash (Ethiopian New Year)',
-    description: 'National holiday marking the start of Meskerem in the Ethiopian calendar.',
-    location: 'Addis Ababa & Global Diaspora',
-    gregorianDate: '2026-09-11',
-    startTime: '09:00',
-    endTime: '17:00',
-    allDay: true,
-    category: 'Holiday',
-    color: '#10b981',
-    hijriDate: '29 Safar 1448 AH',
-    ethiopianDate: '1 Meskerem 2019 EE',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'cal-event-2',
-    userId: 'offline-user',
-    title: 'Mawlid an-Nabi (Prophet\'s Birthday)',
-    description: '12 Rabi al-Awwal observed across Islamic lunar calendar communities.',
-    location: 'Global',
-    gregorianDate: '2026-09-24',
-    startTime: '10:00',
-    endTime: '14:00',
-    allDay: true,
-    category: 'Religious',
-    color: '#8b5cf6',
-    hijriDate: '12 Rabi I 1448 AH',
-    ethiopianDate: '14 Meskerem 2019 EE',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'cal-event-3',
-    userId: 'offline-user',
-    title: 'Sprint Planning & System Architecture',
-    description: 'Tri-calendar synchronization review and Google Calendar OAuth validation.',
-    location: 'Harmony Virtual Studio',
-    gregorianDate: '2026-09-03',
-    startTime: '14:00',
-    endTime: '15:30',
-    allDay: false,
-    category: 'Work',
-    color: '#3b82f6',
-    hijriDate: '21 Safar 1448 AH',
-    ethiopianDate: '23 Nehase 2018 EE',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
+// Default initial datasets if storage is empty offline (Clean production state)
+export const INITIAL_OFFLINE_NOTES: HarmonyNote[] = [];
+export const INITIAL_OFFLINE_DOCS: HarmonyDoc[] = [];
+export const INITIAL_OFFLINE_DRAFTS: HarmonyWritingDraft[] = [];
+export const INITIAL_OFFLINE_PLAYLISTS: HarmonyPlaylist[] = [];
+export const INITIAL_OFFLINE_EVENTS: HarmonyCalendarEvent[] = [];
 
 // In-memory fallback if Tracking Prevention or browser policy blocks window.localStorage
 const memoryStorage = new Map<string, string>();
@@ -239,6 +92,90 @@ function safeGetStorage(): Storage | null {
   }
   return null;
 }
+
+// Automatically prune legacy dummy datasets from localStorage
+(function cleanupLegacyDummyData() {
+  try {
+    const storage = safeGetStorage();
+    if (!storage) return;
+
+    // Run cleanup flag
+    const CLEANUP_KEY = 'harmony_production_cleaned_v6';
+    if (storage.getItem(CLEANUP_KEY) === 'true') return;
+
+    // Check & sanitize finance data
+    [
+      STORAGE_KEYS.FINANCE_TRANSACTIONS,
+      STORAGE_KEYS.FINANCE_ACCOUNTS,
+      STORAGE_KEYS.FINANCE_BUDGETS,
+      STORAGE_KEYS.FINANCE_LOANS,
+      STORAGE_KEYS.FINANCE_SUBSCRIPTIONS,
+    ].forEach((key) => {
+      const raw = storage.getItem(key);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            // Remove any items that look like dummy data
+            const cleaned = parsed.filter((item: any) => {
+              const str = JSON.stringify(item).toLowerCase();
+              return !(
+                str.includes('chase sapphire') ||
+                str.includes('silicon valley bank') ||
+                str.includes('macbook pro m3') ||
+                str.includes('netflix 4k') ||
+                str.includes('sample') ||
+                str.includes('dummy') ||
+                (typeof item.id === 'string' && (item.id.startsWith('tx-') || item.id.startsWith('acc-') || item.id.startsWith('loan-') || item.id.startsWith('sub-') || item.id.startsWith('b-')))
+              );
+            });
+            storage.setItem(key, JSON.stringify(cleaned));
+          }
+        } catch {
+          storage.removeItem(key);
+        }
+      }
+    });
+
+    // Check & sanitize notes/docs/playlists/calendar/typewriter
+    [
+      STORAGE_KEYS.NOTES,
+      STORAGE_KEYS.SYSTEM_NOTES,
+      STORAGE_KEYS.DOCS,
+      STORAGE_KEYS.SYSTEM_DOCS,
+      STORAGE_KEYS.PLAYLISTS,
+      STORAGE_KEYS.SYSTEM_PLAYLISTS,
+      STORAGE_KEYS.CALENDAR,
+      STORAGE_KEYS.SYSTEM_CALENDAR,
+      'harmony_notes_data',
+      'harmony_writing_data',
+      'harmony_music_tracks'
+    ].forEach((key) => {
+      const raw = storage.getItem(key);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            const cleaned = parsed.filter((item: any) => {
+              const str = JSON.stringify(item).toLowerCase();
+              if (str.includes('the art of modular systems') || str.includes('chapter 1: the foundations')) return false;
+              if (str.includes('midnight coding symphony') || str.includes('cyberpunk neon rain')) return false;
+              if (typeof item.id === 'string' && (item.id.startsWith('offline-') || item.id === 'draft-1')) return false;
+              return true;
+            });
+            storage.setItem(key, JSON.stringify(cleaned));
+          }
+        } catch {
+          storage.removeItem(key);
+        }
+      }
+    });
+
+    storage.setItem(CLEANUP_KEY, 'true');
+  } catch {
+    // Ignore in non-browser context
+  }
+})();
 
 // Helper to safely read from localStorage (with tracking-prevention resilient memory fallback)
 export function getLocalItem<T>(key: string, fallback: T): T {
@@ -445,228 +382,11 @@ export function useOfflinePersistence(cloudState?: {
 }
 
 // -----------------------------------------------------------------------------
-// Initial Offline Datasets for Finance & Ledger Suite
+// Initial Offline Datasets for Finance & Ledger Suite (Clean, user-authored start)
 // -----------------------------------------------------------------------------
-export const INITIAL_OFFLINE_FINANCE_ACCOUNTS: FinanceAccount[] = [
-  {
-    id: 'acc-checking',
-    name: 'Primary Checking',
-    type: 'checking',
-    balance: 8450.00,
-    currency: 'USD',
-    institution: 'Chase Bank',
-    accountNumberMasked: '4892',
-    color: '#3b82f6',
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'acc-savings',
-    name: 'High Yield Savings',
-    type: 'savings',
-    balance: 24500.00,
-    currency: 'USD',
-    institution: 'Marcus by GS',
-    accountNumberMasked: '9103',
-    color: '#10b981',
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'acc-credit',
-    name: 'Sapphire Preferred',
-    type: 'credit_card',
-    balance: -1240.50,
-    currency: 'USD',
-    institution: 'Chase',
-    accountNumberMasked: '7721',
-    color: '#f59e0b',
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'acc-cash',
-    name: 'Cash Wallet',
-    type: 'cash',
-    balance: 320.00,
-    currency: 'USD',
-    color: '#8b5cf6',
-    updatedAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_FINANCE_BUDGETS: FinanceBudget[] = [
-  {
-    id: 'bud-food',
-    category: 'Food & Dining',
-    monthlyLimit: 600,
-    alertThreshold: 80,
-    currency: 'USD',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'bud-groceries',
-    category: 'Groceries',
-    monthlyLimit: 500,
-    alertThreshold: 85,
-    currency: 'USD',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'bud-housing',
-    category: 'Housing',
-    monthlyLimit: 1800,
-    alertThreshold: 90,
-    currency: 'USD',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'bud-transport',
-    category: 'Transportation',
-    monthlyLimit: 300,
-    alertThreshold: 75,
-    currency: 'USD',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'bud-entertainment',
-    category: 'Entertainment',
-    monthlyLimit: 250,
-    alertThreshold: 80,
-    currency: 'USD',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_FINANCE_LOANS: FinanceLoan[] = [
-  {
-    id: 'loan-car',
-    title: 'Tesla Model 3 Auto Loan',
-    type: 'borrowed',
-    lenderOrBorrower: 'Tesla Financial',
-    originalPrincipal: 35000,
-    currentBalance: 21400,
-    interestRate: 4.99,
-    tenureMonths: 60,
-    monthlyEmi: 659.87,
-    startDate: '2024-01-15',
-    nextDueDate: '2026-10-15',
-    status: 'active',
-    totalPaidSoFar: 14517.14,
-    notes: 'Low fixed interest auto financing',
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'loan-student',
-    title: 'Graduate Student Loan',
-    type: 'borrowed',
-    lenderOrBorrower: 'Nelnet Federal',
-    originalPrincipal: 28000,
-    currentBalance: 12800,
-    interestRate: 5.50,
-    tenureMonths: 120,
-    monthlyEmi: 303.88,
-    startDate: '2022-06-01',
-    nextDueDate: '2026-10-01',
-    status: 'active',
-    totalPaidSoFar: 18232.80,
-    notes: 'Income-driven repayment tier',
-    updatedAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_FINANCE_SUBSCRIPTIONS: FinanceSubscription[] = [
-  {
-    id: 'sub-netflix',
-    name: 'Netflix Premium 4K',
-    amount: 22.99,
-    category: 'Entertainment',
-    billingCycle: 'monthly',
-    nextBillingDate: '2026-09-18',
-    accountId: 'acc-checking',
-    status: 'active',
-    remindDaysBefore: 3,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'sub-spotify',
-    name: 'Spotify Family Plan',
-    amount: 19.99,
-    category: 'Entertainment',
-    billingCycle: 'monthly',
-    nextBillingDate: '2026-09-24',
-    accountId: 'acc-credit',
-    status: 'active',
-    remindDaysBefore: 3,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'sub-cloud',
-    name: 'GitHub Copilot & Cloud VPS',
-    amount: 40.00,
-    category: 'Subscriptions',
-    billingCycle: 'monthly',
-    nextBillingDate: '2026-10-01',
-    accountId: 'acc-credit',
-    status: 'active',
-    remindDaysBefore: 5,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
-
-export const INITIAL_OFFLINE_FINANCE_TRANSACTIONS: FinanceTransaction[] = [
-  {
-    id: 'tx-1',
-    title: 'Bi-Weekly Tech Consulting Salary',
-    amount: 4250.00,
-    type: 'income',
-    category: 'Salary',
-    date: new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10),
-    accountId: 'acc-checking',
-    paymentMethod: 'bank_transfer',
-    tags: ['Income', 'Payroll'],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'tx-2',
-    title: 'Whole Foods Market',
-    amount: 142.80,
-    type: 'expense',
-    category: 'Groceries',
-    date: new Date(Date.now() - 1 * 86400000).toISOString().slice(0, 10),
-    accountId: 'acc-checking',
-    paymentMethod: 'debit_card',
-    tags: ['Groceries', 'Organic'],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'tx-3',
-    title: 'Monthly Apartment Rent',
-    amount: 1750.00,
-    type: 'expense',
-    category: 'Housing',
-    date: new Date().toISOString().slice(0, 7) + '-01',
-    accountId: 'acc-checking',
-    paymentMethod: 'bank_transfer',
-    tags: ['Housing', 'Fixed'],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'tx-4',
-    title: 'Blue Bottle Coffee & Breakfast',
-    amount: 18.50,
-    type: 'expense',
-    category: 'Food & Dining',
-    date: new Date().toISOString().slice(0, 10),
-    accountId: 'acc-credit',
-    paymentMethod: 'credit_card',
-    tags: ['Coffee', 'Dining'],
-    createdAt: new Date().toISOString()
-  }
-];
+export const INITIAL_OFFLINE_FINANCE_ACCOUNTS: FinanceAccount[] = [];
+export const INITIAL_OFFLINE_FINANCE_BUDGETS: FinanceBudget[] = [];
+export const INITIAL_OFFLINE_FINANCE_LOANS: FinanceLoan[] = [];
+export const INITIAL_OFFLINE_FINANCE_SUBSCRIPTIONS: FinanceSubscription[] = [];
+export const INITIAL_OFFLINE_FINANCE_TRANSACTIONS: FinanceTransaction[] = [];
 

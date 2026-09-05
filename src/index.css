@@ -1,1 +1,127 @@
 @import "tailwindcss";
+
+:root {
+  --accent-color: #6366f1;
+  --accent-color-rgb: 99, 102, 241;
+  --accent-color-hover: #4f46e5;
+  --accent-color-light: #e0e7ff;
+  --accent-color-dark: #3730a3;
+  --accent-glow: rgba(99, 102, 241, 0.35);
+
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --bg-input: #f1f5f9;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+}
+
+.dark {
+  --bg-app: #0d1117;
+  --bg-surface: #161b22;
+  --bg-surface-hover: #21262d;
+  --bg-input: #0d1117;
+  --border-color: #30363d;
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+}
+
+[data-theme="slate"] {
+  --accent-color: #6366f1;
+  --accent-color-rgb: 99, 102, 241;
+  --accent-color-hover: #4f46e5;
+  --accent-color-light: #e0e7ff;
+  --accent-color-dark: #3730a3;
+  --accent-glow: rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="oled"] {
+  --accent-color: #a855f7;
+  --accent-color-rgb: 168, 85, 247;
+  --accent-color-hover: #9333ea;
+  --accent-color-light: #f3e8ff;
+  --accent-color-dark: #581c87;
+  --accent-glow: rgba(168, 85, 247, 0.35);
+}
+
+[data-theme="sunset"] {
+  --accent-color: #f59e0b;
+  --accent-color-rgb: 245, 158, 11;
+  --accent-color-hover: #d97706;
+  --accent-color-light: #fef3c7;
+  --accent-color-dark: #78350f;
+  --accent-glow: rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="emerald"] {
+  --accent-color: #10b981;
+  --accent-color-rgb: 16, 185, 129;
+  --accent-color-hover: #059669;
+  --accent-color-light: #d1fae5;
+  --accent-color-dark: #064e3b;
+  --accent-glow: rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="lavender"] {
+  --accent-color: #d946ef;
+  --accent-color-rgb: 217, 70, 239;
+  --accent-color-hover: #c026d3;
+  --accent-color-light: #fae8ff;
+  --accent-color-dark: #701a75;
+  --accent-glow: rgba(217, 70, 239, 0.35);
+}
+
+/* Custom accent utility helpers */
+.theme-accent-bg {
+  background-color: var(--accent-color) !important;
+}
+
+.theme-accent-text {
+  color: var(--accent-color) !important;
+}
+
+.theme-accent-border {
+  border-color: var(--accent-color) !important;
+}
+
+.theme-accent-ring {
+  --tw-ring-color: var(--accent-color) !important;
+}
+
+/* Mini App unified theme utility classes */
+.app-theme-bg {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+}
+
+.app-theme-surface {
+  background-color: var(--bg-surface);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.app-theme-input {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.app-theme-text-primary {
+  color: var(--text-primary);
+}
+
+.app-theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.app-theme-text-muted {
+  color: var(--text-muted);
+}
+
+.app-theme-border {
+  border-color: var(--border-color);
+}
+
