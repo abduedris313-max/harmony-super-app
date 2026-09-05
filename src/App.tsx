@@ -62,6 +62,9 @@ import { SpotlightSearch } from './components/SpotlightSearch';
 import { AppSwitcher } from './components/AppSwitcher';
 import { AuthModal } from './components/AuthModal';
 import { SettingsModal } from './components/SettingsModal';
+import { OnboardingModal } from './components/OnboardingModal';
+import { HomeScreenSetupModal, WALLPAPER_PRESETS } from './components/HomeScreenSetupModal';
+import { HomeWidgetId } from './components/widgets/types';
 import { AppRunner } from './components/AppRunner';
 import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 import { NotificationBanner } from './components/NotificationBanner';
@@ -73,8 +76,25 @@ export default function App() {
   const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
   const [isAppSwitcherOpen, setIsAppSwitcherOpen] = useState(false);
+  
+  // Modals & User Journey States
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | 'forgot' | 'profile'>('signin');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
+    return !getLocalItem<boolean>(STORAGE_KEYS.ONBOARDED, false);
+  });
+  const [isHomeScreenSetupOpen, setIsHomeScreenSetupOpen] = useState(false);
+
+  // Wallpaper Theme State
+  const [wallpaperTheme, setWallpaperTheme] = useState<string>(() => {
+    return getLocalItem<string>(STORAGE_KEYS.WALLPAPER, 'obsidian');
+  });
+
+  // Smart Stack Widgets State
+  const [enabledWidgetIds, setEnabledWidgetIds] = useState<HomeWidgetId[]>(() => {
+    return getLocalItem<HomeWidgetId[]>(STORAGE_KEYS.HOME_WIDGETS, ['calendar', 'finance', 'music', 'docs-ai']);
+  });
 
   // Audio & Music State
   const [currentTrack, setCurrentTrack] = useState<Track | undefined>({
@@ -375,8 +395,38 @@ export default function App() {
 
   const activeAppConfig = HARMONY_APPS.find(a => a.id === activeAppId);
 
+  // Auth Modal trigger with optional initial mode
+  const handleOpenAuth = (mode: 'signin' | 'signup' | 'forgot' | 'profile' = 'signin') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
+  // Wallpaper Theme Handlers
+  const handleUpdateWallpaperTheme = (themeId: string) => {
+    setWallpaperTheme(themeId);
+    setLocalItem(STORAGE_KEYS.WALLPAPER, themeId);
+    triggerNotification('Wallpaper Updated', 'New home screen ambience applied', 'Harmony');
+  };
+
+  // Smart Stack Widgets Handlers
+  const handleUpdateWidgets = (newWidgets: HomeWidgetId[]) => {
+    setEnabledWidgetIds(newWidgets);
+    setLocalItem(STORAGE_KEYS.HOME_WIDGETS, newWidgets);
+  };
+
+  // Onboarding Finish Handler
+  const handleFinishOnboarding = () => {
+    setLocalItem(STORAGE_KEYS.ONBOARDED, true);
+    setIsOnboardingOpen(false);
+    triggerNotification('Welcome to Harmony', 'Your unified workspace is ready to use.', 'Harmony OS');
+  };
+
   const getWallpaperBackground = () => {
     const isDark = settings.isDarkMode;
+    const matched = WALLPAPER_PRESETS.find(p => p.id === wallpaperTheme);
+    if (matched) {
+      return `bg-gradient-to-br ${matched.bgClass}`;
+    }
     switch (settings.themePreset) {
       case 'oled':
         return isDark ? 'bg-black' : 'bg-white';
@@ -495,7 +545,9 @@ export default function App() {
                 onOpenApp={handleOpenApp}
                 onOpenSpotlight={() => setIsSpotlightOpen(true)}
                 onOpenSettings={() => setIsSettingsOpen(true)}
-                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onOpenAuth={() => handleOpenAuth('signin')}
+                onOpenHomeScreenSetup={() => setIsHomeScreenSetupOpen(true)}
+                onOpenOnboarding={() => setIsOnboardingOpen(true)}
                 recentNotes={notes}
                 latestDraft={drafts[0]}
                 currentTrack={currentTrack}
@@ -506,6 +558,8 @@ export default function App() {
                 calendarEvents={calendarEvents}
                 pinnedAppIds={pinnedAppIds}
                 onTogglePinApp={handleTogglePinApp}
+                enabledWidgetIds={enabledWidgetIds}
+                onUpdateWidgets={handleUpdateWidgets}
               />
             </motion.div>
           )}
@@ -576,6 +630,9 @@ export default function App() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         currentUser={user}
+        isDarkMode={settings.isDarkMode}
+        initialMode={authModalMode}
+        onAuthSuccess={(msg) => triggerNotification('Account Synced', msg, 'Harmony Auth')}
       />
 
       <SettingsModal
@@ -583,6 +640,44 @@ export default function App() {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         onUpdateSettings={handleUpdateSettings}
+        currentUser={user}
+        onOpenAuth={(m) => handleOpenAuth(m)}
+        onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        onOpenHomeScreenSetup={() => setIsHomeScreenSetupOpen(true)}
+      />
+
+      {/* First-Time User Onboarding & Welcome Tour */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        settings={settings}
+        onUpdateSettings={handleUpdateSettings}
+        pinnedAppIds={pinnedAppIds}
+        onUpdatePinnedApps={(apps) => {
+          setPinnedAppIds(apps);
+          setLocalItem(STORAGE_KEYS.PINNED_APPS, apps);
+        }}
+        currentUser={user}
+        onOpenAuth={(m) => handleOpenAuth(m)}
+        onFinish={handleFinishOnboarding}
+      />
+
+      {/* Dedicated Home Screen Setup & Personalization Modal */}
+      <HomeScreenSetupModal
+        isOpen={isHomeScreenSetupOpen}
+        onClose={() => setIsHomeScreenSetupOpen(false)}
+        settings={settings}
+        onUpdateSettings={handleUpdateSettings}
+        pinnedAppIds={pinnedAppIds}
+        onUpdatePinnedApps={(apps) => {
+          setPinnedAppIds(apps);
+          setLocalItem(STORAGE_KEYS.PINNED_APPS, apps);
+        }}
+        enabledWidgetIds={enabledWidgetIds}
+        onUpdateWidgets={handleUpdateWidgets}
+        wallpaperTheme={wallpaperTheme}
+        onUpdateWallpaperTheme={handleUpdateWallpaperTheme}
+        onSaveToast={(msg) => triggerNotification('Home Screen', msg, 'Harmony')}
       />
 
       {/* Mobile PWA Installation Banner */}

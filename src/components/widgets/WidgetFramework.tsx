@@ -27,6 +27,8 @@ interface WidgetFrameworkProps {
   isPlayingMusic: boolean;
   onTogglePlayMusic: () => void;
   isDarkMode?: boolean;
+  enabledWidgetIds?: HomeWidgetId[];
+  onUpdateWidgets?: (widgets: HomeWidgetId[]) => void;
 }
 
 const DEFAULT_WIDGETS: HomeWidgetId[] = ['calendar', 'finance', 'music', 'docs-ai'];
@@ -40,31 +42,40 @@ export const WidgetFramework: React.FC<WidgetFrameworkProps> = ({
   isPlayingMusic,
   onTogglePlayMusic,
   isDarkMode = true,
+  enabledWidgetIds: externalEnabledWidgetIds,
+  onUpdateWidgets: externalOnUpdateWidgets
 }) => {
-  const [enabledWidgetIds, setEnabledWidgetIds] = useState<HomeWidgetId[]>(() => {
+  const [internalEnabledWidgetIds, setInternalEnabledWidgetIds] = useState<HomeWidgetId[]>(() => {
     return getLocalItem<HomeWidgetId[]>(STORAGE_KEYS.HOME_WIDGETS, DEFAULT_WIDGETS);
   });
+
+  const enabledWidgetIds = externalEnabledWidgetIds || internalEnabledWidgetIds;
 
   const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
 
   // Sync changes to persistent storage
   const handleToggleWidget = (id: HomeWidgetId) => {
-    setEnabledWidgetIds((prev) => {
-      let next: HomeWidgetId[];
-      if (prev.includes(id)) {
-        // Keep at least 1 widget enabled
-        if (prev.length <= 1) return prev;
-        next = prev.filter(w => w !== id);
-      } else {
-        next = [...prev, id];
-      }
-      setLocalItem(STORAGE_KEYS.HOME_WIDGETS, next);
-      return next;
-    });
+    let next: HomeWidgetId[];
+    if (enabledWidgetIds.includes(id)) {
+      if (enabledWidgetIds.length <= 1) return;
+      next = enabledWidgetIds.filter(w => w !== id);
+    } else {
+      next = [...enabledWidgetIds, id];
+    }
+    if (externalOnUpdateWidgets) {
+      externalOnUpdateWidgets(next);
+    } else {
+      setInternalEnabledWidgetIds(next);
+    }
+    setLocalItem(STORAGE_KEYS.HOME_WIDGETS, next);
   };
 
   const handleResetDefaults = () => {
-    setEnabledWidgetIds(DEFAULT_WIDGETS);
+    if (externalOnUpdateWidgets) {
+      externalOnUpdateWidgets(DEFAULT_WIDGETS);
+    } else {
+      setInternalEnabledWidgetIds(DEFAULT_WIDGETS);
+    }
     setLocalItem(STORAGE_KEYS.HOME_WIDGETS, DEFAULT_WIDGETS);
   };
 

@@ -33,6 +33,8 @@ export const STORAGE_KEYS = {
   SYSTEM_CALENDAR: 'harmony_offline_calendar',
   SYNC_QUEUE: 'harmony_offline_sync_queue',
   LAST_SYNC: 'harmony_last_sync_timestamp',
+  ONBOARDED: 'harmony_has_onboarded_v1',
+  WALLPAPER: 'harmony_wallpaper_v1',
 } as const;
 
 export const DEFAULT_DOCK_APP_IDS: string[] = [

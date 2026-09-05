@@ -12,6 +12,8 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  updateProfile,
   User 
 } from 'firebase/auth';
 import { 
@@ -60,9 +62,26 @@ export async function loginWithEmail(email: string, pass: string) {
   return userCredential.user;
 }
 
-export async function registerWithEmail(email: string, pass: string) {
+export async function registerWithEmail(email: string, pass: string, displayName?: string) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+  if (displayName && userCredential.user) {
+    try {
+      await updateProfile(userCredential.user, { displayName });
+    } catch (e) {
+      console.warn('Could not set displayName:', e);
+    }
+  }
   return userCredential.user;
+}
+
+export async function resetUserPassword(email: string) {
+  await sendPasswordResetEmail(auth, email);
+}
+
+export async function updateUserDisplayName(name: string) {
+  if (auth.currentUser) {
+    await updateProfile(auth.currentUser, { displayName: name });
+  }
 }
 
 export async function logoutUser() {

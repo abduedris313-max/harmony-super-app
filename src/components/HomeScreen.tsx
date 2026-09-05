@@ -26,9 +26,11 @@ import {
   ShoppingBag,
   Pin,
   Plus,
-  Layers
+  Layers,
+  Sliders
 } from 'lucide-react';
 import { WidgetFramework } from './widgets/WidgetFramework';
+import { HomeWidgetId } from './widgets/types';
 import { HarmonyLogo } from './HarmonyLogo';
 
 interface HomeScreenProps {
@@ -47,6 +49,10 @@ interface HomeScreenProps {
   calendarEvents?: HarmonyCalendarEvent[];
   pinnedAppIds?: string[];
   onTogglePinApp?: (appId: string) => void;
+  onOpenHomeScreenSetup?: () => void;
+  onOpenOnboarding?: () => void;
+  enabledWidgetIds?: HomeWidgetId[];
+  onUpdateWidgets?: (widgets: HomeWidgetId[]) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -64,7 +70,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onToggleTheme,
   calendarEvents = [],
   pinnedAppIds,
-  onTogglePinApp
+  onTogglePinApp,
+  onOpenHomeScreenSetup,
+  onOpenOnboarding,
+  enabledWidgetIds,
+  onUpdateWidgets
 }) => {
   const [showUnpinnedLibrary, setShowUnpinnedLibrary] = useState(false);
 
@@ -101,6 +111,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           onClick={onOpenSettings}
         />
         <div className="flex items-center gap-1.5">
+          {onOpenHomeScreenSetup && (
+            <button
+              onClick={onOpenHomeScreenSetup}
+              className={`p-1.5 rounded-lg border text-xs transition-colors ${
+                isDarkMode
+                  ? 'bg-[#161b22] border-[#30363d] text-neutral-400 hover:text-indigo-400'
+                  : 'bg-white border-neutral-200 text-neutral-600 hover:text-indigo-600 shadow-xs'
+              }`}
+              title="Home Screen Setup & Personalization"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {onOpenOnboarding && (
+            <button
+              onClick={onOpenOnboarding}
+              className={`p-1.5 rounded-lg border text-xs transition-colors ${
+                isDarkMode
+                  ? 'bg-[#161b22] border-[#30363d] text-neutral-400 hover:text-amber-400'
+                  : 'bg-white border-neutral-200 text-neutral-600 hover:text-amber-600 shadow-xs'
+              }`}
+              title="Welcome Tour & Onboarding"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             onClick={onOpenSettings}
             className={`p-1.5 rounded-lg border text-xs transition-colors ${
@@ -158,6 +194,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         isPlayingMusic={isPlayingMusic}
         onTogglePlayMusic={onTogglePlayMusic}
         isDarkMode={isDarkMode}
+        enabledWidgetIds={enabledWidgetIds}
+        onUpdateWidgets={onUpdateWidgets}
       />
 
       {/* iOS Springboard App Launcher Grid Header */}
@@ -170,13 +208,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </h2>
         </div>
 
-        {/* Quick link to App Store to pin/unpin apps */}
-        <button
-          onClick={() => onOpenApp('harmony-app-store')}
-          className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
-        >
-          <ShoppingBag className="w-3.5 h-3.5" /> App Store
-        </button>
+        {/* Quick link to App Store & Home Screen Setup */}
+        <div className="flex items-center gap-2">
+          {onOpenHomeScreenSetup && (
+            <button
+              onClick={onOpenHomeScreenSetup}
+              className="text-[11px] text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1 transition-colors"
+              title="Configure Springboard & Widgets"
+            >
+              <Sliders className="w-3.5 h-3.5" /> Setup Layout
+            </button>
+          )}
+          <button
+            onClick={() => onOpenApp('harmony-app-store')}
+            className="text-[11px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> App Store
+          </button>
+        </div>
       </div>
 
       {/* iOS 18 Springboard App Grid - Shows only pinned apps */}

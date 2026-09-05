@@ -1,41 +1,161 @@
 /**
  * @file AuthModal.tsx
- * @description iOS style Firebase Auth sheet modal for Harmony OS Super App.
+ * @description iOS style Firebase Auth sheet modal for Harmony Super App.
+ * Supports Sign In, Sign Up with Display Name, Forgot Password with email reset,
+ * and seamless Guest/Anonymous mode with theme support (Light & Dark).
  */
 
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { X, Flame, User, Mail, Lock, LogIn, UserPlus, LogOut, CheckCircle2 } from 'lucide-react';
-import { loginAnonymously, loginWithEmail, registerWithEmail, logoutUser } from '../lib/firebase';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  X, Flame, User, Mail, Lock, LogIn, UserPlus, LogOut, 
+  CheckCircle2, KeyRound, ArrowLeft, AlertCircle, Edit2, Check, Sparkles 
+} from 'lucide-react';
+import { 
+  loginAnonymously, 
+  loginWithEmail, 
+  registerWithEmail, 
+  resetUserPassword, 
+  updateUserDisplayName, 
+  logoutUser 
+} from '../lib/firebase';
+import { HarmonyLogo } from './HarmonyLogo';
+import { SystemUser } from '../types';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentUser: { uid: string; email: string | null; displayName: string | null; isAnonymous: boolean } | null;
+  currentUser: SystemUser | null;
+  isDarkMode?: boolean;
+  initialMode?: 'signin' | 'signup' | 'forgot' | 'profile';
+  onAuthSuccess?: (message: string) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, currentUser }) => {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+export const AuthModal: React.FC<AuthModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  currentUser, 
+  isDarkMode = true,
+  initialMode,
+  onAuthSuccess
+}) => {
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot' | 'profile'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  
+  // Profile editing
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState('');
+
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Set initial mode based on authentication state
+  useEffect(() => {
+    if (isOpen) {
+      setErrorMsg('');
+      setSuccessMsg('');
+      if (initialMode) {
+        setMode(initialMode);
+      } else if (currentUser && !currentUser.isAnonymous) {
+        setMode('profile');
+      } else {
+        setMode('signin');
+      }
+
+      if (currentUser?.displayName) {
+        setNewDisplayName(currentUser.displayName);
+      }
+    }
+  }, [isOpen, currentUser, initialMode]);
 
   if (!isOpen) return null;
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
+  const getFriendlyErrorMessage = (error: any): string => {
+    const code = error?.code || '';
+    const message = error?.message || '';
+    if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+      return 'Incorrect email or password. Please try again.';
+    }
+    if (code === 'auth/email-already-in-use') {
+      return 'An account with this email already exists. Try signing in instead.';
+    }
+    if (code === 'auth/weak-password') {
+      return 'Password must be at least 6 characters long.';
+    }
+    if (code === 'auth/invalid-email') {
+      return 'Please enter a valid email address.';
+    }
+    if (code === 'auth/too-many-requests') {
+      return 'Too many attempts. Please wait a moment before trying again.';
+    }
+    return message || 'Authentication failed. Please check your credentials.';
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setSuccessMsg('');
     setIsLoading(true);
     try {
-      if (mode === 'login') {
-        await loginWithEmail(email, password);
-      } else {
-        await registerWithEmail(email, password);
+      await loginWithEmail(email.trim(), password);
+      if (onAuthSuccess) {
+        onAuthSuccess(`Welcome back, ${email}! Cloud sync enabled.`);
       }
       onClose();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Authentication error');
+      setErrorMsg(getFriendlyErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match. Please verify.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await registerWithEmail(email.trim(), password, displayName.trim() || undefined);
+      if (onAuthSuccess) {
+        onAuthSuccess(`Account created for ${displayName || email}! Cloud sync active.`);
+      }
+      onClose();
+    } catch (err: any) {
+      setErrorMsg(getFriendlyErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setErrorMsg('Please enter your account email address.');
+      return;
+    }
+
+    setErrorMsg('');
+    setIsLoading(true);
+    try {
+      await resetUserPassword(email.trim());
+      setSuccessMsg(`Password reset email sent to ${email.trim()}. Please check your inbox and spam folder.`);
+    } catch (err: any) {
+      setErrorMsg(getFriendlyErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -48,91 +168,290 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, currentUs
       await loginAnonymously();
       onClose();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to sign in anonymously');
+      setErrorMsg(getFriendlyErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateName = async () => {
+    if (!newDisplayName.trim()) return;
+    setIsLoading(true);
+    try {
+      await updateUserDisplayName(newDisplayName.trim());
+      setIsEditingName(false);
+      setSuccessMsg('Display name updated successfully.');
+    } catch (err: any) {
+      setErrorMsg('Failed to update display name.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSignOut = async () => {
-    await logoutUser();
-    onClose();
+    setIsLoading(true);
+    try {
+      await logoutUser();
+      setMode('signin');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setDisplayName('');
+    } catch (err: any) {
+      setErrorMsg('Failed to sign out.');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const isGuest = !currentUser || currentUser.isAnonymous;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xl animate-fade-in">
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-2xl p-6 text-[#c9d1d9] shadow-2xl relative"
+        initial={{ scale: 0.95, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 10 }}
+        className={`w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl relative border transition-colors ${
+          isDarkMode
+            ? 'bg-[#161b22] border-[#30363d] text-[#c9d1d9]'
+            : 'bg-white border-neutral-200 text-neutral-800 shadow-neutral-500/20'
+        }`}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-[#30363d] mb-5">
-          <div className="flex items-center gap-2">
-            <Flame className="w-6 h-6 text-amber-400 animate-pulse" />
-            <h3 className="text-base font-bold text-white">Firebase User Account</h3>
+        {/* Header */}
+        <div className={`flex items-center justify-between pb-4 border-b mb-5 ${
+          isDarkMode ? 'border-[#30363d]' : 'border-neutral-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <HarmonyLogo size="sm" isDarkMode={isDarkMode} />
+            <div>
+              <h3 className={`text-base font-bold flex items-center gap-2 ${
+                isDarkMode ? 'text-white' : 'text-neutral-900'
+              }`}>
+                <span>
+                  {mode === 'profile' 
+                    ? 'Harmony Account' 
+                    : mode === 'signup' 
+                    ? 'Create Harmony Account' 
+                    : mode === 'forgot' 
+                    ? 'Reset Password' 
+                    : 'Sign In to Harmony'}
+                </span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                  isGuest 
+                    ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' 
+                    : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                }`}>
+                  {isGuest ? 'Guest Mode' : 'Cloud Sync'}
+                </span>
+              </h3>
+              <p className={`text-xs ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
+                {mode === 'profile' 
+                  ? 'Connected to Firebase Cloud' 
+                  : 'Optional account for cross-device sync'}
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-full bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] hover:text-white">
+          <button 
+            onClick={onClose} 
+            className={`p-1.5 rounded-full transition-colors ${
+              isDarkMode
+                ? 'bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] hover:text-white'
+                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-500 hover:text-neutral-900'
+            }`}
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {currentUser ? (
+        {/* Notifications & Error Feedback */}
+        <AnimatePresence>
+          {errorMsg && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-4 p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs flex items-start gap-2"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </motion.div>
+          )}
+
+          {successMsg && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-4 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs flex items-start gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{successMsg}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* MODE 1: USER PROFILE VIEW (When logged in with registered account) */}
+        {mode === 'profile' && currentUser && !currentUser.isAnonymous && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <div className="w-14 h-14 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center mb-2">
-                <User className="w-7 h-7" />
+            <div className={`p-4 rounded-2xl border text-center relative ${
+              isDarkMode ? 'bg-indigo-500/10 border-indigo-500/20' : 'bg-indigo-50/70 border-indigo-200'
+            }`}>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white mx-auto flex items-center justify-center mb-3 shadow-md">
+                <User className="w-8 h-8" />
               </div>
-              <h4 className="font-bold text-white text-base">{currentUser.email || 'Anonymous User'}</h4>
-              <p className="text-xs text-amber-300/80 font-mono mt-0.5">UID: {currentUser.uid}</p>
-              <span className="inline-flex items-center gap-1 mt-3 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Real-time Firestore Sync Active
+
+              {/* Display Name Row */}
+              {isEditingName ? (
+                <div className="flex items-center justify-center gap-2 max-w-xs mx-auto mb-2">
+                  <input
+                    type="text"
+                    value={newDisplayName}
+                    onChange={(e) => setNewDisplayName(e.target.value)}
+                    placeholder="Your Name"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border focus:outline-none ${
+                      isDarkMode
+                        ? 'bg-[#0d1117] border-[#30363d] text-white'
+                        : 'bg-white border-neutral-300 text-neutral-900'
+                    }`}
+                  />
+                  <button
+                    onClick={handleUpdateName}
+                    disabled={isLoading}
+                    className="p-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
+                    title="Save Name"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setIsEditingName(false)}
+                    className={`p-1.5 rounded-lg border ${
+                      isDarkMode ? 'border-[#30363d] text-[#8b949e]' : 'border-neutral-200 text-neutral-600'
+                    }`}
+                    title="Cancel"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <h4 className={`font-bold text-base ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+                    {currentUser.displayName || currentUser.email?.split('@')[0] || 'Harmony User'}
+                  </h4>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="p-1 rounded text-neutral-400 hover:text-indigo-400"
+                    title="Edit Name"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
+              <p className={`text-xs font-medium mb-1 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                {currentUser.email}
+              </p>
+              <p className="text-[10px] text-neutral-500 font-mono">UID: {currentUser.uid.slice(0, 16)}...</p>
+
+              <div className="mt-3 flex items-center justify-center gap-1.5">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold border border-emerald-500/30">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Real-time Cloud Sync Active</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setMode('signin')}
+                className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+                  isDarkMode
+                    ? 'bg-[#21262d] hover:bg-[#30363d] text-white border-[#30363d]'
+                    : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border-neutral-200'
+                }`}
+              >
+                <LogIn className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Switch Account</span>
+              </button>
+
+              <button
+                onClick={handleSignOut}
+                disabled={isLoading}
+                className="py-2.5 px-3 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{isLoading ? 'Signing out...' : 'Sign Out'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODE 2: SIGN IN VIEW */}
+        {mode === 'signin' && (
+          <div>
+            {/* Optional Banner Note */}
+            <div className={`mb-4 p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+              isDarkMode ? 'bg-neutral-800/40 border-neutral-700/50 text-[#8b949e]' : 'bg-neutral-50 border-neutral-200 text-neutral-600'
+            }`}>
+              <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <span>
+                <strong>Optional Account</strong>: Harmony works 100% offline out-of-the-box. Signing in links your notes, docs, and preferences to Firebase across all your browsers and phones.
               </span>
             </div>
 
-            <button
-              onClick={handleSignOut}
-              className="w-full py-3 rounded-2xl bg-red-600/30 hover:bg-red-600/40 text-red-300 border border-red-500/30 text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out of Firebase</span>
-            </button>
-          </div>
-        ) : (
-          <div>
-            {errorMsg && (
-              <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-xs">
-                {errorMsg}
-              </div>
-            )}
-
-            <form onSubmit={handleEmailAuth} className="space-y-3">
+            <form onSubmit={handleSignIn} className="space-y-3">
               <div>
-                <label className="text-xs text-[#8b949e] mb-1 block">Email Address</label>
+                <label className={`text-xs font-semibold mb-1 block ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                  Email Address
+                </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-[#8b949e] absolute left-3 top-3" />
+                  <Mail className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#0d1117] border border-[#30363d] text-white text-sm focus:outline-none focus:border-[#58a6ff]"
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                      isDarkMode
+                        ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                        : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                    }`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs text-[#8b949e] mb-1 block">Password</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className={`text-xs font-semibold ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setErrorMsg('');
+                      setSuccessMsg('');
+                      setMode('forgot');
+                    }}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 font-medium hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-[#8b949e] absolute left-3 top-3" />
+                  <Lock className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#0d1117] border border-[#30363d] text-white text-sm focus:outline-none focus:border-[#58a6ff]"
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                      isDarkMode
+                        ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                        : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                    }`}
                   />
                 </div>
               </div>
@@ -140,34 +459,224 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, currentUs
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg transition-colors flex items-center justify-center gap-2 mt-2"
+                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 mt-2"
               >
-                {mode === 'login' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                <span>{isLoading ? 'Processing...' : mode === 'login' ? 'Sign In with Email' : 'Create Account'}</span>
+                <LogIn className="w-4 h-4" />
+                <span>{isLoading ? 'Signing In...' : 'Sign In with Email'}</span>
               </button>
             </form>
 
             <div className="my-4 flex items-center gap-3">
-              <div className="h-px bg-[#30363d] flex-1" />
-              <span className="text-[10px] uppercase text-[#8b949e] font-mono">OR</span>
-              <div className="h-px bg-[#30363d] flex-1" />
+              <div className={`h-px flex-1 ${isDarkMode ? 'bg-[#30363d]' : 'bg-neutral-200'}`} />
+              <span className={`text-[10px] uppercase font-mono ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`}>OR</span>
+              <div className={`h-px flex-1 ${isDarkMode ? 'bg-[#30363d]' : 'bg-neutral-200'}`} />
             </div>
 
+            {/* Guest / Anonymous Quick Access */}
             <button
               onClick={handleAnonymousAuth}
               disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-white font-semibold text-sm border border-[#30363d] transition-colors flex items-center justify-center gap-2"
+              className={`w-full py-2.5 rounded-xl border font-semibold text-sm transition-colors flex items-center justify-center gap-2 ${
+                isDarkMode
+                  ? 'bg-[#21262d] hover:bg-[#30363d] text-white border-[#30363d]'
+                  : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-800 border-neutral-200'
+              }`}
             >
               <User className="w-4 h-4 text-amber-400" />
-              <span>Continue as Anonymous Guest</span>
+              <span>Continue as Guest (No Account Required)</span>
             </button>
 
             <div className="mt-4 text-center">
               <button
-                onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+                type="button"
+                onClick={() => {
+                  setErrorMsg('');
+                  setSuccessMsg('');
+                  setMode('signup');
+                }}
                 className="text-xs text-indigo-400 hover:text-indigo-300 font-medium"
               >
-                {mode === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign In'}
+                Don't have an account? <span className="underline font-bold">Sign Up</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODE 3: SIGN UP VIEW */}
+        {mode === 'signup' && (
+          <div>
+            <div className={`mb-3 p-2.5 rounded-xl border flex items-center gap-2 text-xs ${
+              isDarkMode ? 'bg-neutral-800/40 border-neutral-700/50 text-[#8b949e]' : 'bg-neutral-50 border-neutral-200 text-neutral-600'
+            }`}>
+              <UserPlus className="w-4 h-4 text-indigo-400 shrink-0" />
+              <span>Create an account to synchronize notes, playlists, and documents.</span>
+            </div>
+
+            <form onSubmit={handleSignUp} className="space-y-3">
+              <div>
+                <label className={`text-xs font-semibold mb-1 block ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                  Your Name (Optional)
+                </label>
+                <div className="relative">
+                  <User className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="e.g. Alex Rivera"
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                      isDarkMode
+                        ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                        : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={`text-xs font-semibold mb-1 block ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                      isDarkMode
+                        ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                        : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className={`text-xs font-semibold mb-1 block ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Min 6 chars"
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                        isDarkMode
+                          ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                          : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`text-xs font-semibold mb-1 block ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                    Confirm
+                  </label>
+                  <div className="relative">
+                    <KeyRound className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Repeat pass"
+                      className={`w-full pl-9 pr-3 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                        isDarkMode
+                          ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                          : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 mt-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>{isLoading ? 'Creating Account...' : 'Create Harmony Account'}</span>
+              </button>
+            </form>
+
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setErrorMsg('');
+                  setSuccessMsg('');
+                  setMode('signin');
+                }}
+                className="text-xs text-indigo-400 hover:text-indigo-300 font-medium"
+              >
+                Already have an account? <span className="underline font-bold">Sign In</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODE 4: FORGOT PASSWORD VIEW */}
+        {mode === 'forgot' && (
+          <div>
+            <div className={`mb-4 p-3 rounded-xl border text-xs ${
+              isDarkMode ? 'bg-neutral-800/40 border-neutral-700/50 text-[#8b949e]' : 'bg-neutral-50 border-neutral-200 text-neutral-600'
+            }`}>
+              Enter the email address associated with your Harmony account. We'll send a secure password reset link to your email.
+            </div>
+
+            <form onSubmit={handleForgotPassword} className="space-y-3">
+              <div>
+                <label className={`text-xs font-semibold mb-1 block ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-600'}`}>
+                  Account Email
+                </label>
+                <div className="relative">
+                  <Mail className={`w-4 h-4 absolute left-3 top-3 ${isDarkMode ? 'text-[#8b949e]' : 'text-neutral-400'}`} />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
+                      isDarkMode
+                        ? 'bg-[#0d1117] border-[#30363d] text-white focus:border-indigo-400 placeholder-[#8b949e]'
+                        : 'bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-indigo-500 placeholder-neutral-400'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-md transition-all flex items-center justify-center gap-2 mt-2"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>{isLoading ? 'Sending Link...' : 'Send Password Reset Link'}</span>
+              </button>
+            </form>
+
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setErrorMsg('');
+                  setSuccessMsg('');
+                  setMode('signin');
+                }}
+                className="text-xs text-indigo-400 hover:text-indigo-300 font-medium inline-flex items-center gap-1"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Sign In</span>
               </button>
             </div>
           </div>

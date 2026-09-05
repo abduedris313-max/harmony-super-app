@@ -9,10 +9,11 @@ import {
   X, Settings, Github, ExternalLink, ShieldCheck, Download, Smartphone, 
   Flame, Info, Moon, Sun, Monitor, Volume2, BellOff, Check, Palette,
   Sliders, ArrowUp, ArrowDown, RotateCcw, Eye, Smartphone as MobileIcon, Laptop,
-  Notebook, FileText, PenTool, Disc, Sparkles, Calendar, Wallet, ShoppingBag, Layers, Plus, Trash2
+  Notebook, FileText, PenTool, Disc, Sparkles, Calendar, Wallet, ShoppingBag, Layers, Plus, Trash2,
+  User, LogIn, LayoutGrid
 } from 'lucide-react';
 import { HARMONY_APPS } from '../config/apps';
-import { SystemSettings, ThemeMode, ThemePreset } from '../types';
+import { SystemSettings, ThemeMode, ThemePreset, SystemUser } from '../types';
 import { soundManager } from '../lib/soundManager';
 import { DEFAULT_DOCK_APP_IDS } from '../lib/offlinePersistence';
 import { HarmonyLogo } from './HarmonyLogo';
@@ -22,6 +23,10 @@ interface SettingsModalProps {
   onClose: () => void;
   settings: SystemSettings;
   onUpdateSettings: (updated: Partial<SystemSettings>) => void;
+  currentUser?: SystemUser | null;
+  onOpenAuth?: (mode?: 'signin' | 'signup') => void;
+  onOpenOnboarding?: () => void;
+  onOpenHomeScreenSetup?: () => void;
 }
 
 interface ThemePresetOption {
@@ -74,7 +79,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   settings,
-  onUpdateSettings
+  onUpdateSettings,
+  currentUser,
+  onOpenAuth,
+  onOpenOnboarding,
+  onOpenHomeScreenSetup
 }) => {
   if (!isOpen) return null;
 
@@ -212,6 +221,86 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 scrollbar-none">
+          {/* Section: Account & Harmony Setup */}
+          <div className={`p-4 rounded-2xl border space-y-3 transition-colors ${
+            isDark
+              ? 'bg-[#0d1117] border-[#30363d]'
+              : 'bg-neutral-50/80 border-neutral-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-sm">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                    {currentUser && !currentUser.isAnonymous
+                      ? (currentUser.displayName || currentUser.email || 'Registered User')
+                      : 'Guest User (Offline Mode)'}
+                  </h4>
+                  <p className={`text-[11px] ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
+                    {currentUser && !currentUser.isAnonymous
+                      ? 'Real-time Firebase sync active'
+                      : 'Optional account • Guest data saved locally'}
+                  </p>
+                </div>
+              </div>
+
+              {onOpenAuth && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenAuth();
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors flex items-center gap-1"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>{currentUser && !currentUser.isAnonymous ? 'Manage Account' : 'Sign In / Sign Up'}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Quick shortcuts to Home Screen Setup and Welcome Tour */}
+            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-inherit">
+              {onOpenHomeScreenSetup && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenHomeScreenSetup();
+                  }}
+                  className={`p-2 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                    isDark
+                      ? 'bg-[#161b22] hover:bg-[#21262d] text-white border-[#30363d]'
+                      : 'bg-white hover:bg-neutral-100 text-neutral-800 border-neutral-200'
+                  }`}
+                >
+                  <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Home Screen Setup</span>
+                </button>
+              )}
+
+              {onOpenOnboarding && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenOnboarding();
+                  }}
+                  className={`p-2 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                    isDark
+                      ? 'bg-[#161b22] hover:bg-[#21262d] text-white border-[#30363d]'
+                      : 'bg-white hover:bg-neutral-100 text-neutral-800 border-neutral-200'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Replay Welcome Tour</span>
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Section 0: Appearance & Theme Modes */}
           <div className={`p-4 rounded-xl border space-y-4 transition-colors ${
             isDark
