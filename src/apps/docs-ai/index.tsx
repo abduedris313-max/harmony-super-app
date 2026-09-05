@@ -88,13 +88,13 @@ Key features include Notes with tags, Docs with markdown export, Typewriter stud
         };
         setMessages((prev) => [...prev, aiMsg]);
       } else {
-        throw new Error('Server returned an error');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server responded with status ${response.status}`);
       }
-    } catch {
-      // Friendly fallback response if server or API key is offline
+    } catch (err: any) {
       const fallbackAiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
-        text: `### Gemini AI Analysis Summary\n\n**Context Evaluated:** (${docContext.length} chars)\n\n**Response to:** "${textToSend}"\n\n- **Key Takeaway 1**: The document highlights modular architecture and iOS 18 dynamic island components.\n- **Key Takeaway 2**: Dual execution guarantees seamless local cloud running as well as external GitHub Pages preview.\n- **Action Item**: Verify Firebase security rules and offline PWA service worker setup.`,
+        text: `⚠️ **Unable to connect to Gemini AI Assistant**: ${err.message || 'Please check your connection.'}\n\n*Your documents and context remain safely stored locally.*`,
         sender: 'ai',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };

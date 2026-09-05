@@ -104,6 +104,8 @@ export const HarmonyMusicPlayerAppModule: React.FC = () => {
     }
   };
 
+  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
+
   const handleSavePlaylist = async (playlistName: string) => {
     setIsSaving(true);
     try {
@@ -112,19 +114,29 @@ export const HarmonyMusicPlayerAppModule: React.FC = () => {
         tracks: DEFAULT_TRACKS,
         createdAt: Date.now(),
       });
-      alert(`Playlist "${playlistName}" saved successfully to Firebase Firestore!`);
+      setFeedbackMsg(`Playlist "${playlistName}" saved to Firestore.`);
     } catch {
-      alert(`Playlist "${playlistName}" saved to local cache!`);
+      const saved = localStorage.getItem('harmony_playlists_data');
+      const list = saved ? JSON.parse(saved) : [];
+      list.push({ name: playlistName, tracks: DEFAULT_TRACKS, createdAt: Date.now() });
+      localStorage.setItem('harmony_playlists_data', JSON.stringify(list));
+      setFeedbackMsg(`Playlist "${playlistName}" saved locally.`);
     } finally {
       setIsSaving(false);
+      setTimeout(() => setFeedbackMsg(null), 3000);
     }
   };
 
   return (
     <div
       id="harmony-music-container"
-      className="flex-1 w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0d1117] via-fuchsia-950/30 to-[#0d1117] text-[#c9d1d9] min-h-0 overflow-y-auto p-4 sm:p-6 gap-6"
+      className="relative flex-1 w-full flex flex-col md:flex-row bg-gradient-to-br from-[#0d1117] via-fuchsia-950/30 to-[#0d1117] text-[#c9d1d9] min-h-0 overflow-y-auto p-4 sm:p-6 gap-6"
     >
+      {feedbackMsg && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-fuchsia-600/90 text-white text-xs font-semibold shadow-lg shadow-fuchsia-500/20 animate-fade-in">
+          {feedbackMsg}
+        </div>
+      )}
       <PlayerStage
         currentTrack={currentTrack}
         isPlaying={isPlaying}
