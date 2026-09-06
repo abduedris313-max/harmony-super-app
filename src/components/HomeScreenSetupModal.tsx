@@ -33,9 +33,9 @@ import {
 } from 'lucide-react';
 import { HARMONY_APPS } from '../config/apps';
 import { SystemSettings, ThemeMode } from '../types';
-import { AVAILABLE_WIDGETS, HomeWidgetId } from './widgets/types';
+import { AVAILABLE_WIDGETS, HomeWidgetId, WidgetSize } from './widgets/types';
 import { soundManager } from '../lib/soundManager';
-import { DEFAULT_DOCK_APP_IDS } from '../lib/offlinePersistence';
+import { DEFAULT_DOCK_APP_IDS, DEFAULT_WIDGET_SIZES } from '../lib/offlinePersistence';
 import { HarmonyLogo } from './HarmonyLogo';
 
 interface HomeScreenSetupModalProps {
@@ -410,67 +410,100 @@ export const HomeScreenSetupModal: React.FC<HomeScreenSetupModalProps> = ({
                 {AVAILABLE_WIDGETS.map((widget) => {
                   const isEnabled = enabledWidgetIds.includes(widget.id);
                   const activeIndex = enabledWidgetIds.indexOf(widget.id);
+                  const currentSize = (settings.widgetSizes && settings.widgetSizes[widget.id]) || widget.defaultSize || 'small';
 
                   return (
                     <div
                       key={widget.id}
-                      className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                      className={`p-3.5 rounded-2xl border transition-all flex flex-col gap-2.5 ${
                         isEnabled
                           ? isDark ? 'bg-[#0d1117] border-indigo-500/40' : 'bg-white border-indigo-200 shadow-sm'
                           : isDark ? 'bg-[#0d1117]/50 border-[#30363d] opacity-60' : 'bg-neutral-50 border-neutral-200 opacity-60'
                       }`}
                     >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <button
-                          onClick={() => handleToggleWidget(widget.id)}
-                          className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
-                            isEnabled
-                              ? 'bg-indigo-600 text-white'
-                              : isDark ? 'border border-[#30363d] bg-[#21262d]' : 'border border-neutral-300 bg-white'
-                          }`}
-                        >
-                          {isEnabled && <Check className="w-3.5 h-3.5" />}
-                        </button>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h4 className={`text-xs font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
-                              {widget.title}
-                            </h4>
-                            <span className={`text-[9px] px-1.5 py-0.2 rounded border font-mono ${
-                              isDark ? 'bg-[#21262d] border-[#30363d] text-[#8b949e]' : 'bg-neutral-100 border-neutral-200 text-neutral-500'
-                            }`}>
-                              {widget.category}
-                            </span>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <button
+                            onClick={() => handleToggleWidget(widget.id)}
+                            className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
+                              isEnabled
+                                ? 'bg-indigo-600 text-white'
+                                : isDark ? 'border border-[#30363d] bg-[#21262d]' : 'border border-neutral-300 bg-white'
+                            }`}
+                          >
+                            {isEnabled && <Check className="w-3.5 h-3.5" />}
+                          </button>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h4 className={`text-xs font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
+                                {widget.title}
+                              </h4>
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded border font-mono ${
+                                isDark ? 'bg-[#21262d] border-[#30363d] text-[#8b949e]' : 'bg-neutral-100 border-neutral-200 text-neutral-500'
+                              }`}>
+                                {widget.category}
+                              </span>
+                            </div>
+                            <p className={`text-[11px] truncate ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
+                              {widget.description}
+                            </p>
                           </div>
-                          <p className={`text-[11px] truncate ${isDark ? 'text-[#8b949e]' : 'text-neutral-500'}`}>
-                            {widget.description}
-                          </p>
                         </div>
+
+                        {/* Reorder Buttons if Active */}
+                        {isEnabled && (
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              onClick={() => handleMoveWidget(activeIndex, 'up')}
+                              disabled={activeIndex === 0}
+                              className={`p-1 rounded-lg border text-xs disabled:opacity-30 ${
+                                isDark ? 'bg-[#21262d] border-[#30363d] text-neutral-300' : 'bg-neutral-100 border-neutral-200 text-neutral-700'
+                              }`}
+                              title="Move Up"
+                            >
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleMoveWidget(activeIndex, 'down')}
+                              disabled={activeIndex === enabledWidgetIds.length - 1}
+                              className={`p-1 rounded-lg border text-xs disabled:opacity-30 ${
+                                isDark ? 'bg-[#21262d] border-[#30363d] text-neutral-300' : 'bg-neutral-100 border-neutral-200 text-neutral-700'
+                              }`}
+                              title="Move Down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Reorder Buttons if Active */}
+                      {/* S/M/L Size Pill */}
                       {isEnabled && (
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            onClick={() => handleMoveWidget(activeIndex, 'up')}
-                            disabled={activeIndex === 0}
-                            className={`p-1 rounded-lg border text-xs disabled:opacity-30 ${
-                              isDark ? 'bg-[#21262d] border-[#30363d] text-neutral-300' : 'bg-neutral-100 border-neutral-200 text-neutral-700'
-                            }`}
-                            title="Move Up"
-                          >
-                            <ChevronUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleMoveWidget(activeIndex, 'down')}
-                            disabled={activeIndex === enabledWidgetIds.length - 1}
-                            className={`p-1 rounded-lg border text-xs disabled:opacity-30 ${
-                              isDark ? 'bg-[#21262d] border-[#30363d] text-neutral-300' : 'bg-neutral-100 border-neutral-200 text-neutral-700'
-                            }`}
-                            title="Move Down"
-                          >
-                            <ChevronDown className="w-3.5 h-3.5" />
-                          </button>
+                        <div className="flex items-center justify-between pt-2 border-t border-neutral-700/20 text-[10px]">
+                          <span className={isDark ? 'text-[#8b949e]' : 'text-neutral-500'}>Widget Card Size:</span>
+                          <div className="flex items-center gap-1">
+                            {(['small', 'medium', 'large'] as WidgetSize[]).map((sz) => (
+                              <button
+                                key={sz}
+                                type="button"
+                                onClick={() => {
+                                  soundManager.playHapticClick();
+                                  const updatedSizes = {
+                                    ...(settings.widgetSizes || DEFAULT_WIDGET_SIZES),
+                                    [widget.id]: sz,
+                                  };
+                                  onUpdateSettings({ widgetSizes: updatedSizes });
+                                }}
+                                className={`px-2 py-0.5 rounded-md text-[9.5px] font-bold capitalize transition-all ${
+                                  currentSize === sz
+                                    ? 'bg-indigo-600 text-white shadow-xs'
+                                    : isDark ? 'bg-[#21262d] text-neutral-400 hover:text-white' : 'bg-neutral-100 text-neutral-600 hover:text-neutral-900'
+                                }`}
+                              >
+                                {sz === 'small' ? 'S (1×1)' : sz === 'medium' ? 'M (2×1)' : 'L (2×2)'}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>

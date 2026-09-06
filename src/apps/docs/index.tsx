@@ -136,9 +136,20 @@ export const HarmonyDocsAppModule: React.FC = () => {
   );
 
   const activeDoc = docsList.find((d) => d.id === activeDocId) || null;
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('harmony_docs_sidebar_collapsed') === 'true';
+  });
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('harmony_docs_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   return (
-    <div id="harmony-docs-container" className="flex-1 w-full flex flex-col md:flex-row bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden">
+    <div id="harmony-docs-container" className="flex-1 w-full flex flex-col md:flex-row bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden relative">
       <DocSidebar
         docs={filteredDocs}
         activeDocId={activeDocId}
@@ -147,10 +158,14 @@ export const HarmonyDocsAppModule: React.FC = () => {
         onSelectDoc={(d) => setActiveDocId(d.id)}
         onCreateDoc={handleCreateDoc}
         onDeleteDoc={handleDeleteDoc}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
       <DocEditor
         docItem={activeDoc}
         onUpdateDoc={handleUpdateActiveDoc}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={handleToggleSidebar}
       />
     </div>
   );

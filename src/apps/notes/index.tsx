@@ -159,9 +159,20 @@ export const HarmonyNotesAppModule: React.FC = () => {
   });
 
   const activeNote = notes.find((n) => n.id === activeNoteId) || null;
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('harmony_notes_sidebar_collapsed') === 'true';
+  });
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('harmony_notes_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   return (
-    <div id="harmony-notes-container" className="flex-1 w-full flex flex-col md:flex-row bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden">
+    <div id="harmony-notes-container" className="flex-1 w-full flex flex-col md:flex-row bg-neutral-50 dark:bg-[#0d1117] text-neutral-900 dark:text-[#c9d1d9] min-h-0 overflow-y-auto md:overflow-hidden relative">
       <NoteSidebar
         notes={filteredNotes}
         activeNoteId={activeNoteId}
@@ -173,11 +184,15 @@ export const HarmonyNotesAppModule: React.FC = () => {
         onCreateNote={handleCreateNote}
         onDeleteNote={handleDeleteNote}
         onTogglePin={handleTogglePin}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
       <NoteEditor
         note={activeNote}
         onUpdateNote={handleUpdateActiveNote}
         isSaving={isSaving}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={handleToggleSidebar}
       />
     </div>
   );

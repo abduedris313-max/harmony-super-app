@@ -68,8 +68,7 @@ if (!getApps().length) {
 
 export const auth = getAuth(app);
 
-// Initialize Firestore with robust iframe/proxy transport settings (experimentalForceLongPolling)
-// and multi-tab local cache persistence
+// Initialize Firestore with auto-detect transport settings and robust local cache persistence
 const databaseId = (firebaseConfig as any).firestoreDatabaseId;
 
 let firestoreInstance: Firestore;
@@ -78,7 +77,7 @@ if (typeof window !== 'undefined') {
     firestoreInstance = initializeFirestore(
       app,
       {
-        experimentalForceLongPolling: true,
+        experimentalAutoDetectLongPolling: true,
         localCache: persistentLocalCache({
           tabManager: persistentMultipleTabManager()
         })
@@ -87,17 +86,11 @@ if (typeof window !== 'undefined') {
     );
   } catch {
     try {
-      firestoreInstance = initializeFirestore(
-        app,
-        {
-          experimentalForceLongPolling: true
-        },
-        databaseId && databaseId !== '(default)' ? databaseId : undefined
-      );
-    } catch {
       firestoreInstance = databaseId && databaseId !== '(default)'
         ? getFirestore(app, databaseId)
         : getFirestore(app);
+    } catch {
+      firestoreInstance = getFirestore(app);
     }
   }
 } else {
@@ -167,9 +160,14 @@ export async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
     console.log('[Firestore] Successfully verified connection to backend.');
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
+  } catch (error: any) {
+    if (
+      error?.code === 'unavailable' ||
+      (error instanceof Error && (error.message.includes('the client is offline') || error.message.includes('unavailable')))
+    ) {
       console.warn('[Firestore] Operating in offline mode. Local persistence and cache active.');
+    } else {
+      console.debug('[Firestore] Connection status check complete.');
     }
   }
 }

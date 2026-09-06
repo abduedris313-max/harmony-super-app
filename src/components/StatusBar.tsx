@@ -10,6 +10,7 @@ import { HarmonyLogo } from './HarmonyLogo';
 
 interface StatusBarProps {
   onOpenControlCenter: () => void;
+  onOpenNotificationCenter?: () => void;
   activeMusicTrack?: string;
   isAiThinking?: boolean;
   isFirebaseConnected?: boolean;
@@ -20,6 +21,7 @@ interface StatusBarProps {
 
 export const StatusBar: React.FC<StatusBarProps> = ({
   onOpenControlCenter,
+  onOpenNotificationCenter,
   activeMusicTrack,
   isAiThinking,
   isFirebaseConnected = true,
@@ -48,8 +50,12 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           : 'bg-white/85 text-neutral-800 border-neutral-200/80 shadow-xs'
       }`}
     >
-      {/* Time Display & Focus Indicator */}
-      <div className="flex items-center gap-2 cursor-pointer" onClick={onOpenControlCenter} title="Harmony System Control">
+      {/* Time Display & Notifications Trigger (Left side of status bar like iOS) */}
+      <div 
+        className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" 
+        onClick={onOpenNotificationCenter || onOpenControlCenter} 
+        title="Open Notification Center (Swipe Down on Home)"
+      >
         <HarmonyLogo size="xs" isDarkMode={isDarkMode} />
         <span className={`font-bold tracking-tight text-xs ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
           {timeStr || '9:41'}

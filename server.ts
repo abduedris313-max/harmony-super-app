@@ -148,7 +148,17 @@ app.post(['/api/harmony/ai', '/api/gemini'], async (req: Request, res: Response)
       model: 'gemini-2.5-flash'
     });
   } catch (error: any) {
-    console.error('[Harmony AI Backend Error]:', error);
+    console.error('[Harmony AI Backend Error]:', error?.message || error);
+    const errMsg = String(error?.message || error);
+    
+    if (errMsg.includes('resource_exhausted') || errMsg.includes('quota') || errMsg.includes('overloaded')) {
+      return res.json({
+        text: '⚡ **Gemini AI Rate Notice**: The model API is currently experiencing high demand or quota limits. Harmony OS Super App has preserved your document context and inputs locally. Please try again in a few moments.',
+        model: 'gemini-2.5-flash',
+        isNotice: true
+      });
+    }
+
     res.status(500).json({
       error: error.message || 'Failed to process request with Gemini AI'
     });

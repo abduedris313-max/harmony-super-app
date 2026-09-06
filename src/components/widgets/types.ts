@@ -4,6 +4,7 @@
  */
 
 export type HomeWidgetId = 'calendar' | 'finance' | 'music' | 'docs-ai' | 'notes' | 'writing';
+export type WidgetSize = 'small' | 'medium' | 'large';
 
 export interface HomeWidgetMeta {
   id: HomeWidgetId;
@@ -12,6 +13,7 @@ export interface HomeWidgetMeta {
   category: string;
   icon: string;
   defaultEnabled: boolean;
+  defaultSize: WidgetSize;
   description: string;
 }
 
@@ -23,6 +25,7 @@ export const AVAILABLE_WIDGETS: HomeWidgetMeta[] = [
     category: 'Time & Planning',
     icon: 'calendar',
     defaultEnabled: true,
+    defaultSize: 'medium',
     description: 'Today’s Gregorian, Hijri, and Ethiopian dates with upcoming agenda items.'
   },
   {
@@ -32,6 +35,7 @@ export const AVAILABLE_WIDGETS: HomeWidgetMeta[] = [
     category: 'Finance',
     icon: 'wallet',
     defaultEnabled: true,
+    defaultSize: 'medium',
     description: 'Net worth snapshot, monthly cash flow, and category budget health.'
   },
   {
@@ -41,6 +45,7 @@ export const AVAILABLE_WIDGETS: HomeWidgetMeta[] = [
     category: 'Audio',
     icon: 'disc',
     defaultEnabled: true,
+    defaultSize: 'small',
     description: 'Now playing track or ambient stream with instant play/pause control.'
   },
   {
@@ -50,6 +55,7 @@ export const AVAILABLE_WIDGETS: HomeWidgetMeta[] = [
     category: 'Productivity',
     icon: 'sparkles',
     defaultEnabled: true,
+    defaultSize: 'small',
     description: 'Quick document summarizer and creative writing prompts.'
   },
   {
@@ -59,6 +65,7 @@ export const AVAILABLE_WIDGETS: HomeWidgetMeta[] = [
     category: 'Productivity',
     icon: 'notebook',
     defaultEnabled: false,
+    defaultSize: 'small',
     description: 'Recent thoughts, category tags, and one-tap note capture.'
   },
   {
@@ -68,6 +75,7 @@ export const AVAILABLE_WIDGETS: HomeWidgetMeta[] = [
     category: 'Creativity',
     icon: 'pen-tool',
     defaultEnabled: false,
+    defaultSize: 'small',
     description: 'Daily word goal progress ring and focus streak tracker.'
   }
 ];

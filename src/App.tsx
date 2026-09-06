@@ -71,6 +71,8 @@ import { HomeWidgetId } from './components/widgets/types';
 import { AppRunner } from './components/AppRunner';
 import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 import { NotificationBanner } from './components/NotificationBanner';
+import { InstalledAppsModal } from './components/InstalledAppsModal';
+import { NotificationCenter } from './components/NotificationCenter';
 
 export default function App() {
   // Navigation & View States
@@ -84,6 +86,8 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | 'forgot' | 'profile'>('signin');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isInstalledAppsOpen, setIsInstalledAppsOpen] = useState(false);
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => {
     return !getLocalItem<boolean>(STORAGE_KEYS.ONBOARDED, false);
   });
@@ -210,10 +214,24 @@ export default function App() {
     return saved;
   });
 
-  // Notifications State (Focus Mode suppression engine)
+  // Notifications State (Focus Mode suppression engine & history)
   const [activeNotification, setActiveNotification] = useState<SystemNotification | null>(null);
   const [suppressedNotifications, setSuppressedNotifications] = useState<SystemNotification[]>(() => {
     return getLocalItem<SystemNotification[]>(STORAGE_KEYS.NOTIFICATIONS, []);
+  });
+  const [allNotifications, setAllNotifications] = useState<SystemNotification[]>(() => {
+    const saved = getLocalItem<SystemNotification[]>(STORAGE_KEYS.NOTIFICATIONS, []);
+    if (saved.length > 0) return saved;
+    return [
+      {
+        id: 'system-initial-welcome',
+        title: 'Welcome to Harmony OS',
+        message: 'Swipe left/right to change pages, swipe up for all apps, and swipe down for notifications.',
+        appName: 'Harmony OS',
+        timestamp: new Date().toISOString(),
+        suppressedByFocus: false
+      }
+    ];
   });
 
   // Keep soundManager updated when settings change
@@ -232,11 +250,17 @@ export default function App() {
       suppressedByFocus: settings.focusMode
     };
 
+    // Store in all notifications history
+    setAllNotifications((prev) => {
+      const next = [notif, ...prev].slice(0, 50);
+      setLocalItem(STORAGE_KEYS.NOTIFICATIONS, next);
+      return next;
+    });
+
     if (settings.focusMode) {
       // Silently log to suppressed notifications - no visual banner, no chime
       setSuppressedNotifications((prev) => {
         const next = [notif, ...prev].slice(0, 30);
-        setLocalItem(STORAGE_KEYS.NOTIFICATIONS, next);
         return next;
       });
     } else {
@@ -246,7 +270,7 @@ export default function App() {
     }
   };
 
-  // Test notification helper for Control Center
+  // Test notification helper for Control Center & Notification Center
   const handleTriggerTestNotification = () => {
     if (settings.focusMode) {
       triggerNotification(
@@ -264,6 +288,12 @@ export default function App() {
   };
 
   const handleClearSuppressedNotifications = () => {
+    setSuppressedNotifications([]);
+    soundManager.playHapticClick();
+  };
+
+  const handleClearAllNotifications = () => {
+    setAllNotifications([]);
     setSuppressedNotifications([]);
     setLocalItem(STORAGE_KEYS.NOTIFICATIONS, []);
     soundManager.playHapticClick();
@@ -317,7 +347,7 @@ export default function App() {
     return '99, 102, 241';
   };
 
-  // Sync document root class, data-theme, and accent color CSS custom properties with settings
+  // Sync document root class, data-theme, font family, scaling, and display accessibility properties
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const root = document.documentElement;
@@ -327,6 +357,46 @@ export default function App() {
         root.classList.remove('dark');
       }
       root.setAttribute('data-theme', settings.themePreset || 'slate');
+      root.setAttribute('data-font', settings.fontFamily || 'system');
+      root.setAttribute('data-font-scale', settings.fontSizeScale || 'standard');
+
+      // Sync master display brightness custom property
+      root.style.setProperty('--display-brightness', String(settings.brightness ?? 1));
+
+      // Accessibility & Visual toggles
+      if (settings.boldText) {
+        root.classList.add('system-bold-text');
+      } else {
+        root.classList.remove('system-bold-text');
+      }
+
+      if (settings.highContrast) {
+        root.classList.add('system-high-contrast');
+      } else {
+        root.classList.remove('system-high-contrast');
+      }
+
+      if (settings.reduceTransparency) {
+        root.classList.add('system-reduce-transparency');
+      } else {
+        root.classList.remove('system-reduce-transparency');
+      }
+
+      if (settings.reduceMotion) {
+        root.classList.add('system-reduce-motion');
+      } else {
+        root.classList.remove('system-reduce-motion');
+      }
+
+      // Eye comfort / Night shift color temperature
+      root.classList.remove('system-night-shift-warm', 'system-night-shift-cool', 'system-brightness-standard');
+      if (settings.nightShift || settings.colorTemperature === 'warm') {
+        root.classList.add('system-night-shift-warm');
+      } else if (settings.colorTemperature === 'cool') {
+        root.classList.add('system-night-shift-cool');
+      } else {
+        root.classList.add('system-brightness-standard');
+      }
 
       // Sync accent color CSS variables
       if (settings.accentColor) {
@@ -334,7 +404,20 @@ export default function App() {
         root.style.setProperty('--accent-color-rgb', hexToRgb(settings.accentColor));
       }
     }
-  }, [settings.isDarkMode, settings.themePreset, settings.accentColor]);
+  }, [
+    settings.isDarkMode, 
+    settings.themePreset, 
+    settings.accentColor, 
+    settings.fontFamily, 
+    settings.fontSizeScale, 
+    settings.boldText, 
+    settings.brightness, 
+    settings.highContrast, 
+    settings.reduceTransparency, 
+    settings.reduceMotion, 
+    settings.nightShift, 
+    settings.colorTemperature
+  ]);
 
   // Listen for OS system color scheme changes when themeMode is 'system'
   useEffect(() => {
@@ -546,6 +629,7 @@ export default function App() {
       {/* iOS Top Status Bar */}
       <StatusBar
         onOpenControlCenter={() => setIsControlCenterOpen(true)}
+        onOpenNotificationCenter={() => setIsNotificationCenterOpen(true)}
         activeMusicTrack={isPlayingMusic && currentTrack ? `${currentTrack.title} • ${currentTrack.artist}` : undefined}
         isFirebaseConnected={!!user}
         focusMode={settings.focusMode}
@@ -630,6 +714,8 @@ export default function App() {
                 onOpenSpotlight={() => setIsSpotlightOpen(true)}
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 onOpenAuth={() => handleOpenAuth('signin')}
+                onOpenInstalledApps={() => setIsInstalledAppsOpen(true)}
+                onOpenNotifications={() => setIsNotificationCenterOpen(true)}
                 onOpenHomeScreenSetup={() => setIsHomeScreenSetupOpen(true)}
                 onOpenOnboarding={() => setIsOnboardingOpen(true)}
                 recentNotes={notes}
@@ -645,6 +731,10 @@ export default function App() {
                 onTogglePinApp={handleTogglePinApp}
                 enabledWidgetIds={enabledWidgetIds}
                 onUpdateWidgets={handleUpdateWidgets}
+                settings={settings}
+                onUpdateSettings={handleUpdateSettings}
+                wallpaperTheme={wallpaperTheme}
+                onUpdateWallpaperTheme={handleUpdateWallpaperTheme}
               />
             </motion.div>
           )}
@@ -665,6 +755,7 @@ export default function App() {
             <Dock
               onOpenApp={handleOpenApp}
               onOpenAppSwitcher={() => setIsAppSwitcherOpen(true)}
+              onOpenInstalledApps={() => setIsInstalledAppsOpen(true)}
               activeAppId={activeAppId}
               isDarkMode={settings.isDarkMode}
               dockAppIds={settings.dockAppIds}
@@ -729,6 +820,16 @@ export default function App() {
         onOpenAuth={(m) => handleOpenAuth(m)}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
         onOpenHomeScreenSetup={() => setIsHomeScreenSetupOpen(true)}
+        wallpaperTheme={wallpaperTheme}
+        onUpdateWallpaperTheme={handleUpdateWallpaperTheme}
+        enabledWidgetIds={enabledWidgetIds}
+        onUpdateWidgets={handleUpdateWidgets}
+        pinnedAppIds={pinnedAppIds}
+        onUpdatePinnedApps={(apps) => {
+          setPinnedAppIds(apps);
+          setLocalItem(STORAGE_KEYS.PINNED_APPS, apps);
+        }}
+        installedAppIds={installedAppIds}
       />
 
       {/* First-Time User Onboarding & Welcome Tour */}
@@ -763,6 +864,29 @@ export default function App() {
         wallpaperTheme={wallpaperTheme}
         onUpdateWallpaperTheme={handleUpdateWallpaperTheme}
         onSaveToast={(msg) => triggerNotification('Home Screen', msg, 'Harmony')}
+      />
+
+      {/* Installed Applications Modal & Separate App List */}
+      <InstalledAppsModal
+        isOpen={isInstalledAppsOpen}
+        onClose={() => setIsInstalledAppsOpen(false)}
+        onOpenApp={handleOpenApp}
+        installedAppIds={installedAppIds}
+        pinnedAppIds={pinnedAppIds}
+        onTogglePinApp={handleTogglePinApp}
+        isDarkMode={settings.isDarkMode}
+      />
+
+      {/* iOS Style Notification Center Shade */}
+      <NotificationCenter
+        isOpen={isNotificationCenterOpen}
+        onClose={() => setIsNotificationCenterOpen(false)}
+        notifications={allNotifications}
+        onClearNotifications={handleClearAllNotifications}
+        onTriggerTestNotification={handleTriggerTestNotification}
+        settings={settings}
+        onUpdateSettings={handleUpdateSettings}
+        isDarkMode={settings.isDarkMode}
       />
 
       {/* Mobile PWA Installation Banner */}

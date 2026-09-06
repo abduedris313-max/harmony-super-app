@@ -147,11 +147,22 @@ export const HarmonyWritingAppModule: React.FC = () => {
 
   const activeDraft = drafts.find((d) => d.id === activeDraftId) || null;
   const currentTheme = activeDraft ? activeDraft.theme : 'dark';
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('harmony_writing_sidebar_collapsed') === 'true';
+  });
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('harmony_writing_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   return (
     <div
       id="harmony-writing-container"
-      className={`flex-1 w-full flex flex-col md:flex-row ${THEME_STYLES[currentTheme]} min-h-0 overflow-y-auto md:overflow-hidden transition-colors duration-300`}
+      className={`flex-1 w-full flex flex-col md:flex-row ${THEME_STYLES[currentTheme]} min-h-0 overflow-y-auto md:overflow-hidden transition-colors duration-300 relative`}
     >
       <DraftSidebar
         drafts={filteredDrafts}
@@ -161,10 +172,14 @@ export const HarmonyWritingAppModule: React.FC = () => {
         onSelectDraft={(dr) => setActiveDraftId(dr.id)}
         onCreateDraft={handleCreateDraft}
         onDeleteDraft={handleDeleteDraft}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
       <TypewriterCanvas
         draft={activeDraft}
         onUpdateDraft={handleUpdateActiveDraft}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={handleToggleSidebar}
       />
     </div>
   );

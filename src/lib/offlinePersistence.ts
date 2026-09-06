@@ -23,6 +23,7 @@ export const STORAGE_KEYS = {
   FINANCE_SUBSCRIPTIONS: 'harmony_finance_subscriptions_data',
   PINNED_APPS: 'harmony_pinned_apps_v1',
   HOME_WIDGETS: 'harmony_home_widgets_v1',
+  WIDGET_SIZES: 'harmony_widget_sizes_v1',
   SETTINGS: 'harmony_system_settings_v1',
   NOTIFICATIONS: 'harmony_system_notifications_v1',
   SYSTEM_NOTES: 'harmony_offline_notes',
@@ -51,6 +52,15 @@ export const DEFAULT_DOCK_APP_IDS: string[] = [
   'harmony-docs-ai'
 ];
 
+export const DEFAULT_WIDGET_SIZES: Record<string, 'small' | 'medium' | 'large'> = {
+  calendar: 'medium',
+  finance: 'medium',
+  music: 'small',
+  'docs-ai': 'small',
+  notes: 'small',
+  writing: 'small',
+};
+
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   isDarkMode: true,
   themeMode: 'dark',
@@ -65,6 +75,20 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   dockAppIds: DEFAULT_DOCK_APP_IDS,
   dockMaxSmallScreen: 5,
   dockMaxLargeScreen: 7,
+  launcherIconStyle: 'vibrant',
+  launcherGridDensity: 'standard',
+  launcherShowLabels: true,
+  launcherShowPageDots: true,
+  launcherJiggleOnLongPress: true,
+  fontFamily: 'system',
+  fontSizeScale: 'standard',
+  boldText: false,
+  displayScale: 'standard',
+  nightShift: false,
+  colorTemperature: 'standard',
+  highContrast: false,
+  reduceTransparency: false,
+  reduceMotion: false,
 };
 
 export interface QueuedSyncAction {

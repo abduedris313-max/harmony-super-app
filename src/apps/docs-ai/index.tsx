@@ -111,18 +111,32 @@ Key features include Notes with tags, Docs with markdown export, Typewriter stud
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('harmony_docs_ai_sidebar_collapsed') === 'true';
+  });
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('harmony_docs_ai_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
+
   const theme = useTheme();
 
   return (
     <div
       id="harmony-docs-ai-container"
-      className={`flex-1 w-full flex flex-col md:flex-row min-h-0 overflow-y-auto md:overflow-hidden ${theme.classes.appBg}`}
+      className={`flex-1 w-full flex flex-col md:flex-row min-h-0 overflow-y-auto md:overflow-hidden ${theme.classes.appBg} relative`}
     >
       <ContextSidebar
         docContext={docContext}
         setDocContext={setDocContext}
         presets={PRESETS}
         onTriggerPreset={(promptText) => handleSend(promptText)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
       />
       <ChatConsole
         messages={messages}
@@ -132,6 +146,8 @@ Key features include Notes with tags, Docs with markdown export, Typewriter stud
         copiedId={copiedId}
         onSend={handleSend}
         onCopy={handleCopy}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={handleToggleSidebar}
       />
     </div>
   );

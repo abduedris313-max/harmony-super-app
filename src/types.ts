@@ -123,6 +123,14 @@ export interface HarmonyCalendarEvent {
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 export type ThemePreset = 'slate' | 'oled' | 'sunset' | 'emerald' | 'lavender';
+export type LauncherIconStyle = 'vibrant' | 'tinted' | 'dark-glass' | 'monochrome';
+export type LauncherGridDensity = 'spacious' | 'standard' | 'compact';
+export type WidgetSize = 'small' | 'medium' | 'large';
+
+export type SystemFontFamily = 'system' | 'sans' | 'geometric' | 'serif' | 'mono' | 'rounded';
+export type FontSizeScale = 'compact' | 'standard' | 'large' | 'xlarge';
+export type DisplayScale = 'compact' | 'standard' | 'expanded';
+export type ColorTemperature = 'standard' | 'warm' | 'cool';
 
 export interface SystemSettings {
   isDarkMode: boolean;
@@ -139,6 +147,24 @@ export interface SystemSettings {
   dockAppIds?: string[]; // Ordered list of app IDs pinned to the dock
   dockMaxSmallScreen?: number; // Maximum apps on small screen (<640px, default: 5)
   dockMaxLargeScreen?: number; // Maximum apps on large screen (>=640px, default: 7)
+  // Launcher & Home Screen Personalization
+  launcherIconStyle?: LauncherIconStyle;
+  launcherGridDensity?: LauncherGridDensity;
+  launcherShowLabels?: boolean;
+  launcherShowPageDots?: boolean;
+  launcherJiggleOnLongPress?: boolean;
+  widgetSizes?: Record<string, WidgetSize>;
+  // Global Typography & Font Settings
+  fontFamily?: SystemFontFamily;
+  fontSizeScale?: FontSizeScale;
+  boldText?: boolean;
+  // Global Display & Visual Accessibility Settings
+  displayScale?: DisplayScale;
+  nightShift?: boolean;
+  colorTemperature?: ColorTemperature;
+  highContrast?: boolean;
+  reduceTransparency?: boolean;
+  reduceMotion?: boolean;
   updatedAt?: string;
 }
 

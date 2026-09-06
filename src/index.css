@@ -125,3 +125,139 @@
   border-color: var(--border-color);
 }
 
+/* Global Typography font classes & custom properties */
+:root {
+  --system-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", system-ui, sans-serif;
+  --system-font-scale: 1;
+  --display-brightness: 1;
+}
+
+[data-font="system"] {
+  --system-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+}
+
+[data-font="sans"] {
+  --system-font-family: "Inter", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+}
+
+[data-font="geometric"] {
+  --system-font-family: "Outfit", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+[data-font="serif"] {
+  --system-font-family: "Playfair Display", "Newsreader", "Merriweather", "Georgia", serif;
+}
+
+[data-font="mono"] {
+  --system-font-family: "JetBrains Mono", "Fira Code", ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-font="rounded"] {
+  --system-font-family: "Nunito", "Quicksand", "SF Pro Rounded", system-ui, sans-serif;
+}
+
+/* Font Scale Segments */
+[data-font-scale="compact"] {
+  --system-font-scale: 0.91;
+}
+
+[data-font-scale="standard"] {
+  --system-font-scale: 1;
+}
+
+[data-font-scale="large"] {
+  --system-font-scale: 1.08;
+}
+
+[data-font-scale="xlarge"] {
+  --system-font-scale: 1.18;
+}
+
+/* Bold Text Accessibility Enhancement */
+.system-bold-text {
+  font-weight: 520 !important;
+}
+.system-bold-text h1,
+.system-bold-text h2,
+.system-bold-text h3,
+.system-bold-text h4,
+.system-bold-text p,
+.system-bold-text span,
+.system-bold-text button {
+  font-weight: 650 !important;
+  letter-spacing: -0.01em;
+}
+
+/* High Contrast Display Mode */
+.system-high-contrast {
+  --border-color: #4b5563;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+}
+.system-high-contrast.dark {
+  --bg-app: #000000;
+  --bg-surface: #0a0a0c;
+  --border-color: #52525b;
+  --text-primary: #ffffff;
+  --text-secondary: #e4e4e7;
+}
+
+/* Reduce Transparency Mode */
+.system-reduce-transparency .backdrop-blur-sm,
+.system-reduce-transparency .backdrop-blur-md,
+.system-reduce-transparency .backdrop-blur-lg,
+.system-reduce-transparency .backdrop-blur-xl,
+.system-reduce-transparency .backdrop-blur-2xl {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Reduce Motion Mode */
+.system-reduce-motion *,
+.system-reduce-motion *::before,
+.system-reduce-motion *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+}
+
+/* Eye Comfort / Night Shift Filter */
+.system-night-shift-warm {
+  filter: sepia(0.24) hue-rotate(-8deg) brightness(var(--display-brightness, 1));
+}
+
+.system-night-shift-cool {
+  filter: sepia(0.06) hue-rotate(12deg) brightness(var(--display-brightness, 1));
+}
+
+.system-brightness-standard {
+  filter: brightness(var(--display-brightness, 1));
+}
+
+/* Root font family & size application */
+body, #harmony-os-root {
+  font-family: var(--system-font-family);
+  font-size: calc(1rem * var(--system-font-scale));
+}
+
+@keyframes launcher-wiggle {
+  0% { transform: rotate(-1.2deg) scale(1.02); }
+  50% { transform: rotate(1.2deg) scale(1.02); }
+  100% { transform: rotate(-1.2deg) scale(1.02); }
+}
+
+@keyframes launcher-wiggle-alt {
+  0% { transform: rotate(1.2deg) scale(1.02); }
+  50% { transform: rotate(-1.2deg) scale(1.02); }
+  100% { transform: rotate(1.2deg) scale(1.02); }
+}
+
+.animate-jiggle {
+  animation: launcher-wiggle 0.28s infinite ease-in-out;
+}
+
+.animate-jiggle-alt {
+  animation: launcher-wiggle-alt 0.32s infinite ease-in-out;
+}
+
+

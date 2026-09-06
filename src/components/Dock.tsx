@@ -27,12 +27,14 @@ import {
   Plus,
   ArrowLeft,
   ArrowRight,
+  LayoutGrid,
   Settings as SettingsIcon
 } from 'lucide-react';
 
 interface DockProps {
   onOpenApp: (appId: string) => void;
   onOpenAppSwitcher: () => void;
+  onOpenInstalledApps?: () => void;
   activeAppId: string | null;
   isDarkMode?: boolean;
   dockAppIds?: string[];
@@ -45,6 +47,7 @@ interface DockProps {
 export const DockComponent: React.FC<DockProps> = ({ 
   onOpenApp, 
   onOpenAppSwitcher, 
+  onOpenInstalledApps,
   activeAppId, 
   isDarkMode = true,
   dockAppIds = DEFAULT_DOCK_APP_IDS,
@@ -390,6 +393,28 @@ export const DockComponent: React.FC<DockProps> = ({
         >
           {isEditMode ? <Check className="w-4 h-4" /> : <Sliders className="w-4 h-4" />}
         </motion.button>
+
+        {/* All Installed Applications Launcher */}
+        {onOpenInstalledApps && (
+          <motion.button
+            id="btn-dock-installed-apps"
+            whileHover={{ y: -4, scale: 1.12 }}
+            whileTap={{ scale: 0.88 }}
+            onClick={() => {
+              soundManager.playClickSound();
+              triggerHaptic('light');
+              onOpenInstalledApps();
+            }}
+            className={`w-10 h-10 rounded-[12px] border flex items-center justify-center shadow-md transition-colors ${
+              isDarkMode
+                ? 'bg-gradient-to-br from-indigo-600/90 to-purple-700/90 border-indigo-400/40 text-white hover:from-indigo-500 hover:to-purple-600 shadow-indigo-500/20'
+                : 'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-300 text-white hover:opacity-90 shadow-indigo-300/30'
+            }`}
+            title="All Installed Applications (Swipe Up on Home)"
+          >
+            <LayoutGrid className="w-5 h-5 text-white drop-shadow-xs" />
+          </motion.button>
+        )}
 
         {/* App Switcher Launcher */}
         <motion.button
