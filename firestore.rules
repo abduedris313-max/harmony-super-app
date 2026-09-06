@@ -9,8 +9,32 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
+    match /installed_apps/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /app_repositories/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /central_apps_catalog/{appId} {
+      // Anyone can browse published mini-apps in the central repository
+      allow read: if true;
+      // Authenticated users and administrators can publish, update, and manage apps
+      allow write: if isAuthenticated();
+    }
+
+    match /central_repositories/{repoId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
     match /system_settings/{userId} {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /test/{document=**} {
+      allow read: if true;
     }
 
     match /harmony_notes/{document} {

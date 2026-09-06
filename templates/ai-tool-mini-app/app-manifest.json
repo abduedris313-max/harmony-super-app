@@ -1,0 +1,27 @@
+{
+  "$schema": "https://harmony.os/schemas/mini-app-manifest.v1.json",
+  "id": "template-ai-assistant",
+  "name": "AI Text & Prompt Refiner",
+  "version": "1.0.0",
+  "tagline": "Prompt Engineering & Text Transformation Tool",
+  "description": "An AI-oriented mini application template demonstrating prompt structuring, simulated inference streaming, token metrics, markdown formatting, clipboard copying, and query persistence.",
+  "category": "ai",
+  "icon": "bot",
+  "color": "from-purple-500 to-indigo-600",
+  "author": "Harmony OS Core Developer Community",
+  "deployedUrl": "/templates/ai-tool-mini-app/index.html",
+  "repoUrl": "https://github.com/harmony-ecosystem/template-ai-assistant",
+  "status": "published",
+  "badge": "AI Template",
+  "rating": 4.9,
+  "reviewsCount": 64,
+  "downloads": 1820,
+  "packageSize": "78 KB",
+  "permissions": [
+    "storage",
+    "haptics",
+    "clipboard"
+  ],
+  "supportedOrientations": ["portrait", "landscape"],
+  "minPlatformVersion": "2.0.0"
+}

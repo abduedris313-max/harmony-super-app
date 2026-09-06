@@ -10,6 +10,7 @@ import { HARMONY_APPS } from '../config/apps';
 import { DEFAULT_DOCK_APP_IDS } from '../lib/offlinePersistence';
 import { SystemSettings } from '../types';
 import { soundManager } from '../lib/soundManager';
+import { triggerHaptic } from '../utils/haptics';
 import { 
   Notebook, 
   FileText, 
@@ -147,6 +148,7 @@ export const DockComponent: React.FC<DockProps> = ({
   const handleTouchStart = () => {
     pressTimerRef.current = setTimeout(() => {
       soundManager.playClickSound();
+      triggerHaptic('heavy');
       setIsEditMode(true);
     }, 600);
   };

@@ -4,7 +4,7 @@
  * dual GitHub Pages IFrame and Native Firebase modes, and comprehensive Service Worker offline persistence.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ExternalLink, 
@@ -31,6 +31,11 @@ import { HarmonyDocsAiApp } from './mini-apps/HarmonyDocsAiApp';
 import { HarmonyCalendarApp } from './mini-apps/HarmonyCalendarApp';
 import { HarmonyFinanceApp } from './mini-apps/HarmonyFinanceApp';
 import { HarmonyAppStoreApp } from './mini-apps/HarmonyAppStoreApp';
+import { HarmonyWeatherApp } from './mini-apps/HarmonyWeatherApp';
+import { HarmonyCalculatorApp } from './mini-apps/HarmonyCalculatorApp';
+import { HarmonyFocusApp } from './mini-apps/HarmonyFocusApp';
+import { HarmonyTerminalApp } from './mini-apps/HarmonyTerminalApp';
+import { HarmonyHabitsApp } from './mini-apps/HarmonyHabitsApp';
 import { 
   useOfflinePersistence, 
   setLocalItem, 
@@ -38,6 +43,7 @@ import {
   enqueueOfflineAction, 
   STORAGE_KEYS 
 } from '../lib/offlinePersistence';
+import { triggerHaptic } from '../utils/haptics';
 
 interface AppRunnerProps {
   app: MiniAppConfig;
@@ -65,6 +71,9 @@ interface AppRunnerProps {
   pinnedAppIds?: string[];
   onTogglePinApp?: (appId: string) => void;
   onOpenApp?: (appId: string) => void;
+  installedAppIds?: string[];
+  onInstallApp?: (app: MiniAppConfig) => void;
+  onUninstallApp?: (appId: string) => void;
 }
 
 export const AppRunner: React.FC<AppRunnerProps> = ({
@@ -91,7 +100,10 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
   onPlayTrack,
   pinnedAppIds = [],
   onTogglePinApp,
-  onOpenApp
+  onOpenApp,
+  installedAppIds,
+  onInstallApp,
+  onUninstallApp
 }) => {
   const [mode, setMode] = useState<'native' | 'iframe'>(defaultMode);
   const [iframeKey, setIframeKey] = useState(0);
@@ -117,6 +129,7 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
 
     // Swipe up gesture detection (negative deltaY < -60px)
     if (deltaY < -60 && Math.abs(deltaY) > Math.abs(deltaX) * 1.1) {
+      triggerHaptic('dismiss');
       onClose();
     }
     setTouchStartY(null);
@@ -170,6 +183,86 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  // Host bridge message handler for sandboxed mini apps
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const sendHostInitToIframe = useCallback(() => {
+    if (!iframeRef.current?.contentWindow) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    iframeRef.current.contentWindow.postMessage({
+      type: 'HARMONY_SDK_EVENT',
+      event: 'init',
+      payload: {
+        appId: app.id,
+        appName: app.name,
+        version: app.version || '1.0.0',
+        isDarkMode: isDark,
+        user: user ? { uid: user.uid, displayName: user.displayName, email: user.email } : null
+      }
+    }, '*');
+  }, [app.id, app.name, app.version, user]);
+
+  useEffect(() => {
+    const handleBridgeMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== 'object' || data.type !== 'HARMONY_SDK_MESSAGE') return;
+
+      const { action, payload = {}, requestId } = data;
+      const targetWindow = iframeRef.current?.contentWindow;
+
+      switch (action) {
+        case 'handshake':
+          sendHostInitToIframe();
+          break;
+        case 'haptic':
+          triggerHaptic(payload.type || 'light');
+          break;
+        case 'close':
+          triggerHaptic('dismiss');
+          onClose();
+          break;
+        case 'toast':
+          triggerHaptic(payload.type === 'error' ? 'error' : 'selection');
+          break;
+        case 'open_app':
+          if (payload.appId && onOpenApp) {
+            onOpenApp(payload.appId);
+          }
+          break;
+        case 'storage_set':
+          try {
+            localStorage.setItem(`harmony_app_${app.id}_${payload.key}`, JSON.stringify(payload.value));
+            targetWindow?.postMessage({ type: 'HARMONY_SDK_RESPONSE', requestId, data: true }, '*');
+          } catch (err: any) {
+            targetWindow?.postMessage({ type: 'HARMONY_SDK_RESPONSE', requestId, error: err.message }, '*');
+          }
+          break;
+        case 'storage_get':
+          try {
+            const raw = localStorage.getItem(`harmony_app_${app.id}_${payload.key}`);
+            const val = raw !== null ? JSON.parse(raw) : null;
+            targetWindow?.postMessage({ type: 'HARMONY_SDK_RESPONSE', requestId, data: val }, '*');
+          } catch (err: any) {
+            targetWindow?.postMessage({ type: 'HARMONY_SDK_RESPONSE', requestId, error: err.message }, '*');
+          }
+          break;
+        case 'storage_remove':
+          try {
+            localStorage.removeItem(`harmony_app_${app.id}_${payload.key}`);
+            targetWindow?.postMessage({ type: 'HARMONY_SDK_RESPONSE', requestId, data: true }, '*');
+          } catch (err: any) {
+            targetWindow?.postMessage({ type: 'HARMONY_SDK_RESPONSE', requestId, error: err.message }, '*');
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleBridgeMessage);
+    return () => window.removeEventListener('message', handleBridgeMessage);
+  }, [app.id, onClose, onOpenApp, sendHostInitToIframe]);
 
   // Wrapper methods that guarantee offline persistence and Service Worker caching
   const handleSaveNoteWithPersistence = useCallback(async (note: Partial<HarmonyNote> & { id: string; title: string }) => {
@@ -394,10 +487,23 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
           <HarmonyAppStoreApp
             user={user}
             pinnedAppIds={pinnedAppIds}
+            installedAppIds={installedAppIds}
             onTogglePinApp={onTogglePinApp || (() => {})}
             onOpenApp={onOpenApp || (() => {})}
+            onInstallApp={onInstallApp}
+            onUninstallApp={onUninstallApp}
           />
         );
+      case 'harmony-weather':
+        return <HarmonyWeatherApp />;
+      case 'harmony-calculator':
+        return <HarmonyCalculatorApp />;
+      case 'harmony-focus':
+        return <HarmonyFocusApp />;
+      case 'harmony-terminal':
+        return <HarmonyTerminalApp />;
+      case 'harmony-habits':
+        return <HarmonyHabitsApp />;
       default:
         return (
           <div className="p-8 text-center text-white">
@@ -659,9 +765,11 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
       >
         {mode === 'iframe' ? (
           <iframe
+            ref={iframeRef}
             key={iframeKey}
             src={app.deployedUrl}
             title={app.name}
+            onLoad={sendHostInitToIframe}
             className="w-full h-full border-none bg-white"
             allow="camera; microphone; geolocation; autoplay; clipboard-write; encrypted-media"
           />

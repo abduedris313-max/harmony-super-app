@@ -35,6 +35,9 @@ export const STORAGE_KEYS = {
   LAST_SYNC: 'harmony_last_sync_timestamp',
   ONBOARDED: 'harmony_has_onboarded_v1',
   WALLPAPER: 'harmony_wallpaper_v1',
+  INSTALLED_APPS: 'harmony_installed_apps_v2',
+  APP_REPOSITORIES: 'harmony_app_repositories_v1',
+  DOWNLOADED_APP_BUNDLES: 'harmony_downloaded_app_bundles_v1',
 } as const;
 
 export const DEFAULT_DOCK_APP_IDS: string[] = [
@@ -225,6 +228,23 @@ export function notifyServiceWorkerSnapshot(key: string, data: any) {
       });
     } catch (err) {
       console.debug('[OfflinePersistence] SW postMessage skipped:', err);
+    }
+  }
+}
+
+// Send dedicated Firestore data (notes, docs, calendar events) to Service Worker cache
+export function notifyServiceWorkerFirestoreData(entity: 'notes' | 'docs' | 'calendar' | string, data: any) {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    try {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CACHE_FIRESTORE_DATA',
+        entity,
+        key: `firestore_${entity}`,
+        data,
+        timestamp: Date.now()
+      });
+    } catch (err) {
+      console.debug('[OfflinePersistence] SW Firestore postMessage skipped:', err);
     }
   }
 }

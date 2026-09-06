@@ -122,6 +122,37 @@
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "userId", "title", "gregorianDate"]
+    },
+    "central_apps_catalog": {
+      "title": "Central Apps Catalog",
+      "description": "Published mini app packages in the Central Repository managed via App Store Admin Dashboard",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "tagline": { "type": "string" },
+        "description": { "type": "string" },
+        "iconName": { "type": "string" },
+        "iconCdnUrl": { "type": "string" },
+        "colorGradient": { "type": "string" },
+        "bgHex": { "type": "string" },
+        "deployedUrl": { "type": "string" },
+        "repoUrl": { "type": "string" },
+        "version": { "type": "string" },
+        "author": { "type": "string" },
+        "size": { "type": "string" },
+        "category": { "type": "string" },
+        "rating": { "type": "number" },
+        "downloadsCount": { "type": "number" },
+        "isSystemApp": { "type": "boolean" },
+        "status": { "type": "string" },
+        "badge": { "type": "string" },
+        "permissions": { "type": "array" },
+        "repositoryId": { "type": "string" },
+        "releaseNotes": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "version", "category"]
     }
   },
   "firestore": {
@@ -132,6 +163,10 @@
     "/system_settings/{userId}": {
       "schema": "system_settings",
       "description": "User device settings including theme, volume, and focus mode"
+    },
+    "/central_apps_catalog/{appId}": {
+      "schema": "central_apps_catalog",
+      "description": "Mini apps published to the central repository and managed via Admin Dashboard"
     },
     "/harmony_notes/{noteId}": {
       "schema": "harmony_notes",

@@ -21,6 +21,7 @@ import {
   SystemNotification
 } from './types';
 import { 
+  auth,
   subscribeToAuth, 
   loginAnonymously, 
   subscribeHarmonyNotes, 
@@ -53,7 +54,9 @@ import {
   INITIAL_OFFLINE_EVENTS,
   DEFAULT_SYSTEM_SETTINGS
 } from './lib/offlinePersistence';
+import { getInstalledAppIds, saveInstalledAppIds, syncInstalledAppsFromCloud } from './lib/appStoreService';
 import { soundManager } from './lib/soundManager';
+import { triggerHaptic } from './utils/haptics';
 import { StatusBar } from './components/StatusBar';
 import { HomeScreen } from './components/HomeScreen';
 import { Dock } from './components/Dock';
@@ -131,11 +134,51 @@ export default function App() {
     return getLocalItem<HarmonyCalendarEvent[]>(STORAGE_KEYS.CALENDAR, INITIAL_OFFLINE_EVENTS);
   });
 
+  // Installed App Packages from Central Repository
+  const [installedAppIds, setInstalledAppIds] = useState<string[]>(() => {
+    return getInstalledAppIds();
+  });
+
   // Pinned Apps for Home Screen personalization
-  const DEFAULT_PINNED_APPS = HARMONY_APPS.map(a => a.id);
+  const DEFAULT_PINNED_APPS = HARMONY_APPS.filter(a => a.isSystemApp || ['harmony-music-player', 'harmony-docs-ai', 'harmony-finance'].includes(a.id)).map(a => a.id);
   const [pinnedAppIds, setPinnedAppIds] = useState<string[]>(() => {
     return getLocalItem<string[]>(STORAGE_KEYS.PINNED_APPS, DEFAULT_PINNED_APPS);
   });
+
+  // Handle installing app package downloaded from Central Repository
+  const handleInstallApp = (app: MiniAppConfig) => {
+    setInstalledAppIds((prev) => {
+      const next = prev.includes(app.id) ? prev : [...prev, app.id];
+      saveInstalledAppIds(next, user?.uid);
+      return next;
+    });
+    setPinnedAppIds((prev) => {
+      if (!prev.includes(app.id)) {
+        const next = [...prev, app.id];
+        setLocalItem(STORAGE_KEYS.PINNED_APPS, next);
+        return next;
+      }
+      return prev;
+    });
+    triggerNotification('App Installed', `${app.name} downloaded & added to Home Screen`, 'App Store');
+  };
+
+  // Handle uninstalling app package
+  const handleUninstallApp = (appId: string) => {
+    const matched = HARMONY_APPS.find(a => a.id === appId);
+    const appName = matched ? matched.name : 'App';
+    setInstalledAppIds((prev) => {
+      const next = prev.filter(id => id !== appId);
+      saveInstalledAppIds(next, user?.uid);
+      return next;
+    });
+    setPinnedAppIds((prev) => {
+      const next = prev.filter(id => id !== appId);
+      setLocalItem(STORAGE_KEYS.PINNED_APPS, next);
+      return next;
+    });
+    triggerNotification('App Uninstalled', `${appName} removed from storage`, 'App Store');
+  };
 
   // Toggle pinning/unpinning apps from the Home Screen
   const handleTogglePinApp = (appId: string) => {
@@ -331,16 +374,24 @@ export default function App() {
           isAnonymous: fbUser.isAnonymous
         });
       } else {
-        // Auto sign-in anonymously for instant access
-        loginAnonymously();
+        // Fallback to local guest profile for offline mode
+        setUser({
+          uid: 'local-guest-user',
+          displayName: 'Guest User',
+          email: 'guest@harmony.os',
+          photoURL: null,
+          isAnonymous: true
+        });
+        // Attempt anonymous sign in if supported
+        loginAnonymously().catch(() => {});
       }
     });
     return () => unsubscribe();
   }, []);
 
-  // Real-time Firestore Data & Settings Listeners
+  // Real-time Firestore Data & Settings Listeners (Firebase Skill: Only attach onSnapshot if auth ready & authenticated)
   useEffect(() => {
-    if (!user) return;
+    if (!user || user.uid === 'local-guest-user' || !auth.currentUser) return;
 
     const unsubNotes = subscribeHarmonyNotes(user.uid, (data) => setNotes(data));
     const unsubDocs = subscribeHarmonyDocs(user.uid, (data) => setDocs(data));
@@ -395,6 +446,7 @@ export default function App() {
 
   // Launch Mini App
   const handleOpenApp = (appId: string) => {
+    triggerHaptic('medium');
     setActiveAppId(appId);
     if (!openAppIds.includes(appId)) {
       setOpenAppIds(prev => [...prev, appId]);
@@ -402,10 +454,12 @@ export default function App() {
   };
 
   const handleCloseActiveApp = () => {
+    triggerHaptic('dismiss');
     setActiveAppId(null);
   };
 
   const handleCloseAppFromSwitcher = (appId: string) => {
+    triggerHaptic('heavy');
     setOpenAppIds(prev => prev.filter(id => id !== appId));
     if (activeAppId === appId) {
       setActiveAppId(null);
@@ -413,6 +467,7 @@ export default function App() {
   };
 
   const handleCloseAllApps = () => {
+    triggerHaptic('heavy');
     setOpenAppIds([]);
     setActiveAppId(null);
     setIsAppSwitcherOpen(false);
@@ -557,6 +612,9 @@ export default function App() {
               pinnedAppIds={pinnedAppIds}
               onTogglePinApp={handleTogglePinApp}
               onOpenApp={handleOpenApp}
+              installedAppIds={installedAppIds}
+              onInstallApp={handleInstallApp}
+              onUninstallApp={handleUninstallApp}
             />
           ) : (
             <motion.div
@@ -583,6 +641,7 @@ export default function App() {
                 isDarkMode={settings.isDarkMode}
                 calendarEvents={calendarEvents}
                 pinnedAppIds={pinnedAppIds}
+                installedAppIds={installedAppIds}
                 onTogglePinApp={handleTogglePinApp}
                 enabledWidgetIds={enabledWidgetIds}
                 onUpdateWidgets={handleUpdateWidgets}

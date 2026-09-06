@@ -1,17 +1,20 @@
 /**
  * @file HarmonyAppStoreApp.tsx
- * @description Wrapper for App Store mini app.
+ * @description Wrapper for App Store & Central Repository mini app.
  */
 
 import React from 'react';
 import { HarmonyAppStoreModule } from '../../apps/store';
-import { SystemUser } from '../../types';
+import { SystemUser, MiniAppConfig } from '../../types';
 
 interface HarmonyAppStoreAppProps {
   user?: SystemUser | null;
   pinnedAppIds: string[];
+  installedAppIds?: string[];
   onTogglePinApp: (appId: string) => void;
   onOpenApp: (appId: string) => void;
+  onInstallApp?: (app: MiniAppConfig) => void;
+  onUninstallApp?: (appId: string) => void;
   isDarkMode?: boolean;
 }
 

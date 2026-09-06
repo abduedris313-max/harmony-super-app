@@ -1,0 +1,28 @@
+{
+  "$schema": "https://harmony.os/schemas/mini-app-manifest.v1.json",
+  "id": "template-react-starter",
+  "name": "React + TypeScript Starter",
+  "version": "1.0.0",
+  "tagline": "Modern React 18, TypeScript, Tailwind CSS, & Harmony SDK",
+  "description": "Production-grade React mini app starter with Apple HIG components, dynamic theme synchronization, tactile haptic feedback, safe area padding, and scoped persistent storage.",
+  "category": "productivity",
+  "icon": "sparkles",
+  "color": "from-blue-500 to-indigo-600",
+  "author": "Harmony OS Core Developer Community",
+  "deployedUrl": "/templates/react-mini-app/index.html",
+  "repoUrl": "https://github.com/harmony-ecosystem/template-react-starter",
+  "status": "published",
+  "badge": "React SDK",
+  "rating": 5.0,
+  "reviewsCount": 86,
+  "downloads": 2450,
+  "packageSize": "86 KB",
+  "permissions": [
+    "storage",
+    "haptics",
+    "clipboard",
+    "notifications"
+  ],
+  "supportedOrientations": ["portrait", "landscape"],
+  "minPlatformVersion": "2.0.0"
+}

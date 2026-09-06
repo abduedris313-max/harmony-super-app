@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Vanilla Mini App Starter</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Include the Universal Harmony OS SDK -->
+  <script src="/harmony-sdk.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="app-icon-badge">⚡</div>
+        <div class="app-title-group">
+          <h1>Starter Mini App</h1>
+          <p>Harmony OS Native Bridge Demo</p>
+        </div>
+      </div>
+      <div class="status-chip">
+        <span class="status-dot"></span>
+        <span id="bridge-status">Ready</span>
+      </div>
+    </header>
+
+    <!-- Interactive Counter Section with Persistent Storage -->
+    <section class="card">
+      <div class="card-title">
+        <span>Persistent Counter</span>
+        <span style="font-size: 11px; font-weight: normal; color: var(--text-secondary);">harmony.storage API</span>
+      </div>
+      <div class="counter-box">
+        <span class="counter-value" id="counter-value">0</span>
+        <div class="btn-group">
+          <button class="btn-secondary btn-icon" id="btn-decrement" aria-label="Decrement">-</button>
+          <button class="btn-primary btn-icon" id="btn-increment" aria-label="Increment">+</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Tasks / Scratchpad with Storage Sync -->
+    <section class="card">
+      <div class="card-title">
+        <span>Quick Scratchpad</span>
+        <span id="task-count" style="font-size: 11px; color: var(--text-secondary);">0 items</span>
+      </div>
+      <div class="input-row">
+        <input type="text" id="task-input" placeholder="Type a task and hit add..." maxlength="60">
+        <button class="btn-primary" id="btn-add-task">Add</button>
+      </div>
+      <ul class="item-list" id="task-list">
+        <!-- Dynamic items rendered via app.js -->
+      </ul>
+    </section>
+
+    <!-- Haptics & System Bridge Showcase -->
+    <section class="card">
+      <div class="card-title">
+        <span>Tactile Haptic Feedback</span>
+        <span style="font-size: 11px; font-weight: normal; color: var(--text-secondary);">iOS Taptic Engine</span>
+      </div>
+      <div class="grid-buttons">
+        <button class="btn-secondary" id="haptic-light">Light Tap</button>
+        <button class="btn-secondary" id="haptic-medium">Medium Pulse</button>
+        <button class="btn-secondary" id="haptic-heavy">Heavy Pulse</button>
+        <button class="btn-secondary" id="haptic-success" style="color: var(--success-color);">Success Pulse</button>
+      </div>
+    </section>
+
+    <!-- Host Integration Actions -->
+    <section class="card">
+      <div class="card-title">
+        <span>Host Shell RPC</span>
+      </div>
+      <div class="grid-buttons">
+        <button class="btn-secondary" id="btn-toast">Trigger Host Toast</button>
+        <button class="btn-secondary" id="btn-copy">Copy Diagnostic</button>
+        <button class="btn-secondary" id="btn-notes-app">Open Harmony Notes</button>
+        <button class="btn-secondary" id="btn-close" style="color: var(--danger-color);">Close Mini App</button>
+      </div>
+    </section>
+
+    <footer class="footer-info">
+      <div>Harmony OS Mini App Specification v1.0.0</div>
+      <div>Zero-dependency template for third-party developers</div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

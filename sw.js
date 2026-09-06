@@ -2,12 +2,13 @@
  * @file sw.js
  * @description Advanced Service Worker for Harmony OS Super App.
  * Implements Stale-While-Revalidate caching for static assets & mini-app code chunks,
- * Cache-First for media/fonts, and offline snapshot data caching for true offline functionality.
+ * Cache-First for media/fonts, and dedicated offline Firestore caching for Notes, Docs, and Calendar Events.
  */
 
-const SHELL_CACHE_NAME = 'harmony-os-shell-v3';
-const DATA_CACHE_NAME = 'harmony-os-data-v3';
-const ASSETS_CACHE_NAME = 'harmony-os-assets-v3';
+const SHELL_CACHE_NAME = 'harmony-os-shell-v4';
+const DATA_CACHE_NAME = 'harmony-os-data-v4';
+const FIRESTORE_CACHE_NAME = 'harmony-os-firestore-v4';
+const ASSETS_CACHE_NAME = 'harmony-os-assets-v4';
 
 const PRECACHE_URLS = [
   './',
@@ -35,7 +36,7 @@ self.addEventListener('install', (event) => {
 
 // Activate Event: Prunes old caches & claims clients
 self.addEventListener('activate', (event) => {
-  const currentCaches = [SHELL_CACHE_NAME, DATA_CACHE_NAME, ASSETS_CACHE_NAME];
+  const currentCaches = [SHELL_CACHE_NAME, DATA_CACHE_NAME, FIRESTORE_CACHE_NAME, ASSETS_CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -50,28 +51,44 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Message Event: Caches Mini-App data snapshots & offline payloads sent from client
+// Message Event: Caches Firestore data & Mini-App snapshots sent from client
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'CACHE_MINI_APP_SNAPSHOT') {
-    const { key, data, timestamp } = event.data;
-    const url = new URL(`/offline-cache/${key}`, self.location.origin).href;
-    const responsePayload = new Response(JSON.stringify({ key, data, timestamp }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Harmony-Cached-At': new Date(timestamp || Date.now()).toISOString()
-      }
+  if (!event.data) return;
+
+  const { type, key, entity, data, timestamp } = event.data;
+
+  if (type === 'CACHE_FIRESTORE_DATA' || type === 'CACHE_MINI_APP_SNAPSHOT') {
+    const cacheKey = key || (entity ? `firestore_${entity}` : 'unknown_snapshot');
+    const targetUrl = new URL(`/offline-cache/${cacheKey}`, self.location.origin).href;
+    const secondaryUrl = entity ? new URL(`/api/firestore/${entity}`, self.location.origin).href : null;
+
+    const payload = JSON.stringify({
+      key: cacheKey,
+      entity: entity || cacheKey,
+      data,
+      timestamp: timestamp || Date.now(),
+      cachedAt: new Date().toISOString()
     });
 
-    caches.open(DATA_CACHE_NAME).then((cache) => {
-      cache.put(url, responsePayload);
-      console.log(`[SW] Mini-app snapshot cached for key: ${key}`);
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Harmony-Firestore-Cache': 'true',
+      'X-Harmony-Cached-At': new Date(timestamp || Date.now()).toISOString()
+    };
+
+    caches.open(FIRESTORE_CACHE_NAME).then((cache) => {
+      cache.put(targetUrl, new Response(payload, { headers }));
+      if (secondaryUrl) {
+        cache.put(secondaryUrl, new Response(payload, { headers }));
+      }
+      console.log(`[SW] Firestore/Mini-App offline cache updated for: ${cacheKey}`);
     }).catch((err) => {
-      console.warn('[SW] Failed to cache mini-app snapshot:', err);
+      console.warn('[SW] Failed to cache snapshot:', err);
     });
   }
 });
 
-// Fetch Event: Tiered caching strategies (Stale-While-Revalidate for static assets & code chunks)
+// Fetch Event: Tiered caching strategies (Stale-While-Revalidate for static assets, Cache-First for offline Firestore endpoints)
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -81,17 +98,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle synthetic offline data cache endpoints
-  if (url.pathname.startsWith('/offline-cache/')) {
+  // Handle synthetic offline data & Firestore cache endpoints
+  if (url.pathname.startsWith('/offline-cache/') || url.pathname.startsWith('/api/firestore/')) {
     event.respondWith(
-      caches.open(DATA_CACHE_NAME).then((cache) => {
+      caches.open(FIRESTORE_CACHE_NAME).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          return new Response(JSON.stringify({ status: 'not_found' }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' }
+          // If exact match missing, attempt fallback lookup in DATA_CACHE
+          return caches.open(DATA_CACHE_NAME).then((dataCache) => {
+            return dataCache.match(request).then((dataResponse) => {
+              if (dataResponse) return dataResponse;
+              return new Response(JSON.stringify({ status: 'offline_empty', data: [] }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json', 'X-Harmony-Offline-Fallback': 'true' }
+              });
+            });
           });
         });
       })
@@ -113,6 +136,23 @@ self.addEventListener('fetch', (event) => {
         .catch(() => {
           return caches.match('./index.html') || caches.match('./') || caches.match('/index.html') || caches.match('/');
         })
+    );
+    return;
+  }
+
+  // Intercept Google Firestore REST or WebChannel network failures gracefully when offline
+  if (url.hostname.includes('firestore.googleapis.com') || url.hostname.includes('firebase') || url.pathname.includes('google.firestore')) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        // Return matching cached snapshot or fallback empty array payload when offline
+        return caches.match(request).then((cached) => {
+          if (cached) return cached;
+          return new Response(JSON.stringify({ offline: true, documents: [] }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', 'X-Harmony-Offline-Firestore': 'true' }
+          });
+        });
+      })
     );
     return;
   }

@@ -27,11 +27,18 @@ import {
   Pin,
   Plus,
   Layers,
-  Sliders
+  Sliders,
+  CloudSun,
+  Calculator,
+  Clock,
+  Terminal,
+  Activity,
+  CloudDownload
 } from 'lucide-react';
 import { WidgetFramework } from './widgets/WidgetFramework';
 import { HomeWidgetId } from './widgets/types';
 import { HarmonyLogo } from './HarmonyLogo';
+import { triggerHaptic } from '../utils/haptics';
 
 interface HomeScreenProps {
   onOpenApp: (appId: string) => void;
@@ -48,6 +55,7 @@ interface HomeScreenProps {
   onToggleTheme?: () => void;
   calendarEvents?: HarmonyCalendarEvent[];
   pinnedAppIds?: string[];
+  installedAppIds?: string[];
   onTogglePinApp?: (appId: string) => void;
   onOpenHomeScreenSetup?: () => void;
   onOpenOnboarding?: () => void;
@@ -70,6 +78,7 @@ export const HomeScreenComponent: React.FC<HomeScreenProps> = ({
   onToggleTheme,
   calendarEvents = [],
   pinnedAppIds,
+  installedAppIds,
   onTogglePinApp,
   onOpenHomeScreenSetup,
   onOpenOnboarding,
@@ -96,14 +105,17 @@ export const HomeScreenComponent: React.FC<HomeScreenProps> = ({
 
     // Detect swipe down (deltaY > 60px) -> Trigger Spotlight Search
     if (deltaY > 60 && Math.abs(deltaY) > Math.abs(deltaX) * 1.2) {
+      triggerHaptic('swipe');
       onOpenSpotlight();
     }
     // Detect swipe left (deltaX < -70px) -> Switch to Unpinned App Library
     else if (deltaX < -70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      triggerHaptic('swipe');
       setShowUnpinnedLibrary(true);
     }
     // Detect swipe right (deltaX > 70px) -> Switch to Main Springboard Grid
     else if (deltaX > 70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      triggerHaptic('swipe');
       setShowUnpinnedLibrary(false);
     }
 
@@ -111,13 +123,14 @@ export const HomeScreenComponent: React.FC<HomeScreenProps> = ({
     setTouchStartX(null);
   };
 
-  // Derive pinned vs unpinned apps with useMemo
+  // Derive pinned vs unpinned apps with useMemo respecting installedAppIds
   const { pinnedApps, unpinnedApps } = useMemo(() => {
-    const effectivePinnedIds = pinnedAppIds || HARMONY_APPS.map(a => a.id);
-    const pinned = HARMONY_APPS.filter(a => effectivePinnedIds.includes(a.id));
-    const unpinned = HARMONY_APPS.filter(a => !effectivePinnedIds.includes(a.id));
+    const installed = HARMONY_APPS.filter(a => installedAppIds ? installedAppIds.includes(a.id) : true);
+    const effectivePinnedIds = pinnedAppIds || installed.map(a => a.id);
+    const pinned = installed.filter(a => effectivePinnedIds.includes(a.id));
+    const unpinned = installed.filter(a => !effectivePinnedIds.includes(a.id));
     return { pinnedApps: pinned, unpinnedApps: unpinned };
-  }, [pinnedAppIds]);
+  }, [pinnedAppIds, installedAppIds]);
 
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
@@ -131,6 +144,11 @@ export const HomeScreenComponent: React.FC<HomeScreenProps> = ({
       case 'shopping-bag':
       case 'store':
         return <ShoppingBag className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'cloud-sun': return <CloudSun className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'calculator': return <Calculator className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'clock': return <Clock className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'terminal': return <Terminal className="w-6 h-6 text-white drop-shadow-md" />;
+      case 'activity': return <Activity className="w-6 h-6 text-white drop-shadow-md" />;
       default: return <Sparkles className="w-6 h-6 text-white" />;
     }
   };

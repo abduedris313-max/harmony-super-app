@@ -1,0 +1,27 @@
+{
+  "$schema": "https://harmony.os/schemas/mini-app-manifest.v1.json",
+  "id": "template-vanilla-starter",
+  "name": "Vanilla Mini App Starter",
+  "version": "1.0.0",
+  "tagline": "Pure HTML5, CSS3, and ES6 Zero-Dependency Starter",
+  "description": "A clean, lightweight template demonstrating the Harmony OS postMessage bridge, iOS HIG visual design, tactile haptic feedback, theme listeners, and local persistent storage.",
+  "category": "utilities",
+  "icon": "zap",
+  "color": "from-amber-500 to-orange-600",
+  "author": "Harmony OS Core Developer Community",
+  "deployedUrl": "/templates/vanilla-mini-app/index.html",
+  "repoUrl": "https://github.com/harmony-ecosystem/template-vanilla-starter",
+  "status": "published",
+  "badge": "Starter Kit",
+  "rating": 4.9,
+  "reviewsCount": 42,
+  "downloads": 1280,
+  "packageSize": "42 KB",
+  "permissions": [
+    "storage",
+    "haptics",
+    "clipboard"
+  ],
+  "supportedOrientations": ["portrait", "landscape"],
+  "minPlatformVersion": "2.0.0"
+}

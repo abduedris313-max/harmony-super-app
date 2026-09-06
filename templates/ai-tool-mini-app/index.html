@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>AI Prompt Refiner Starter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/harmony-sdk.js"></script>
+</head>
+<body class="bg-[#f2f2f7] dark:bg-black text-neutral-900 dark:text-white transition-colors duration-200">
+  <div class="max-w-md mx-auto p-4 pt-[env(safe-area-inset-top,16px)] pb-[env(safe-area-inset-bottom,20px)] min-h-screen flex flex-col justify-between">
+    <div class="space-y-4">
+      <!-- Header -->
+      <header class="flex items-center justify-between py-2">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25 text-xl font-bold">
+            ⚡
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight">AI Prompt Refiner</h1>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">AI Mini App Template</p>
+          </div>
+        </div>
+        <button id="close-btn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-neutral-200 dark:bg-white/10 text-neutral-700 dark:text-neutral-200 cursor-pointer">
+          Close
+        </button>
+      </header>
+
+      <!-- Prompt Input -->
+      <div class="p-4 rounded-2xl border bg-white dark:bg-[#1c1c1e] border-black/5 dark:border-white/10 shadow-xs space-y-3">
+        <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Input Prompt / Text</label>
+        <textarea id="prompt-input" rows="3" placeholder="Paste draft text, raw prompt, or bullet points to refine..." class="w-full p-3 rounded-xl border bg-neutral-50 dark:bg-[#2c2c2e] border-neutral-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 resize-none"></textarea>
+
+        <div class="flex flex-wrap gap-1.5">
+          <button class="mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white cursor-pointer" data-mode="clarity">High Clarity</button>
+          <button class="mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 dark:bg-white/10 text-neutral-700 dark:text-neutral-300 cursor-pointer" data-mode="executive">Executive Brief</button>
+          <button class="mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 dark:bg-white/10 text-neutral-700 dark:text-neutral-300 cursor-pointer" data-mode="technical">Technical RFC</button>
+        </div>
+
+        <button id="refine-btn" class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm shadow-md shadow-purple-600/25 active:scale-95 transition-all cursor-pointer">
+          Refine Prompt
+        </button>
+      </div>
+
+      <!-- Output Result -->
+      <div id="output-card" class="hidden p-4 rounded-2xl border bg-white dark:bg-[#1c1c1e] border-black/5 dark:border-white/10 shadow-xs space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-purple-500">Refined Output</span>
+          <button id="copy-btn" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 cursor-pointer">
+            Copy Text
+          </button>
+        </div>
+        <div id="output-text" class="p-3 rounded-xl bg-neutral-50 dark:bg-[#2c2c2e] text-sm font-mono leading-relaxed whitespace-pre-wrap"></div>
+      </div>
+    </div>
+
+    <footer class="text-center py-2 text-[11px] text-neutral-400">
+      Built with Harmony OS Universal SDK
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Harmony.init();
+      Harmony.theme.onChange(dark => document.documentElement.classList.toggle('dark', dark));
+
+      let activeMode = 'clarity';
+      const promptInput = document.getElementById('prompt-input');
+      const refineBtn = document.getElementById('refine-btn');
+      const outputCard = document.getElementById('output-card');
+      const outputText = document.getElementById('output-text');
+      const copyBtn = document.getElementById('copy-btn');
+      const closeBtn = document.getElementById('close-btn');
+
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          Harmony.ui.triggerHaptic('selection');
+          document.querySelectorAll('.mode-btn').forEach(b => {
+            b.className = 'mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 dark:bg-white/10 text-neutral-700 dark:text-neutral-300 cursor-pointer';
+          });
+          btn.className = 'mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white cursor-pointer';
+          activeMode = btn.dataset.mode;
+        });
+      });
+
+      refineBtn.addEventListener('click', () => {
+        const text = promptInput.value.trim();
+        if (!text) {
+          Harmony.ui.triggerHaptic('warning');
+          Harmony.ui.showToast({ title: 'Please enter a prompt', type: 'warning' });
+          return;
+        }
+
+        Harmony.ui.triggerHaptic('medium');
+        outputCard.classList.remove('hidden');
+        outputText.textContent = 'Analyzing and transforming...';
+
+        setTimeout(() => {
+          Harmony.ui.triggerHaptic('success');
+          let result = '';
+          if (activeMode === 'clarity') {
+            result = `### Objective\n${text}\n\n### Step-by-Step Instructions\n1. Analyze input constraints carefully.\n2. Ensure all edge cases and error states are documented.\n3. Return concise, actionable outputs formatted in clean Markdown.\n\n### Quality Benchmark\n- No conversational filler\n- High density, high signal`;
+          } else if (activeMode === 'executive') {
+            result = `**EXECUTIVE SUMMARY**:\nDirectly address: "${text.slice(0, 45)}..."\n\n**Strategic Value**:\n- 35% reduction in latency\n- Strict alignment with architectural standards\n- Recommended immediate merge`;
+          } else {
+            result = `[RFC-SPEC] Mini App Integration Contract\nTopic: ${text}\nInterface: HarmonyHostBridge\nStatus: APPROVED\nSecurity Sandbox: STRICT_SANDBOX_POLICY`;
+          }
+          outputText.textContent = result;
+          Harmony.storage.setItem('last_refined_prompt', { original: text, mode: activeMode, result });
+          Harmony.ui.showToast({ title: 'Prompt Refined!', type: 'success' });
+        }, 500);
+      });
+
+      copyBtn.addEventListener('click', async () => {
+        Harmony.ui.triggerHaptic('light');
+        await Harmony.clipboard.writeText(outputText.textContent);
+        Harmony.ui.showToast({ title: 'Copied to Clipboard', type: 'info' });
+      });
+
+      closeBtn.addEventListener('click', () => {
+        Harmony.ui.triggerHaptic('dismiss');
+        Harmony.ui.close();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -156,10 +156,65 @@ app.post(['/api/harmony/ai', '/api/gemini'], async (req: Request, res: Response)
 });
 
 // -----------------------------------------------------------------------------
-// VITE MIDDLEWARE & STATIC SERVING
+// CENTRAL REPOSITORY CATALOG ENDPOINTS (Shared by SuperApp & Developer Console)
+// -----------------------------------------------------------------------------
+
+// In-memory runtime storage for repository catalog
+let memoryCatalog: any[] = [];
+
+app.get('/api/repository/apps', (_req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    count: memoryCatalog.length,
+    apps: memoryCatalog
+  });
+});
+
+app.post('/api/repository/apps', (req: Request, res: Response) => {
+  const newApp = req.body;
+  if (!newApp || !newApp.id) {
+    return res.status(400).json({ error: 'Valid app package payload is required.' });
+  }
+  const index = memoryCatalog.findIndex(a => a.id === newApp.id);
+  if (index >= 0) {
+    memoryCatalog[index] = newApp;
+  } else {
+    memoryCatalog.unshift(newApp);
+  }
+  res.status(201).json({ status: 'published', app: newApp });
+});
+
+app.put('/api/repository/apps/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updates = req.body;
+  const index = memoryCatalog.findIndex(a => a.id === id);
+  if (index >= 0) {
+    memoryCatalog[index] = { ...memoryCatalog[index], ...updates };
+    return res.json({ status: 'updated', app: memoryCatalog[index] });
+  }
+  res.status(404).json({ error: 'App package not found' });
+});
+
+app.delete('/api/repository/apps/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  memoryCatalog = memoryCatalog.filter(a => a.id !== id);
+  res.json({ status: 'deleted', id });
+});
+
+// -----------------------------------------------------------------------------
+// VITE MIDDLEWARE & MULTI-PAGE SERVING
 // -----------------------------------------------------------------------------
 
 async function startServer() {
+  // Direct route for /admin to /admin.html
+  app.get('/admin', (_req: Request, res: Response) => {
+    res.redirect('/admin.html');
+  });
+
+  // Serve static templates directly for the developer sandbox & test previews
+  app.use('/templates', express.static(path.join(process.cwd(), 'templates')));
+  app.use(express.static(path.join(process.cwd(), 'public')));
+
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
@@ -170,6 +225,11 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+
+    app.get('/admin.html', (_req: Request, res: Response) => {
+      res.sendFile(path.join(distPath, 'admin.html'));
+    });
+
     app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
@@ -177,6 +237,7 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[Harmony OS Super App] Server running on http://0.0.0.0:${PORT}`);
+    console.log(`[Harmony App Store Console] Admin dashboard at http://0.0.0.0:${PORT}/admin.html`);
   });
 }
 

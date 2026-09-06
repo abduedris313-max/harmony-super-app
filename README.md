@@ -22,6 +22,25 @@ All Harmony WebApps are accessible via responsive iOS-style mini app frames and 
 
 ## ✨ Features & Architecture
 
+- **App Store Developer Console & Admin Portal (`/admin.html` or `/admin`)**:
+  - Completely separate codebase and administration dashboard dedicated to publishing, inspecting, version-bumping, and managing mini-apps across the central repository.
+  - Multi-view navigation console:
+    - **App Catalog Table & Grid View**: Filter by categories (Productivity, Utilities, Developer, Finance, AI, Audio, Health), search by package IDs, sort by downloads, and manage lifecycle statuses (Published, In Review, Draft, Deprecated).
+    - **Publish Studio**: Interactive authoring wizard with real-time iOS App Store card preview, Lucide CDN icon selector, color gradient picker, permission toggles, and metadata validation.
+    - **Release Pipeline & Version Management**: Semantic version bumping (+Patch, +Minor, +Major), release note changelogs, and SHA-256 integrity checksum verification.
+    - **Central Repository Registry Manager**: Connect and ping upstream manifest URLs, test latency, trigger Cloud Firestore database synchronization, and export manifest JSON specifications.
+    - **Interactive Test Sandbox**: Simulated iPhone 16 Pro, iPad Air, and Responsive desktop containers with live iframe execution, reload controls, and URL overrides.
+    - **Telemetry & Analytics**: Package distribution metrics, top downloaded mini-apps leaderboard, and storage footprint.
+- **Central Repository App Store & Package Management**:
+  - Browse and query apps from remote central repositories with categorized discovery (Productivity, Utilities, Health, Developer, Audio, AI).
+  - Stream downloads with simulated network telemetry, progress bars, and package extraction.
+  - Full local storage management with offline bundle precaching and package uninstallation.
+  - Downloadable mini-apps include **Weather & Sky**, **Calculator & Scientific Unit Converter**, **Focus Studio (432Hz binaural generator)**, **Dev Terminal (CLI diagnostics)**, and **Habit Momentum (concentric activity rings)**.
+- **iOS 18 Touch Gestures & Haptic Feedback**:
+  - Touch gesture support across the system: swipe up on active mini-apps to dismiss to Springboard, swipe down on Home Screen for Spotlight, and horizontal swipe between Springboard and App Library.
+  - Multi-tier `navigator.vibrate()` tactile patterns mimicking Taptic Engine feedback (light, medium, heavy, success, selection, and error).
+- **Service Worker Offline Firestore Caching**:
+  - Two-way caching strategy ensuring notes, documents, drafts, and calendar entries remain accessible and editable even when the device is completely disconnected from the network.
 - **Modular Multi-App Architecture**:
   - Each mini-app is merged into a self-contained module inside `/src/apps/` (`notes/`, `docs/`, `writing/`, `music/`, `docs-ai/`) containing dedicated component trees, types, Web Audio synthesizers, and Firestore hooks.
 - **iOS 18 Look & Feel & Focus Mode**:
@@ -251,6 +270,33 @@ app.post('/api/harmony/tasks', async (req: Request, res: Response) => {
 2. Open `http://localhost:3000`
 3. Click on your new app icon on the iOS Home Screen or search for it in Spotlight Search!
 4. Verify compiling by running `npm run lint` and `npm run build`.
+
+---
+
+## 🛠️ Third-Party Mini App SDK & Templates
+
+Harmony OS provides a complete developer ecosystem for third-party micro-frontends:
+
+### 1. Universal Mini App SDK
+- **Universal JS SDK (`/public/harmony-sdk.js`)**: Zero-dependency client for Vanilla JS, Vue, or Svelte mini apps.
+- **Typed TypeScript SDK (`/src/lib/harmonySdk.ts`)**: Strongly-typed client for React and modern bundlers.
+- **Capabilities**:
+  - `Harmony.init()`: Bi-directional host handshake
+  - `Harmony.ui.triggerHaptic(type)`: iOS Taptic Engine feedback (`light`, `medium`, `heavy`, `success`)
+  - `Harmony.ui.showToast(options)`: Host shell notification banners
+  - `Harmony.theme.onChange(cb)`: Synchronizes with system dark/light mode
+  - `Harmony.storage`: Scoped, persistent key-value vault
+  - `Harmony.navigation.openApp(appId)`: Inter-app deep linking
+  - `Harmony.clipboard.writeText()`: Native clipboard bridge
+
+### 2. Official Starter Templates
+- **Vanilla Mini App Starter** (`/templates/vanilla-mini-app/`): Zero build step, pure HTML/CSS/JS.
+- **React 18 + TypeScript Starter** (`/templates/react-mini-app/`): Modern React with Tailwind CSS and Cupertino styling.
+- **AI Utility & Prompt Refiner** (`/templates/ai-tool-mini-app/`): AI transformation card, token metrics, and clipboard triggers.
+
+### 3. Developer Documentation & Console
+- Comprehensive documentation available in [`/DEVELOPER_GUIDE.md`](./DEVELOPER_GUIDE.md).
+- Interactive **Developer Hub & Templates** tab directly inside the **Developer Console** at `/admin.html`.
 
 ---
 

@@ -10,6 +10,8 @@ import {
   signInAnonymously, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut, 
   onAuthStateChanged,
   sendPasswordResetEmail,
@@ -17,6 +19,7 @@ import {
   User 
 } from 'firebase/auth';
 import { 
+  initializeFirestore,
   getFirestore, 
   collection, 
   doc, 
@@ -27,24 +30,163 @@ import {
   where, 
   orderBy, 
   deleteDoc, 
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  getDocFromServer,
   Firestore 
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { HarmonyNote, HarmonyDoc, HarmonyWritingDraft, HarmonyPlaylist, HarmonyAiChat, HarmonyCalendarEvent, SystemSettings } from '../types';
 import { FinanceTransaction, FinanceAccount, FinanceBudget, FinanceLoan, FinanceSubscription } from '../apps/finance/types';
+import { 
+  STORAGE_KEYS, 
+  setLocalItem, 
+  getLocalItem, 
+  notifyServiceWorkerFirestoreData,
+  INITIAL_OFFLINE_NOTES,
+  INITIAL_OFFLINE_DOCS,
+  INITIAL_OFFLINE_EVENTS 
+} from './offlinePersistence';
+
+// Support both environment variables (VITE_FIREBASE_*) and provisioned firebase-applet-config.json
+const env = (import.meta as any).env || {};
+const resolvedConfig = {
+  apiKey: env.VITE_FIREBASE_API_KEY || firebaseConfig.apiKey,
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain,
+  projectId: env.VITE_FIREBASE_PROJECT_ID || firebaseConfig.projectId,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfig.messagingSenderId,
+  appId: env.VITE_FIREBASE_APP_ID || firebaseConfig.appId,
+};
 
 let app: FirebaseApp;
 if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
+  app = initializeApp(resolvedConfig);
 } else {
   app = getApp();
 }
 
 export const auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+
+// Initialize Firestore with robust iframe/proxy transport settings (experimentalForceLongPolling)
+// and multi-tab local cache persistence
+const databaseId = (firebaseConfig as any).firestoreDatabaseId;
+
+let firestoreInstance: Firestore;
+if (typeof window !== 'undefined') {
+  try {
+    firestoreInstance = initializeFirestore(
+      app,
+      {
+        experimentalForceLongPolling: true,
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager()
+        })
+      },
+      databaseId && databaseId !== '(default)' ? databaseId : undefined
+    );
+  } catch {
+    try {
+      firestoreInstance = initializeFirestore(
+        app,
+        {
+          experimentalForceLongPolling: true
+        },
+        databaseId && databaseId !== '(default)' ? databaseId : undefined
+      );
+    } catch {
+      firestoreInstance = databaseId && databaseId !== '(default)'
+        ? getFirestore(app, databaseId)
+        : getFirestore(app);
+    }
+  }
+} else {
+  firestoreInstance = databaseId && databaseId !== '(default)'
+    ? getFirestore(app, databaseId)
+    : getFirestore(app);
+}
+
+export const db: Firestore = firestoreInstance;
+export const firestore = db;
+
+// -----------------------------------------------------------------------------
+// FIRESTORE CONNECTION VALIDATION & ERROR REPORTING (Firebase Integration Skill)
+// -----------------------------------------------------------------------------
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  };
+}
+
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
+/**
+ * Validates connection to Firestore on boot as mandated by the Firebase Integration Skill.
+ */
+export async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+    console.log('[Firestore] Successfully verified connection to backend.');
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.warn('[Firestore] Operating in offline mode. Local persistence and cache active.');
+    }
+  }
+}
+
+if (typeof window !== 'undefined') {
+  testConnection();
+}
 
 // -----------------------------------------------------------------------------
 // AUTHENTICATION HELPERS
+// -----------------------------------------------------------------------------
+
+export async function loginWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  const userCredential = await signInWithPopup(auth, provider);
+  return userCredential.user;
+}
 // -----------------------------------------------------------------------------
 
 export async function loginAnonymously() {
@@ -111,7 +253,18 @@ export async function saveHarmonyNote(userId: string, note: Partial<HarmonyNote>
     updatedAt: new Date().toISOString(),
     createdAt: note.createdAt || new Date().toISOString()
   };
-  await setDoc(noteRef, data, { merge: true });
+  try {
+    await setDoc(noteRef, data, { merge: true });
+  } catch (err) {
+    console.warn('[Firestore saveNote Warning] Queuing offline save:', err);
+  }
+  // Immediately update local storage and notify Service Worker
+  const currentNotes = getLocalItem<HarmonyNote[]>(STORAGE_KEYS.NOTES, INITIAL_OFFLINE_NOTES);
+  const updatedNotes = [data, ...currentNotes.filter(n => n.id !== data.id)];
+  setLocalItem(STORAGE_KEYS.NOTES, updatedNotes);
+  setLocalItem(STORAGE_KEYS.SYSTEM_NOTES, updatedNotes);
+  notifyServiceWorkerFirestoreData('notes', updatedNotes);
+
   return data;
 }
 
@@ -131,9 +284,17 @@ export function subscribeHarmonyNotes(userId: string, callback: (notes: HarmonyN
     });
     // sort locally by updatedAt desc
     notes.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    
+    // Save snapshot to local persistence and postMessage to Service Worker cache
+    setLocalItem(STORAGE_KEYS.NOTES, notes);
+    setLocalItem(STORAGE_KEYS.SYSTEM_NOTES, notes);
+    notifyServiceWorkerFirestoreData('notes', notes);
+
     callback(notes);
   }, (err) => {
-    console.warn('[Firestore Notes Listener Warning]', err);
+    console.warn('[Firestore Notes Listener Warning] Falling back to offline ServiceWorker/Local cache:', err);
+    const cached = getLocalItem<HarmonyNote[]>(STORAGE_KEYS.NOTES, INITIAL_OFFLINE_NOTES);
+    callback(cached);
   });
 }
 
@@ -157,7 +318,17 @@ export async function saveHarmonyDoc(userId: string, document: Partial<HarmonyDo
     updatedAt: new Date().toISOString(),
     createdAt: document.createdAt || new Date().toISOString()
   };
-  await setDoc(docRef, data, { merge: true });
+  try {
+    await setDoc(docRef, data, { merge: true });
+  } catch (err) {
+    console.warn('[Firestore saveDoc Warning] Queuing offline save:', err);
+  }
+  const currentDocs = getLocalItem<HarmonyDoc[]>(STORAGE_KEYS.DOCS, INITIAL_OFFLINE_DOCS);
+  const updatedDocs = [data, ...currentDocs.filter(d => d.id !== data.id)];
+  setLocalItem(STORAGE_KEYS.DOCS, updatedDocs);
+  setLocalItem(STORAGE_KEYS.SYSTEM_DOCS, updatedDocs);
+  notifyServiceWorkerFirestoreData('docs', updatedDocs);
+
   return data;
 }
 
@@ -176,9 +347,17 @@ export function subscribeHarmonyDocs(userId: string, callback: (docs: HarmonyDoc
       docs.push(docSnap.data() as HarmonyDoc);
     });
     docs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+    // Save snapshot to local persistence and postMessage to Service Worker cache
+    setLocalItem(STORAGE_KEYS.DOCS, docs);
+    setLocalItem(STORAGE_KEYS.SYSTEM_DOCS, docs);
+    notifyServiceWorkerFirestoreData('docs', docs);
+
     callback(docs);
   }, (err) => {
-    console.warn('[Firestore Docs Listener Warning]', err);
+    console.warn('[Firestore Docs Listener Warning] Falling back to offline ServiceWorker/Local cache:', err);
+    const cached = getLocalItem<HarmonyDoc[]>(STORAGE_KEYS.DOCS, INITIAL_OFFLINE_DOCS);
+    callback(cached);
   });
 }
 
@@ -374,7 +553,17 @@ export async function saveHarmonyCalendarEvent(
     createdAt: event.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
-  await setDoc(ref, data, { merge: true });
+  try {
+    await setDoc(ref, data, { merge: true });
+  } catch (err) {
+    console.warn('[Firestore saveCalendarEvent Warning] Queuing offline save:', err);
+  }
+  const currentEvents = getLocalItem<HarmonyCalendarEvent[]>(STORAGE_KEYS.CALENDAR, INITIAL_OFFLINE_EVENTS);
+  const updatedEvents = [data, ...currentEvents.filter(e => e.id !== data.id)];
+  setLocalItem(STORAGE_KEYS.CALENDAR, updatedEvents);
+  setLocalItem(STORAGE_KEYS.SYSTEM_CALENDAR, updatedEvents);
+  notifyServiceWorkerFirestoreData('calendar', updatedEvents);
+
   return data;
 }
 
@@ -398,9 +587,17 @@ export function subscribeHarmonyCalendarEvents(userId: string, callback: (events
       if (cmp !== 0) return cmp;
       return (a.startTime || '').localeCompare(b.startTime || '');
     });
+
+    // Save snapshot to local persistence and postMessage to Service Worker cache
+    setLocalItem(STORAGE_KEYS.CALENDAR, events);
+    setLocalItem(STORAGE_KEYS.SYSTEM_CALENDAR, events);
+    notifyServiceWorkerFirestoreData('calendar', events);
+
     callback(events);
   }, (err) => {
-    console.warn('[Firestore Calendar Listener Warning]', err);
+    console.warn('[Firestore Calendar Listener Warning] Falling back to offline ServiceWorker/Local cache:', err);
+    const cached = getLocalItem<HarmonyCalendarEvent[]>(STORAGE_KEYS.CALENDAR, INITIAL_OFFLINE_EVENTS);
+    callback(cached);
   });
 }
 

@@ -15,6 +15,16 @@ export interface MiniAppConfig {
   repoUrl: string;
   description: string;
   badge?: string;
+  version?: string;
+  author?: string;
+  size?: string;
+  category?: 'productivity' | 'utilities' | 'finance' | 'audio' | 'ai' | 'developer' | 'health';
+  rating?: number;
+  downloadsCount?: number;
+  isSystemApp?: boolean;
+  repositoryId?: string;
+  permissions?: string[];
+  installedAt?: string;
 }
 
 export interface HarmonyNote {
@@ -149,3 +159,17 @@ export interface SystemUser {
   photoURL: string | null;
   isAnonymous: boolean;
 }
+
+export interface AppRepositorySource {
+  id: string;
+  name: string;
+  url: string;
+  description: string;
+  isOfficial: boolean;
+  appsCount: number;
+  lastFetchedAt?: string;
+  isEnabled: boolean;
+}
+
+export type AppDownloadStatus = 'idle' | 'downloading' | 'installing' | 'installed' | 'error';
+

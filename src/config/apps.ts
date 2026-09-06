@@ -1,6 +1,7 @@
 /**
  * @file apps.ts
  * @description Catalog & Metadata for all Harmony Projects mini apps.
+ * Includes both core pre-installed apps and central repository downloadable packages.
  */
 
 import { MiniAppConfig } from '../types';
@@ -18,7 +19,13 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-notes/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-notes',
     description: 'Capture quick thoughts, bullet points, voice memos, and tagged categories.',
-    badge: 'Notes'
+    badge: 'Notes',
+    version: '2.1.0',
+    size: '1.2 MB',
+    author: 'Harmony Core',
+    category: 'productivity',
+    isSystemApp: true,
+    rating: 4.9
   },
   {
     id: 'harmony-docs',
@@ -31,7 +38,13 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-docs/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-docs',
     description: 'Collaborative document editing, word counting, formatting, and exported PDFs.',
-    badge: 'Docs'
+    badge: 'Docs',
+    version: '2.3.4',
+    size: '2.4 MB',
+    author: 'Harmony Core',
+    category: 'productivity',
+    isSystemApp: true,
+    rating: 4.9
   },
   {
     id: 'harmony-writing',
@@ -44,7 +57,13 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-writing/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-writing',
     description: 'Distraction-free typewriter environment, soundscapes, ambient timers, and stats.',
-    badge: 'Studio'
+    badge: 'Studio',
+    version: '1.8.0',
+    size: '1.8 MB',
+    author: 'Harmony Core',
+    category: 'productivity',
+    isSystemApp: true,
+    rating: 4.8
   },
   {
     id: 'harmony-music-player',
@@ -57,7 +76,13 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-music-player/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-music-player',
     description: 'iOS style Music Player with ambient streams, custom playlists, equalizer, and background mode.',
-    badge: 'Audio'
+    badge: 'Audio',
+    version: '3.0.1',
+    size: '3.1 MB',
+    author: 'Harmony Sound Team',
+    category: 'audio',
+    isSystemApp: true,
+    rating: 5.0
   },
   {
     id: 'harmony-docs-ai',
@@ -70,7 +95,13 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-docs-ai/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-docs-ai',
     description: 'Ask questions, summarize long documents, generate outlines, and refine draft prose.',
-    badge: 'AI'
+    badge: 'AI',
+    version: '2.0.0',
+    size: '1.9 MB',
+    author: 'Harmony AI Lab',
+    category: 'ai',
+    isSystemApp: true,
+    rating: 4.9
   },
   {
     id: 'harmony-calendar',
@@ -83,7 +114,13 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-calendar/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-calendar',
     description: 'Tri-calendar system supporting Gregorian, Hijri, and Ethiopian dates, live converter, and Google Calendar sync.',
-    badge: 'Calendar'
+    badge: 'Calendar',
+    version: '2.2.0',
+    size: '1.6 MB',
+    author: 'Harmony Core',
+    category: 'productivity',
+    isSystemApp: true,
+    rating: 4.9
   },
   {
     id: 'harmony-finance',
@@ -96,19 +133,127 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     deployedUrl: 'https://abduedris313-max.github.io/harmony-finance/',
     repoUrl: 'https://github.com/abduedris313-max/harmony-finance',
     description: 'Personal finance & wealth engine: cash flow ledger, category budgets, debt amortization schedules, and Gemini AI advisor.',
-    badge: 'Finance'
+    badge: 'Finance',
+    version: '2.5.0',
+    size: '2.8 MB',
+    author: 'Harmony Finance Group',
+    category: 'finance',
+    isSystemApp: true,
+    rating: 4.9
   },
   {
     id: 'harmony-app-store',
     name: 'App Store',
-    tagline: 'Discover & Personalize Ecosystem Apps',
+    tagline: 'Central Repository & Ecosystem App Hub',
     iconName: 'shopping-bag',
     iconCdnUrl: getLucideCdnIconUrl('shopping-bag'),
     colorGradient: 'from-blue-600 via-sky-500 to-indigo-600',
     bgHex: '#0284c7',
     deployedUrl: '#',
     repoUrl: 'https://github.com/abduedris313-max/harmony-super-app',
-    description: 'Harmony ecosystem app hub: browse all productivity, creative, and finance apps, view details, and pin/unpin apps from your Home Screen.',
-    badge: 'Store'
+    description: 'Harmony ecosystem central repository: fetch packages, stream download, and install mini-apps with offline persistence.',
+    badge: 'Store',
+    version: '2.4.0',
+    size: '1.4 MB',
+    author: 'Harmony Core Systems',
+    category: 'utilities',
+    isSystemApp: true,
+    rating: 5.0
+  },
+  // Downloadable Packages from Central Repository
+  {
+    id: 'harmony-weather',
+    name: 'Weather & Sky',
+    tagline: 'Atmospheric Forecast & Multi-City Metrics',
+    iconName: 'cloud-sun',
+    iconCdnUrl: getLucideCdnIconUrl('cloud-sun'),
+    colorGradient: 'from-sky-400 via-blue-500 to-indigo-600',
+    bgHex: '#0ea5e9',
+    deployedUrl: '#',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-weather',
+    description: 'Real-time weather radar, 24-hour temperatures, UV Index, air quality metrics, and international city weather tracking.',
+    badge: 'Weather',
+    version: '1.2.0',
+    size: '1.7 MB',
+    author: 'Atmosphere Labs',
+    category: 'utilities',
+    isSystemApp: false,
+    rating: 4.9
+  },
+  {
+    id: 'harmony-calculator',
+    name: 'Calculator & Units',
+    tagline: 'Scientific Engine & Multi-Unit Converter',
+    iconName: 'calculator',
+    iconCdnUrl: getLucideCdnIconUrl('calculator'),
+    colorGradient: 'from-amber-500 via-orange-600 to-red-500',
+    bgHex: '#f97316',
+    deployedUrl: '#',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-calculator',
+    description: 'Standard and scientific mathematical calculation engine with tape history and currency, length, and temperature converters.',
+    badge: 'Tool',
+    version: '1.5.0',
+    size: '1.1 MB',
+    author: 'Numerics Studio',
+    category: 'utilities',
+    isSystemApp: false,
+    rating: 4.8
+  },
+  {
+    id: 'harmony-focus',
+    name: 'Focus Studio',
+    tagline: 'Pomodoro Timer & 432Hz Sound Synthesizer',
+    iconName: 'clock',
+    iconCdnUrl: getLucideCdnIconUrl('clock'),
+    colorGradient: 'from-rose-500 via-pink-600 to-purple-600',
+    bgHex: '#e11d48',
+    deployedUrl: '#',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-focus',
+    description: 'Interval productivity timer with circular SVG progress rings, 432Hz binaural audio synthesizer, and session streak tracker.',
+    badge: 'Focus',
+    version: '2.0.1',
+    size: '2.2 MB',
+    author: 'Zenith Labs',
+    category: 'productivity',
+    isSystemApp: false,
+    rating: 4.9
+  },
+  {
+    id: 'harmony-terminal',
+    name: 'Dev Terminal',
+    tagline: 'System Diagnostics & Package Manager CLI',
+    iconName: 'terminal',
+    iconCdnUrl: getLucideCdnIconUrl('terminal'),
+    colorGradient: 'from-emerald-500 via-teal-600 to-slate-800',
+    bgHex: '#0f766e',
+    deployedUrl: '#',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-terminal',
+    description: 'Interactive command shell for inspecting service worker caches, repository ping diagnostics, and package management.',
+    badge: 'Dev',
+    version: '1.1.0',
+    size: '1.3 MB',
+    author: 'Harmony DevTools',
+    category: 'developer',
+    isSystemApp: false,
+    rating: 4.7
+  },
+  {
+    id: 'harmony-habits',
+    name: 'Habit Momentum',
+    tagline: 'Concentric Activity Rings & Daily Goals',
+    iconName: 'activity',
+    iconCdnUrl: getLucideCdnIconUrl('activity'),
+    colorGradient: 'from-cyan-500 via-teal-500 to-emerald-600',
+    bgHex: '#06b6d4',
+    deployedUrl: '#',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-habits',
+    description: 'Apple Health-inspired habit tracking with concentric SVG activity rings, daily streak counter, and haptic feedback.',
+    badge: 'Habits',
+    version: '1.0.4',
+    size: '1.8 MB',
+    author: 'Momentum Health',
+    category: 'health',
+    isSystemApp: false,
+    rating: 4.9
   }
 ];
