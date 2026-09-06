@@ -30,6 +30,7 @@ import { HarmonyMusicPlayerApp } from './mini-apps/HarmonyMusicPlayerApp';
 import { HarmonyDocsAiApp } from './mini-apps/HarmonyDocsAiApp';
 import { HarmonyCalendarApp } from './mini-apps/HarmonyCalendarApp';
 import { HarmonyFinanceApp } from './mini-apps/HarmonyFinanceApp';
+import { HarmonyAjamScriptApp } from './mini-apps/HarmonyAjamScriptApp';
 import { HarmonyAppStoreApp } from './mini-apps/HarmonyAppStoreApp';
 import { HarmonyWeatherApp } from './mini-apps/HarmonyWeatherApp';
 import { HarmonyCalculatorApp } from './mini-apps/HarmonyCalculatorApp';
@@ -482,6 +483,8 @@ export const AppRunner: React.FC<AppRunnerProps> = ({
             user={user}
           />
         );
+      case 'harmony-ajam-script':
+        return <HarmonyAjamScriptApp />;
       case 'harmony-app-store':
         return (
           <HarmonyAppStoreApp

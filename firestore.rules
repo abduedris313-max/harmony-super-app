@@ -80,5 +80,28 @@ service cloud.firestore {
     match /harmony_finance_subscriptions/{document} {
       allow read, write: if isAuthenticated();
     }
+
+    // Harmony Ajam Script rules
+    match /manuscripts/{manuscriptId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /contributions/{contributionId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAuthenticated();
+    }
+
+    match /user_profiles/{userId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAuthenticated();
+    }
   }
 }

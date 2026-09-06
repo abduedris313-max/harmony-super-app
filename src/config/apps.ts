@@ -142,6 +142,25 @@ export const HARMONY_APPS: MiniAppConfig[] = [
     rating: 4.9
   },
   {
+    id: 'harmony-ajam-script',
+    name: 'Ajam Script',
+    tagline: 'Preservation, AI OCR & Historical Manuscripts',
+    iconName: 'book-open',
+    iconCdnUrl: getLucideCdnIconUrl('book-open'),
+    colorGradient: 'from-amber-600 via-orange-600 to-emerald-700',
+    bgHex: '#d97706',
+    deployedUrl: 'https://abduedris313-max.github.io/harmony-ajam-script/',
+    repoUrl: 'https://github.com/abduedris313-max/harmony-ajam-script',
+    description: 'Digital preservation, AI OCR transcription, verse audio, virtual keyboard, and catalog for historical Ethiopian Sufi Ajam manuscripts.',
+    badge: 'Ajam',
+    version: '1.0.0',
+    size: '2.1 MB',
+    author: 'Harmony Preservation',
+    category: 'productivity',
+    isSystemApp: true,
+    rating: 5.0
+  },
+  {
     id: 'harmony-app-store',
     name: 'App Store',
     tagline: 'Central Repository & Ecosystem App Hub',
