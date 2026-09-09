@@ -1,6 +1,6 @@
 /**
  * @file App.tsx
- * @description Main application controller for the Harmony App Store Developer Console.
+ * @description Main application controller for the Harmony App Store Developer Console with Role-Based Authentication.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -9,6 +9,7 @@ import { AdminSidebar, AdminTab } from './components/AdminSidebar';
 import { AppCatalogTable } from './components/AppCatalogTable';
 import { PublishAppModal } from './components/PublishAppModal';
 import { AppDetailModal } from './components/AppDetailModal';
+import { AdminAuthModal } from './components/AdminAuthModal';
 import { CentralRepoManagerView } from './components/CentralRepoManagerView';
 import { AnalyticsView } from './components/AnalyticsView';
 import { SandboxTesterView } from './components/SandboxTesterView';
@@ -24,8 +25,22 @@ import {
   getAuditLogs, 
   generateRepositoryManifest 
 } from './services/centralRepoService';
+import { 
+  fetchAdminUserProfile, 
+  getGuestDemoProfile, 
+  getRolePermissions, 
+  logoutUser 
+} from './services/adminAuthService';
+import { subscribeToAuth } from '../src/lib/firebase';
 import { DEFAULT_REPOSITORIES } from '../src/config/appRepository';
-import { AdminMiniApp, PublishAppFormData, AppPublishStatus, AuditLogEntry, AppRepositorySource } from './types';
+import { 
+  AdminMiniApp, 
+  PublishAppFormData, 
+  AppPublishStatus, 
+  AuditLogEntry, 
+  AppRepositorySource,
+  AdminUserProfile
+} from './types';
 
 export const AdminApp: React.FC = () => {
   const [apps, setApps] = useState<AdminMiniApp[]>([]);
@@ -35,8 +50,37 @@ export const AdminApp: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedAppForDetail, setSelectedAppForDetail] = useState<AdminMiniApp | null>(null);
   const [sandboxTargetApp, setSandboxTargetApp] = useState<AdminMiniApp | null>(null);
+
+  // Authentication & Role state
+  const [userProfile, setUserProfile] = useState<AdminUserProfile | null>(() => getGuestDemoProfile('super_admin'));
+
+  // Subscribe to Firebase Auth changes
+  useEffect(() => {
+    const unsubscribe = subscribeToAuth(async (firebaseUser) => {
+      if (firebaseUser) {
+        const profile = await fetchAdminUserProfile(firebaseUser.uid);
+        if (profile) {
+          setUserProfile(profile);
+        } else {
+          // Default developer profile
+          setUserProfile({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Developer',
+            role: 'developer',
+            organization: 'Harmony OS Ecosystem',
+            developerHandle: `@${(firebaseUser.displayName || 'dev').toLowerCase().replace(/\s+/g, '')}`,
+            photoURL: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(firebaseUser.displayName || 'Dev')}`,
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Load catalog on mount
   const loadCatalog = useCallback(async () => {
@@ -56,14 +100,26 @@ export const AdminApp: React.FC = () => {
     loadCatalog();
   }, [loadCatalog]);
 
-  // Handlers
+  const userPermissions = getRolePermissions(userProfile?.role || 'viewer');
+
+  // Handlers with Role-Based Permission enforcement
   const handlePublishApp = async (formData: PublishAppFormData) => {
+    if (!userPermissions.canPublish) {
+      alert('Permission Denied: Viewer role cannot publish apps. Please sign in with a Developer or Admin account.');
+      setIsAuthModalOpen(true);
+      return;
+    }
     const published = await publishMiniApp(formData);
     setApps(prev => [published, ...prev.filter(a => a.id !== published.id)]);
     setAuditLogs(getAuditLogs());
   };
 
   const handleUpdateApp = async (appId: string, updates: Partial<AdminMiniApp>) => {
+    if (!userPermissions.canEditApp) {
+      alert('Permission Denied: Your role does not allow editing catalog mini apps.');
+      setIsAuthModalOpen(true);
+      return;
+    }
     const updated = await updateMiniApp(appId, updates);
     setApps(prev => prev.map(a => a.id === appId ? updated : a));
     if (selectedAppForDetail?.id === appId) {
@@ -73,6 +129,11 @@ export const AdminApp: React.FC = () => {
   };
 
   const handleDeleteApp = async (appId: string) => {
+    if (!userPermissions.canDeleteApp) {
+      alert('Permission Denied: Viewer and restricted roles cannot delete packages.');
+      setIsAuthModalOpen(true);
+      return;
+    }
     await deleteMiniApp(appId);
     setApps(prev => prev.filter(a => a.id !== appId));
     setAuditLogs(getAuditLogs());
@@ -83,6 +144,11 @@ export const AdminApp: React.FC = () => {
   };
 
   const handleSeedCatalog = async () => {
+    if (!userPermissions.canSeedCatalog) {
+      alert('Permission Denied: Only Super Admin and Store Admin can seed default repositories.');
+      setIsAuthModalOpen(true);
+      return;
+    }
     await seedDefaultCatalog();
     await loadCatalog();
   };
@@ -134,7 +200,21 @@ export const AdminApp: React.FC = () => {
   };
 
   const handleAddRepository = (newRepo: AppRepositorySource) => {
+    if (!userPermissions.canManageRepositories) {
+      alert('Permission Denied: Managing custom external repositories requires Store Admin or Super Admin role.');
+      setIsAuthModalOpen(true);
+      return;
+    }
     setRepositories(prev => [...prev, newRepo]);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await logoutUser();
+    } catch (e) {
+      console.warn(e);
+    }
+    setUserProfile(getGuestDemoProfile('viewer'));
   };
 
   const publishedCount = apps.filter(a => (a.status || 'published') === 'published').length;
@@ -143,13 +223,16 @@ export const AdminApp: React.FC = () => {
     <div className={`min-h-screen flex flex-col font-sans transition-colors ${
       isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-800'
     }`}>
-      {/* Top Console Navigation Bar */}
+      {/* Top Console Navigation Bar with Auth Status */}
       <AdminHeader
         isDarkMode={isDarkMode}
+        userProfile={userProfile}
         onToggleTheme={() => setIsDarkMode(!isDarkMode)}
         onOpenPublishModal={() => setIsPublishModalOpen(true)}
         onRefreshCatalog={loadCatalog}
         onExportManifest={handleExportManifest}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onSignOut={handleSignOut}
         isRefreshing={isRefreshing}
         appsCount={apps.length}
       />
@@ -255,11 +338,20 @@ export const AdminApp: React.FC = () => {
               <SettingsView
                 isDarkMode={isDarkMode}
                 appsCount={apps.length}
+                currentUserProfile={userProfile}
               />
             )}
           </div>
         </main>
       </div>
+
+      {/* Role-Based Authentication & Registration Modal */}
+      <AdminAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthenticated={(profile) => setUserProfile(profile)}
+        isDarkMode={isDarkMode}
+      />
 
       {/* Publish Modal Popup */}
       <PublishAppModal

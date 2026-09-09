@@ -79,3 +79,27 @@ export interface AuditLogEntry {
   performedBy: string;
   details: string;
 }
+
+export type AdminUserRole = 'super_admin' | 'admin' | 'developer' | 'viewer';
+
+export interface AdminUserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: AdminUserRole;
+  organization?: string;
+  developerHandle?: string;
+  photoURL?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
+export interface AdminRolePermissions {
+  canPublish: boolean;
+  canEditApp: boolean;
+  canDeleteApp: boolean;
+  canManageRepositories: boolean;
+  canManageRoles: boolean;
+  canSeedCatalog: boolean;
+}
+

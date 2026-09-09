@@ -153,9 +153,30 @@
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "name", "version", "category"]
+    },
+    "admin_users": {
+      "title": "Admin Console Users & Roles",
+      "description": "Role-based profiles for App Store Developer Console and Admin Portal",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string" },
+        "organization": { "type": "string" },
+        "developerHandle": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
     }
   },
   "firestore": {
+    "/admin_users/{userId}": {
+      "schema": "admin_users",
+      "description": "App Store developer console accounts and role assignments"
+    },
     "/users/{userId}": {
       "schema": "users",
       "description": "User profile information"

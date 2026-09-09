@@ -9,6 +9,7 @@ const SHELL_CACHE_NAME = 'harmony-os-shell-v4';
 const DATA_CACHE_NAME = 'harmony-os-data-v4';
 const FIRESTORE_CACHE_NAME = 'harmony-os-firestore-v4';
 const ASSETS_CACHE_NAME = 'harmony-os-assets-v4';
+const AJAM_OFFLINE_CACHE = 'harmony-ajam-script-v4';
 
 const PRECACHE_URLS = [
   './',
@@ -36,7 +37,7 @@ self.addEventListener('install', (event) => {
 
 // Activate Event: Prunes old caches & claims clients
 self.addEventListener('activate', (event) => {
-  const currentCaches = [SHELL_CACHE_NAME, DATA_CACHE_NAME, FIRESTORE_CACHE_NAME, ASSETS_CACHE_NAME];
+  const currentCaches = [SHELL_CACHE_NAME, DATA_CACHE_NAME, FIRESTORE_CACHE_NAME, ASSETS_CACHE_NAME, AJAM_OFFLINE_CACHE];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -51,16 +52,17 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Message Event: Caches Firestore data & Mini-App snapshots sent from client
+// Message Event: Caches Firestore data, Mini-App snapshots, & AjamScript manuscript metadata
 self.addEventListener('message', (event) => {
   if (!event.data) return;
 
   const { type, key, entity, data, timestamp } = event.data;
 
-  if (type === 'CACHE_FIRESTORE_DATA' || type === 'CACHE_MINI_APP_SNAPSHOT') {
+  if (type === 'CACHE_FIRESTORE_DATA' || type === 'CACHE_MINI_APP_SNAPSHOT' || type === 'CACHE_AJAM_DATA') {
     const cacheKey = key || (entity ? `firestore_${entity}` : 'unknown_snapshot');
     const targetUrl = new URL(`/offline-cache/${cacheKey}`, self.location.origin).href;
     const secondaryUrl = entity ? new URL(`/api/firestore/${entity}`, self.location.origin).href : null;
+    const ajamUrl = entity ? new URL(`/api/ajam/${entity}`, self.location.origin).href : null;
 
     const payload = JSON.stringify({
       key: cacheKey,
@@ -72,23 +74,22 @@ self.addEventListener('message', (event) => {
 
     const headers = {
       'Content-Type': 'application/json',
-      'X-Harmony-Firestore-Cache': 'true',
+      'X-Harmony-Ajam-Cache': 'true',
       'X-Harmony-Cached-At': new Date(timestamp || Date.now()).toISOString()
     };
 
-    caches.open(FIRESTORE_CACHE_NAME).then((cache) => {
+    caches.open(AJAM_OFFLINE_CACHE).then((cache) => {
       cache.put(targetUrl, new Response(payload, { headers }));
-      if (secondaryUrl) {
-        cache.put(secondaryUrl, new Response(payload, { headers }));
-      }
-      console.log(`[SW] Firestore/Mini-App offline cache updated for: ${cacheKey}`);
+      if (secondaryUrl) cache.put(secondaryUrl, new Response(payload, { headers }));
+      if (ajamUrl) cache.put(ajamUrl, new Response(payload, { headers }));
+      console.log(`[SW] AjamScript / Mini-App offline cache updated for: ${cacheKey}`);
     }).catch((err) => {
       console.warn('[SW] Failed to cache snapshot:', err);
     });
   }
 });
 
-// Fetch Event: Tiered caching strategies (Stale-While-Revalidate for static assets, Cache-First for offline Firestore endpoints)
+// Fetch Event: Tiered caching strategies
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -98,21 +99,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle synthetic offline data & Firestore cache endpoints
-  if (url.pathname.startsWith('/offline-cache/') || url.pathname.startsWith('/api/firestore/')) {
+  // Handle synthetic offline data & AjamScript manuscript / character sets endpoints
+  if (url.pathname.startsWith('/offline-cache/') || url.pathname.startsWith('/api/firestore/') || url.pathname.startsWith('/api/ajam/')) {
     event.respondWith(
-      caches.open(FIRESTORE_CACHE_NAME).then((cache) => {
-        return cache.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // If exact match missing, attempt fallback lookup in DATA_CACHE
-          return caches.open(DATA_CACHE_NAME).then((dataCache) => {
-            return dataCache.match(request).then((dataResponse) => {
-              if (dataResponse) return dataResponse;
-              return new Response(JSON.stringify({ status: 'offline_empty', data: [] }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json', 'X-Harmony-Offline-Fallback': 'true' }
+      caches.open(AJAM_OFFLINE_CACHE).then((ajamCache) => {
+        return ajamCache.match(request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+
+          return caches.open(FIRESTORE_CACHE_NAME).then((fsCache) => {
+            return fsCache.match(request).then((fsResponse) => {
+              if (fsResponse) return fsResponse;
+
+              return caches.open(DATA_CACHE_NAME).then((dataCache) => {
+                return dataCache.match(request).then((dataResponse) => {
+                  if (dataResponse) return dataResponse;
+                  return new Response(JSON.stringify({ status: 'offline_empty', data: [] }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json', 'X-Harmony-Offline-Fallback': 'true' }
+                  });
+                });
               });
             });
           });

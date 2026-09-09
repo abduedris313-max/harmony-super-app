@@ -33,6 +33,12 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
 
+    match /admin_users/{userId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAuthenticated();
+    }
+
     match /test/{document=**} {
       allow read: if true;
     }
